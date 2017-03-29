@@ -1,0 +1,25 @@
+image: node:4.3
+
+cache:
+  paths:
+    - node_modules/
+
+stages:
+  - test
+
+mocha:
+  stage: test
+  tags:
+    - node
+  script:
+    - npm install -g serverless
+    - npm install --quiet
+    - sls decrypt -s test -p $SECURE_PASSWORD
+    - sls seed -s test
+    - npm test
+  artifacts:
+    when: always
+    paths:
+      - mochawesome-reports/
+  only:
+    - develop

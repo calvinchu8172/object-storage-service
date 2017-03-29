@@ -1,0 +1,122 @@
+service: object-storage-service
+
+frameworkVersion: "=1.9.0"
+
+plugins:
+  - serverless-offline
+  - serverless-mocha-plugin
+  - serverless-secrets-plugin
+  - serverless-dynamodb-migrations-plugin
+
+package:
+  exclude:
+    - mochawesome-reports/**
+    - test/**
+    - tmp/**
+
+provider:
+  name: aws
+  runtime: nodejs4.3
+  stage: ${opt:stage, self:custom.defaultStage}
+  region: us-east-1
+  profile: ${self:custom.profiles.${self:provider.stage}}
+  deploymentBucket: ${self:service}-deployment
+  environment: ${file(config/env.yml)}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:*"
+        - "lambda:InvokeFunction"
+        - "dynamodb:*"
+        - "logs:*"
+      Resource: "*"
+
+custom:
+  defaultStage: alpha # 預設 -s 沒輸入時是 alpha
+  profiles:
+    test: pcloud_alpha
+    alpha: pcloud_alpha
+    prod: pcloud_beta_and_production
+  httpGetRequestTemplate: >
+    #set($allParams = $input.params())
+    {
+      "method": "$context.httpMethod",
+      "request_id": "$context.requestId",
+      "path": {
+        #set($params = $allParams.get("path"))
+        #foreach($paramName in $params.keySet())
+          "$paramName":"$util.escapeJavaScript($params.get($paramName))"
+          #if($foreach.hasNext),#end
+        #end
+      },
+      "headers": {
+        #set($params = $allParams.get("header"))
+        #foreach($paramName in $params.keySet())
+          "$paramName":"$util.escapeJavaScript($params.get($paramName))"
+          #if($foreach.hasNext),#end
+        #end
+      },
+      "query": {
+        #set($params = $allParams.get("querystring"))
+        #foreach($paramName in $params.keySet())
+          "$paramName" :"$util.escapeJavaScript($params.get($paramName))"
+          #if($foreach.hasNext),#end
+        #end
+      }
+    }
+  httpPostRequestTemplate: >
+    #define( $body )
+      {
+      #foreach( $token in $input.path('$').split('&') )
+        #set( $keyVal = $token.split('=') )
+        #set( $keyValSize = $keyVal.size() )
+          #if( $keyValSize >= 1 )
+            #set( $key = $util.escapeJavaScript($util.urlDecode($keyVal[0])) )
+          #if( $keyValSize >= 2 )
+            #set( $val = $util.escapeJavaScript($util.urlDecode($keyVal[1])) )
+          #else
+            #set( $val = '' )
+          #end
+          "$key": "$val"#if($foreach.hasNext),#end
+        #end
+      #end
+      }
+    #end
+    #set($allParams = $input.params())
+    {
+      "method": "$context.httpMethod",
+      "request_id": "$context.requestId",
+      "headers": {
+        #set($params = $allParams.get("header"))
+        #foreach($paramName in $params.keySet())
+          "$paramName":"$util.escapeJavaScript($params.get($paramName))"
+          #if($foreach.hasNext),#end
+        #end
+      },
+      "body": $body
+    }
+
+  httpResponseTemplate: >
+    #set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))
+    {
+      "code" : "$errorMessageObj.code",
+      "message" : "$errorMessageObj.message"
+    }
+
+# API endpints:
+
+functions:
+
+  deviceAuthentication:
+    handler: endpoints/v1/notifications/broadcast/create/handler.handler
+    timeout: 12
+    memorySize: 128
+    events:
+      - http:
+          path: v1/domains
+          method: post
+          integration: lambda
+          request:
+            template:
+              application/json: ${self:custom.httpPostRequestTemplate}
+              application/x-www-form-urlencoded: ${self:custom.httpPostRequestTemplate}

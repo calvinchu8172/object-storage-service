@@ -1,0 +1,33 @@
+DevicesTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: ${self:service}-${self:provider.stage}-devices
+    AttributeDefinitions:
+      - AttributeName: udid
+        AttributeType: S
+      - AttributeName: app_id
+        AttributeType: S
+      - AttributeName: user_id
+        AttributeType: S
+      - AttributeName: udid-app_id
+        AttributeType: S
+    KeySchema:
+      - AttributeName: udid
+        KeyType: HASH
+      - AttributeName: app_id
+        KeyType: RANGE
+    ProvisionedThroughput:
+      ReadCapacityUnits: 5
+      WriteCapacityUnits: 5
+    GlobalSecondaryIndexes:
+      - IndexName: user_id-udid-app_id-index
+        KeySchema:
+          - AttributeName: user_id
+            KeyType: HASH
+          - AttributeName: udid-app_id
+            KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5

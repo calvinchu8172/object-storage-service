@@ -1,0 +1,17 @@
+NotificationsTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: ${self:service}-${self:provider.stage}-notifications
+    AttributeDefinitions:
+      - AttributeName: notification_id
+        AttributeType: S
+      - AttributeName: job_id
+        AttributeType: S
+    KeySchema:
+      - AttributeName: notification_id
+        KeyType: HASH
+      - AttributeName: job_id
+        KeyType: RANGE
+    ProvisionedThroughput:
+      ReadCapacityUnits: 5
+      WriteCapacityUnits: 5

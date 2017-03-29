@@ -1,0 +1,23 @@
+{
+  "name": "serverless-dynamodb-migrations-plugin",
+  "version": "0.1.0",
+  "description": "This plugin is for dynamodb migrations.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {},
+  "keywords": [
+    "serverless",
+    "plugins",
+    "lambda",
+    "aws",
+    "dynamodb"
+  ],
+  "author": {
+    "name": "chouandy@ecoworkinc.com"
+  },
+  "dependencies": {
+    "lodash": "^4.13.1",
+    "traverse": "^0.6.6",
+    "aws-sdk": "latest"
+  }
+}
