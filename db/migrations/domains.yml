@@ -1,0 +1,33 @@
+DomainsTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: ${self:provider.stage}-${self:service}-domains
+    AttributeDefinitions:
+      - AttributeName: cloud_id-app_id
+        AttributeType: S
+      - AttributeName: name
+        AttributeType: S
+      # - AttributeName: id
+      #   AttributeType: S
+      # - AttributeName: app_id
+      #   AttributeType: S
+      # - AttributeName: json_usage
+      #   AttributeType: N
+      # - AttributeName: file_usage
+      #   AttributeType: N
+      # - AttributeName: created_by
+      #   AttributeType: S
+      # - AttributeName: created_at
+      #   AttributeType: N
+      # - AttributeName: updated_by
+      #   AttributeType: S
+      # - AttributeName: updated_at
+      #   AttributeType: N
+    KeySchema:
+      - AttributeName: cloud_id-app_id
+        KeyType: HASH
+      - AttributeName: name
+        KeyType: RANGE
+    ProvisionedThroughput:
+      ReadCapacityUnits: 5
+      WriteCapacityUnits: 5

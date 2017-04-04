@@ -1,2 +1,4 @@
-account_id: xxx
-api_gateway_invoke_url: https://chq8pc0ria.execute-api.us-east-1.amazonaws.com/alpha
+account_id: 212868998188
+api_gateway_invoke_url: https://klinuggmyc.execute-api.us-east-1.amazonaws.com/alpha/v1
+app_id: 7c9e131ae86c0692042354821f23526929922dae666746b61801d630b84c72b1
+domains_limit: 500

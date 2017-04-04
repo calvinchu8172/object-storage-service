@@ -1,8 +1,0 @@
-TableName: ${self:service}-${self:provider.stage}-realms
-Items:
-  - realm_id: realm_of_the_esun_bank
-    realm_name: esun_bank
-    stage: test
-    topic_arn: arn:aws:sns:us-east-1:313754857077:realm_of_the_esun_bank
-    created_at: 1487246327
-    updated_at: 1487246327

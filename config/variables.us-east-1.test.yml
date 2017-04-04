@@ -1,2 +1,4 @@
-account_id: xxx
-api_gateway_invoke_url: https://dkw5h79fm9.execute-api.us-east-1.amazonaws.com/test
+account_id: 212868998188
+api_gateway_invoke_url: https://89dmsh4io6.execute-api.us-east-1.amazonaws.com/test
+app_id: 7c9e131ae86c0692042354821f23526929922dae666746b61801d630b84c72b1
+domains_limit: 2

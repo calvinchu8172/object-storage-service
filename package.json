@@ -5,7 +5,24 @@
   "dependencies": {
     "async": "latest",
     "aws-sdk": "latest",
-    "node-uuid": "latest"
+    "datejs": "latest",
+    "is-empty": "latest",
+    "key-del": "latest",
+    "lodash": "^4.17.2",
+    "moment": "^2.17.1",
+    "node-json-minify": "0.1.3-a",
+    "node-util": "^1.0.0",
+    "node-uuid": "latest",
+    "object-hash": "latest",
+    "redis": "^2.6.2",
+    "redis-jsonify": "^1.0.1",
+    "request": "^2.79.0",
+    "rootpath": "latest",
+    "underscore.string": "^3.3.4",
+    "util": "^0.10.3",
+    "valid-url": "^1.0.9",
+    "yamljs": "^0.2.8",
+    "mysql": "latest"
   },
   "devDependencies": {
     "chai": "^3.5.0",
@@ -13,7 +30,7 @@
     "mochawesome": "^1.5.4",
     "serverless-dynamodb-migrations-plugin": "file:plugins/serverless-dynamodb-migrations-plugin",
     "serverless-mocha-plugin": "^1.3.1",
-    "serverless-offline": "^3.9.0",
+    "serverless-offline": "^3.13.1",
     "serverless-secrets-plugin": "0.0.1"
   },
   "scripts": {

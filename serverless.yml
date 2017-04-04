@@ -30,6 +30,16 @@ provider:
         - "dynamodb:*"
         - "logs:*"
       Resource: "*"
+  apiKeys:
+    - ${self:service}-${self:provider.stage}-smart-wifi
+  vpc:
+    securityGroupIds:
+      - sg-16cf5d72
+    subnetIds:
+      - subnet-5bd47870
+      - subnet-942147e3
+      - subnet-480d8911
+
 
 custom:
   defaultStage: alpha # 預設 -s 沒輸入時是 alpha
@@ -40,8 +50,10 @@ custom:
   httpGetRequestTemplate: >
     #set($allParams = $input.params())
     {
+      "resource_path": "$context.resourcePath",
       "method": "$context.httpMethod",
       "request_id": "$context.requestId",
+      "source_ip": "$context.identity.sourceIp",
       "path": {
         #set($params = $allParams.get("path"))
         #foreach($paramName in $params.keySet())
@@ -84,8 +96,10 @@ custom:
     #end
     #set($allParams = $input.params())
     {
+      "resource_path": "$context.resourcePath",
       "method": "$context.httpMethod",
       "request_id": "$context.requestId",
+      "source_ip": "$context.identity.sourceIp",
       "headers": {
         #set($params = $allParams.get("header"))
         #foreach($paramName in $params.keySet())
@@ -107,8 +121,8 @@ custom:
 
 functions:
 
-  deviceAuthentication:
-    handler: endpoints/v1/notifications/broadcast/create/handler.handler
+  createDomains:
+    handler: endpoints/v1/domains/create/handler.handler
     timeout: 12
     memorySize: 128
     events:
@@ -116,7 +130,53 @@ functions:
           path: v1/domains
           method: post
           integration: lambda
+          private: true
           request:
             template:
               application/json: ${self:custom.httpPostRequestTemplate}
               application/x-www-form-urlencoded: ${self:custom.httpPostRequestTemplate}
+          response:
+            template: $input.path('$')
+            statusCodes:
+                400:
+                    pattern: '.*"httpStatus":400,.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                403:
+                    pattern: '.*"httpStatus":403,.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                500:
+                    pattern: '.*"httpStatus":500,.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+
+  getDomains:
+    handler: endpoints/v1/domains/index/handler.handler
+    timeout: 12
+    memorySize: 128
+    events:
+      - http:
+          path: v1/domains
+          method: get
+          integration: lambda
+          private: true
+          request:
+            template:
+              application/json: ${self:custom.httpGetRequestTemplate}
+          response:
+            template: $input.path('$')
+            statusCodes:
+                400:
+                    pattern: '.*"httpStatus":400,.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                403:
+                    pattern: '.*"httpStatus":403,.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                500:
+                    pattern: '.*"httpStatus":500,.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+
