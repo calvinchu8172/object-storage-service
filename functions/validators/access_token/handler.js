@@ -24,10 +24,12 @@ module.exports.handler = (event, context, callback) => {
       return parseUserInfo(response);
     })
     .then((data) => {
+      console.log(`data: ${JSON.stringify(data)}`);
       callback(null, data);
     })
     .catch((err) => {
       console.error(err);
+      console.log(`err: ${JSON.stringify(err)}`);
       callback(null, apiErrors.unauthorized.access_token_invalid);
     });
 }
@@ -69,6 +71,8 @@ function parseUserInfo(response) {
     console.log(JSON.stringify(response, null, 2));
     let body = response.body;
     let headers = response.headers;
+    console.log(`typeof response.statusCode: ${typeof response.statusCode}`);
+    console.log(`response.statusCode: ${response.statusCode}`);
     if (response.statusCode == 200) {
       let data = JSON.parse(body);
       resolve({

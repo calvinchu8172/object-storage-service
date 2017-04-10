@@ -5,32 +5,42 @@
 
 require('rootpath')();
 
-const YAML                 = require('yamljs');
+// ================ ENVs ========================
+const PROJECT_NAME           = process.env.SERVERLESS_PROJECT;
+const REGION               = process.env.SERVERLESS_REGION;
+const STAGE                = process.env.SERVERLESS_STAGE;
+const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
+const REQUEST_URL            = `${API_GATEWAY_INVOKE_URL}/${PATH}`;
+const PRIVATE_KEY_NAME       = 'object';
+
 const serverlessYamlObject = YAML.load('serverless.yml');
 const PATH                 = serverlessYamlObject.functions.createDomains.events[0].http.path;
 const METHOD               = serverlessYamlObject.functions.createDomains.events[0].http.method;
 
-const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
-const REQUEST_URL            = `${API_GATEWAY_INVOKE_URL}/${PATH}`;
-const PRIVATE_KEY_NAME       = 'object';
-const PROJECT_NAME           = process.env.SERVERLESS_PROJECT;
 
-const AWS                  = require('aws-sdk');
-const REGION               = process.env.SERVERLESS_REGION;
-const STAGE                = process.env.SERVERLESS_STAGE;
-const docClient            = new AWS.DynamoDB.DocumentClient({region: REGION});
-const lambda               = new AWS.Lambda({region: REGION});
-
-const Utility              = require('lib/utility.js');
-const signatureGenerator   = require('lib/signature_generator.js')
+// ================ Modules =====================
+const YAML                 = require('yamljs');
 // const randomstring         = require("randomstring");
 const request              = require('request');
 const mochaPlugin          = require('serverless-mocha-plugin');
 const moment               = require( 'moment' );
 const expect               = mochaPlugin.chai.expect;
-const uuid                 = require('node-uuid');
+
+
+// ================ Lib/Modules =================
+const Utility              = require('lib/utility.js');
+const signatureGenerator   = require('lib/signature_generator.js')
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require( 'lib/api_errors.js' );
+
+
+// ================== AWS ===================
+const AWS                  = require('aws-sdk');
+const docClient            = new AWS.DynamoDB.DocumentClient({region: REGION});
+const lambda               = new AWS.Lambda({region: REGION});
+
+
+
 
 
 describe('Create Domains API', () => {
