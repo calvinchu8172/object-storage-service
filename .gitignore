@@ -1,2 +1,6 @@
 .serverless
 secrets.*.yml
+node_modules
+mochawesome-reports/*
+endpoints/**/event*.json
+functions/**/event*.json
