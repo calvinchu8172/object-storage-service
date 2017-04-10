@@ -117,6 +117,8 @@ custom:
       "message" : "$errorMessageObj.message"
     }
 
+  httpServerErrorResponseTemplate: ""
+
 # API endpints:
 
 functions:
@@ -139,17 +141,25 @@ functions:
             template: $input.path('$')
             statusCodes:
                 400:
-                    pattern: '.*"httpStatus":400,.*'
+                    pattern: '.*"httpStatus":400.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                401:
+                    pattern: '.*"httpStatus":401.*'
                     template:
                       application/json: ${self:custom.httpResponseTemplate}
                 403:
-                    pattern: '.*"httpStatus":403,.*'
+                    pattern: '.*"httpStatus":403.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                404:
+                    pattern: '.*"httpStatus":404.*'
                     template:
                       application/json: ${self:custom.httpResponseTemplate}
                 500:
-                    pattern: '.*"httpStatus":500,.*'
+                    pattern: '.*"httpStatus":500.*'
                     template:
-                      application/json: ${self:custom.httpResponseTemplate}
+                      text/plain: ${self:custom.httpServerErrorResponseTemplate}
 
   getDomains:
     handler: endpoints/v1/domains/index/handler.handler
@@ -168,15 +178,27 @@ functions:
             template: $input.path('$')
             statusCodes:
                 400:
-                    pattern: '.*"httpStatus":400,.*'
+                    pattern: '.*"httpStatus":400.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                401:
+                    pattern: '.*"httpStatus":401.*'
                     template:
                       application/json: ${self:custom.httpResponseTemplate}
                 403:
-                    pattern: '.*"httpStatus":403,.*'
+                    pattern: '.*"httpStatus":403.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                404:
+                    pattern: '.*"httpStatus":404.*'
                     template:
                       application/json: ${self:custom.httpResponseTemplate}
                 500:
-                    pattern: '.*"httpStatus":500,.*'
+                    pattern: '.*"httpStatus":500.*'
                     template:
                       application/json: ${self:custom.httpResponseTemplate}
 
+  validateAccessToken:
+    handler: functions/validators/access_token/handler.handler
+    timeout: 6
+    memorySize: 128
