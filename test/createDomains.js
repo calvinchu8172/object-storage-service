@@ -56,7 +56,7 @@ describe('Create Domains API', () => {
       }
     }; // options
 
-    options.headers['X-Signature'] = signatureGenerator.generate1(options.form, options.headers, PRIVATE_KEY_NAME);
+    options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
     done();
   }); // beforeEach
@@ -69,7 +69,7 @@ describe('Create Domains API', () => {
     it("Should return 'Missing Required Parameter: certificate_serial'", (done) => {
 
       delete options.form.certificate_serial;
-      // options.headers['X-Signature'] = signatureGenerator.generate1(options.form, options.headers, PRIVATE_KEY_NAME);
+      // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -95,7 +95,7 @@ describe('Create Domains API', () => {
     it("Should return 'Invalid certificate_serial'", (done) => {
 
       options.form.certificate_serial = 'invalid_certificate_serial';
-      // options.headers['X-Signature'] = signatureGenerator.generate1(options.form, options.headers, PRIVATE_KEY_NAME);
+      // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
 
       request(options, (err, response, body) => {
@@ -147,7 +147,7 @@ describe('Create Domains API', () => {
     it("Should return 'Invalid Signature'", (done) => {
 
       options.headers['X-Signature'] = 'invalid_signaure';
-      // options.headers['X-Signature'] = signatureGenerator.generate1(options.form, options.headers, PRIVATE_KEY_NAME);
+      // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
 
       request(options, (err, response, body) => {
@@ -175,7 +175,7 @@ describe('Create Domains API', () => {
 
       delete options.form.access_token;
       delete options.headers['X-Signature'];
-      options.headers['X-Signature'] = signatureGenerator.generate1(options.form, options.headers, PRIVATE_KEY_NAME);
+      options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -202,7 +202,7 @@ describe('Create Domains API', () => {
 
       delete options.form.domain;
       delete options.headers['X-Signature'];
-      options.headers['X-Signature'] = signatureGenerator.generate1(options.form, options.headers, PRIVATE_KEY_NAME);
+      options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -228,7 +228,7 @@ describe('Create Domains API', () => {
     it("Should return 'Invalid access_token'", (done) => {
 
       options.form.access_token = 'invalid_access_token';
-      options.headers['X-Signature'] = signatureGenerator.generate1(options.form, options.headers, PRIVATE_KEY_NAME);
+      options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -361,7 +361,7 @@ describe('Create Domains API', () => {
 
     it("should return 'OK'", function(done) {
 
-      options.headers['X-Signature'] = signatureGenerator.generate1(options.form, options.headers, PRIVATE_KEY_NAME);
+      options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
       // console.log(options.headers['X-Signature']);
       // done();
 
