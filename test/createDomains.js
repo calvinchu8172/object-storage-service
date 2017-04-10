@@ -6,10 +6,10 @@
 require('rootpath')();
 
 // ================ ENVs ========================
-const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const PROJECT_NAME           = process.env.SERVERLESS_PROJECT;
 const REGION               = process.env.SERVERLESS_REGION;
 const STAGE                = process.env.SERVERLESS_STAGE;
+const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const REQUEST_URL            = `${API_GATEWAY_INVOKE_URL}/${PATH}`;
 const PRIVATE_KEY_NAME       = 'object';
 
