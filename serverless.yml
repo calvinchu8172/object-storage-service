@@ -206,3 +206,16 @@ functions:
     handler: functions/validators/access_token/handler.handler
     timeout: 6
     memorySize: 128
+
+
+  s3Handler:
+    handler: functions/s3_handler/handler.handler
+    timeout: 12
+    memorySize: 128
+    events:
+      - s3:
+          bucket: ${self:provider.environment.S3_BUCKET_NAME}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: object_storage_test/
+            # - suffix: .*
