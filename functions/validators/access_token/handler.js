@@ -87,17 +87,23 @@ function parseUserInfo(response) {
       if (headers['www-authenticate']) {
         let msg = headers['www-authenticate'];
         let matches = msg.match(/Bearer realm="([^"]*)", error="([^"]*)", error_description="([^"]*)"/);
+        console.log(`matches: ${JSON.stringify(matches)}`);
+        
         if (matches[2] == 'invalid_token') {
           // Bearer realm="Doorkeeper", error="invalid_token", error_description="The access token expired"
-          if (matches[3].indexOf("access token") + matches[3].indexOf("expired") >= 0) {
+          if (matches[3].indexOf("access token") >= 0 && matches[3].indexOf("expired") >= 0) {
+            console.log(`access token expired ...`);
+            console.log(`body: ${JSON.stringify(apiErrors.unauthorized.access_token_expired)}`);
+
             resolve({
               statusCode: 401,
-              body: JSON.stringify(apiErrors.unauthorized.access_token_exired),
+              body: JSON.stringify(apiErrors.unauthorized.access_token_expired),
               headers: {
                 'Content-Type': 'application/json',
               }
             });
           } else {
+            console.log(`body: ${JSON.stringify(apiErrors.unauthorized.access_token_invalid)}`);
             resolve({
               statusCode: 401,
               body: JSON.stringify(apiErrors.unauthorized.access_token_invalid),

@@ -161,43 +161,6 @@ functions:
                     template:
                       text/plain: ${self:custom.httpServerErrorResponseTemplate}
 
-  # getDomains:
-  #   handler: endpoints/v1/domains/index/handler.handler
-  #   timeout: 12
-  #   memorySize: 128
-  #   events:
-  #     - http:
-  #         path: v1/domains
-  #         method: get
-  #         integration: lambda
-  #         private: true
-  #         request:
-  #           template:
-  #             application/json: ${self:custom.httpGetRequestTemplate}
-  #         response:
-  #           template: $input.path('$')
-  #           statusCodes:
-  #               400:
-  #                   pattern: '.*"httpStatus":400.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               401:
-  #                   pattern: '.*"httpStatus":401.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               403:
-  #                   pattern: '.*"httpStatus":403.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               404:
-  #                   pattern: '.*"httpStatus":404.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               500:
-  #                   pattern: '.*"httpStatus":500.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-
   getDomain:
     handler: endpoints/v1/domains/show/handler.handler
     timeout: 12
@@ -237,6 +200,7 @@ functions:
                     pattern: '.*"httpStatus":500.*'
                     template:
                       application/json: ${self:custom.httpResponseTemplate}
+
 
   validateAccessToken:
     handler: functions/validators/access_token/handler.handler

@@ -18,6 +18,7 @@ const yaml                 = require('yamljs');
 // const randomstring         = require("randomstring");
 const request              = require('request');
 const uuid                 = require('node-uuid');
+const mysql                 = require('mysql');
 
 const Utility              = require('lib/utility.js');
 const signatureGenerator   = require('lib/signature_generator.js');
@@ -544,6 +545,54 @@ var getSignedUploadUrl = function (type, callback) {
   }); // request
 }
 
+
+var createAccessToken = function (token, callback) {
+  var queryString = 'INSERT INTO oauth_access_tokens SET ?';
+  var oauth_access_token = {
+    resource_owner_id: 79, 
+    application_id: 6, 
+    token: token,
+    refresh_token: "refresh_token",
+    expires_in: 21600,
+    created_at: "2010-01-01 00:00:00",
+    scopes: ""
+  }
+  var connection = mysql.createConnection(secrets.databases.pcloud_portal_rds);
+  connection.connect();
+  connection.query(queryString, oauth_access_token, function (error, results, fields) {
+    connection.end();
+    if (error) {
+      console.error(error);
+      callback(error);
+    }
+    else {
+      console.log(`results: ${JSON.stringify(results)}`);
+      callback(null, results);
+    }
+  });
+}
+
+
+
+var deleteAccessToken = function (expired_token_id, callback) {
+  var queryString = `DELETE FROM oauth_access_tokens WHERE id = ${expired_token_id}`;
+  console.log(queryString);
+  var connection = mysql.createConnection(secrets.databases.pcloud_portal_rds);
+  connection.connect();
+  connection.query(queryString, function (error, results, fields) {
+    connection.end();
+    if (error) {
+      console.error(error);
+      callback(error);
+    }
+    else {
+      console.log(`results: ${JSON.stringify(results)}`);
+      callback();
+    }
+  });
+}
+
+
 module.exports = {
   getDomain,
   createDomainItem,
@@ -567,4 +616,6 @@ module.exports = {
   sendPersonalNotification,
   unsubscribeTestDevice,
   getSignedUploadUrl,
+  createAccessToken,
+  deleteAccessToken
 };
