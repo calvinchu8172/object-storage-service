@@ -18,7 +18,8 @@ const yaml                 = require('yamljs');
 // const randomstring         = require("randomstring");
 const request              = require('request');
 const uuid                 = require('node-uuid');
-const mysql                 = require('mysql');
+const mysql                = require('mysql');
+const moment               = require('moment');
 
 const Utility              = require('lib/utility.js');
 const signatureGenerator   = require('lib/signature_generator.js');
@@ -546,17 +547,18 @@ var getSignedUploadUrl = function (type, callback) {
 }
 
 
-var createAccessToken = function (token, callback) {
+var createAccessToken = function (token, expires_in, callback) {
   var queryString = 'INSERT INTO oauth_access_tokens SET ?';
   var oauth_access_token = {
     resource_owner_id: 79, 
     application_id: 6, 
     token: token,
     refresh_token: "refresh_token",
-    expires_in: 21600,
-    created_at: "2010-01-01 00:00:00",
+    expires_in: expires_in,
+    created_at: moment.utc().format('YYYY-MM-DD hh:mm:ss'),
     scopes: ""
   }
+  console.log(JSON.stringify(oauth_access_token));
   var connection = mysql.createConnection(secrets.databases.pcloud_portal_rds);
   connection.connect();
   connection.query(queryString, oauth_access_token, function (error, results, fields) {
