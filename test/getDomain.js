@@ -263,36 +263,36 @@ describe('Create Domains API', () => {
   /*****************************************************************
   * 7. query string 中必要參數 access_token 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  // describe('Wrong access_token in the body', () => {
+  describe('Wrong access_token in the body', () => {
 
-  //   it("Should return 'Invalid access_token'", (done) => {
+    it("Should return 'Invalid access_token'", (done) => {
 
-  //     options.qs.access_token = 'invalid_access_token';
+      options.qs.access_token = 'invalid_access_token';
 
-  //     delete options.headers['X-Signature'];
-  //     const regexp = /{.*}/;
-  //     const domain = 'ecowork1';
-  //     options.url = options.url.replace(regexp, domain);
-  //     let queryParams = Object.assign({ domain }, options.qs);
-  //     console.log(queryParams);
-  //     options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
-  //     console.log(options);
+      delete options.headers['X-Signature'];
+      const regexp = /{.*}/;
+      const domain = 'ecowork1';
+      options.url = options.url.replace(regexp, domain);
+      let queryParams = Object.assign({ domain }, options.qs);
+      console.log(queryParams);
+      options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+      console.log(options);
 
-  //     request(options, (err, response, body) => {
-  //       if (err) done(err); // an error occurred
-  //       else {
-  //         expect(response.statusCode).to.equal(401);
-  //         // let parsedBody = JSON.parse(body);
-  //         // expect(parsedBody).to.have.all.keys(['code', 'message']);
-  //         // expect(parsedBody.code).to.equal(ApiErrors.validationFailed.access_token.code);
-  //         // expect(parsedBody.message).to.equal(ApiErrors.validationFailed.access_token.message);
+      request(options, (err, response, body) => {
+        if (err) done(err); // an error occurred
+        else {
+          expect(response.statusCode).to.equal(401);
+          let parsedBody = JSON.parse(body);
+          expect(parsedBody).to.have.all.keys(['code', 'message']);
+          expect(parsedBody.code).to.equal(ApiErrors.unauthorized.access_token_invalid.code);
+          expect(parsedBody.message).to.equal(ApiErrors.unauthorized.access_token_invalid.message);
 
-  //         done();
-  //       }
-  //     }); // request
+          done();
+        }
+      }); // request
 
-  //   }); // it
-  // }); // describe
+    }); // it
+  }); // describe
 
   // /*****************************************************************
   // * 8. 如果 DDB 內已有一筆資料，則無法建立相同的資料，回傳錯誤訊息。
