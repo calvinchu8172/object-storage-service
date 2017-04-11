@@ -294,98 +294,8 @@ describe('Create Domains API', () => {
     }); // it
   }); // describe
 
-  // /*****************************************************************
-  // * 8. 如果 DDB 內已有一筆資料，則無法建立相同的資料，回傳錯誤訊息。
-  // *****************************************************************/
-  // describe('Create domain item fail if has the same id', () => {
-
-  //   before('Create a domain item', function (done) {
-  //     this.timeout(12000);
-
-  //     testHelper.createDomainItem(cloud_id, app_id, name, (err, data) => {
-  //       if (err) return done(err);
-  //       done();
-  //     }); // createDomainItem
-  //   }); // before
-
-  //   after('Clear Testing Data', function (done) {
-  //     this.timeout(12000);
-
-  //     testHelper.deleteDomain(cloud_id, app_id, name, (err, data) => {
-  //       if (err) return done(err);
-  //       return done();
-  //     }); // deleteDomain
-  //   }); // after
-
-  //   it("Should return 'Domain Already Exists'", (done) => {
-
-  //     request(options, (err, response, body) => {
-  //       if (err) done(err); // an error occurred
-  //       else {
-  //         expect(response.statusCode).to.equal(400);
-  //         let parsedBody = JSON.parse(body);
-  //         expect(parsedBody).to.have.all.keys(['code', 'message']);
-  //         expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain_duplicated.code);
-  //         expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain_duplicated.message);
-
-  //         done();
-  //       }
-  //     }); // request
-
-  //   }); // it
-
-  // }); // describe
-
-  // /*****************************************************************
-  // * 8. 如果 DDB 內已有兩筆資料，則無法在建立資料，回傳錯誤訊息。
-  // *****************************************************************/
-  // describe('Create domain item fail if there are 2 data already', () => {
-
-  //   before('Create a domain item', function (done) {
-  //     this.timeout(12000);
-  //     testHelper.createDomainItem(cloud_id, app_id, name+'1', (err, data) => {
-  //       if (err) return done(err);
-  //       testHelper.createDomainItem(cloud_id, app_id, name+'2', (err, data) => {
-  //         if (err) return done(err);
-  //         done();
-  //       }); // createDomainItem
-  //     }); // createDomainItem
-  //   }); // before
-
-  //   after('Clear Testing Data', function (done) {
-  //     this.timeout(12000);
-
-  //     testHelper.deleteDomain(cloud_id, app_id, name+'1', (err, data) => {
-  //       if (err) return done(err);
-  //       testHelper.deleteDomain(cloud_id, app_id, name+'2', (err, data) => {
-  //         if (err) return done(err);
-  //         return done();
-  //       }); // deleteDomain
-  //     }); // deleteDomain
-  //   }); // after
-
-  //   it("Should return 'Over domains limit'", (done) => {
-
-  //     request(options, (err, response, body) => {
-  //       if (err) done(err); // an error occurred
-  //       else {
-  //         expect(response.statusCode).to.equal(400);
-  //         let parsedBody = JSON.parse(body);
-  //         expect(parsedBody).to.have.all.keys(['code', 'message']);
-  //         expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain_limit.code);
-  //         expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain_limit.message);
-
-  //         done();
-  //       }
-  //     }); // request
-
-  //   }); // it
-
-  // }); // describe
-
-
   /*****************************************************************
-  * 9. Domain 資料建立成功。
+  * 8. Domain 資料建立成功。
   *****************************************************************/
   describe('Successfully get domain item', () => {
 
@@ -432,29 +342,6 @@ describe('Create Domains API', () => {
       };
 
       getDomain()
-      // .then(() => {
-      //   return new Promise((resolve, reject) => {
-      //     testHelper.getDomain(cloud_id, app_id, name, (err, domain) => {
-      //       if (err) return reject(err);
-      //       console.log(domain);
-      //       expect(domain).to.have.all.keys([
-      //         'cloud_id-app_id',
-      //         'name',
-      //         'app_id',
-      //         'created_at',
-      //         'created_by',
-      //         'file_usage',
-      //         'id',
-      //         'json_usage',
-      //         'updated_at',
-      //         'updated_by'
-      //       ]);
-      //       expect(domain['cloud_id-app_id']).to.equal(`${cloud_id}-${app_id}`);
-      //       expect(domain.name).to.equal(name);
-      //       resolve();
-      //     }); // getDomain
-      //   }); // Promise
-      // })
       .then(() => done())
       .catch((err) => {
         console.log("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
