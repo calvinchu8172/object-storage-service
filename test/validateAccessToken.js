@@ -44,16 +44,20 @@ describe('Access Token Validator', () => {
         };
         console.log(JSON.stringify(params, null, 2));
         lambda.invoke(params, function (err, data) {
-          console.log(`err: ${JSON.stringify(err)}`);
-          console.log(`data: ${JSON.stringify(data)}`);
-          expect(data.StatusCode).to.equal(200);
-          let response = JSON.parse(data['Payload']);
-          let body = JSON.parse(response.body);
+          if(err) {
+            console.log(`err: ${JSON.stringify(err)}`);
+            done(err);
+          } else {
+            console.log(`data: ${JSON.stringify(data)}`);
+            expect(data.StatusCode).to.equal(200);
+            let response = JSON.parse(data['Payload']);
+            let body = JSON.parse(response.body);
 
-          expect(response.statusCode).to.equal(401);
-          expect(body.code).to.equal('401.0');
-          expect(body.message).to.equal('Invalid access_token');
-          done();
+            expect(response.statusCode).to.equal(401);
+            expect(body.code).to.equal('401.0');
+            expect(body.message).to.equal('Invalid access_token');
+            done();
+          }
         }); // lambda
 
       }); // it
@@ -68,7 +72,7 @@ describe('Access Token Validator', () => {
         console.log(`Create Expired Token...`);
         options.access_token = "expired_access_token";
         console.log(`options.access_token: ${options.access_token}`);
-        testHelper.createAccessToken(options.access_token, (err, data) => {
+        testHelper.createAccessToken(options.access_token, 0, (err, data) => {
           if (err) {
             done(err);
           }
@@ -98,16 +102,20 @@ describe('Access Token Validator', () => {
         };
         console.log(JSON.stringify(params, null, 2));
         lambda.invoke(params, function (err, data) {
-          console.log(`err: ${JSON.stringify(err)}`);
-          console.log(`data: ${JSON.stringify(data)}`);
-          expect(data.StatusCode).to.equal(200);
-          let response = JSON.parse(data['Payload']);
-          let body = JSON.parse(response.body);
+          if(err) {
+            console.log(`err: ${JSON.stringify(err)}`);
+            done(err);
+          } else {
+            console.log(`data: ${JSON.stringify(data)}`);
+            expect(data.StatusCode).to.equal(200);
+            let response = JSON.parse(data['Payload']);
+            let body = JSON.parse(response.body);
 
-          expect(response.statusCode).to.equal(401);
-          expect(body.code).to.equal('401.1');
-          expect(body.message).to.equal('Access Token Expired');
-          done();
+            expect(response.statusCode).to.equal(401);
+            expect(body.code).to.equal('401.1');
+            expect(body.message).to.equal('Access Token Expired');
+            done();
+          }
         }); // lambda
 
       }); // it
@@ -117,14 +125,58 @@ describe('Access Token Validator', () => {
 
   describe('Given an valid access token', function() {
     describe('if client requests with that token', function() {
+
+      before('Create Valid Token', function(done) {
+        console.log(`Create Valid Token...`);
+        options.access_token = "valid_access_token";
+        console.log(`options.access_token: ${options.access_token}`);
+        testHelper.createAccessToken(options.access_token, 0, (err, data) => {
+          if (err) {
+            done(err);
+          }
+          else {
+            customs.valid_token_id = data.insertId;
+            console.log(`data.insertId: ${data.insertId}`);
+            console.log(`customs.valid_token_id: ${customs.valid_token_id}`);
+            done();
+          }
+        }); // registerDevice
+      }); // before
+
+      after('Delete Valid Token', function(done) {
+        console.log(`Delete Valid Token...`);
+        console.log(`valid_token_id: ${customs.valid_token_id}`);
+        testHelper.deleteAccessToken(customs.valid_token_id, (err, data) => {
+          if (err) done(err);
+          else done();
+        }); // registerDevice
+      }); // before
+
       it('should return HTTP 200 and the response should include cloud_id and app_id.', function() {
 
+        let params = {
+          FunctionName: `${SERVICE}-${STAGE}-validateAccessToken`, /* required */
+          InvocationType: "RequestResponse",
+          Payload: JSON.stringify(options)
+        };
+        console.log(JSON.stringify(params, null, 2));
+        lambda.invoke(params, function (err, data) {
+          if (err) {
+            console.log(`err: ${JSON.stringify(err)}`);
+            done(err);
+          } else {
+            console.log(`data: ${JSON.stringify(data)}`);
+            expect(data.StatusCode).to.equal(200);
+            let response = JSON.parse(data['Payload']);
+            let body = JSON.parse(response.body);
 
+            expect(response.statusCode).to.equal(200);
+            expect(response.statusCode).to.have.all.keys('app_id', 'cloud_id');
+            done();
+          }
+        }); // lambda
 
-
-
-
-      });
+      }); // it
     });
   });
 
