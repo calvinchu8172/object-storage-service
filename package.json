@@ -11,6 +11,7 @@
     "chai": "^3.5.0",
     "mocha": "^3.2.0",
     "mochawesome": "^1.5.4",
+    "serverless-deployment-bucket-plugin": "file:plugins/serverless-deployment-bucket-plugin",
     "serverless-dynamodb-migrations-plugin": "file:plugins/serverless-dynamodb-migrations-plugin",
     "serverless-mocha-plugin": "^1.3.1",
     "serverless-offline": "^3.9.0",
