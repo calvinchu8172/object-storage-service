@@ -1,0 +1,37 @@
+AppObjects1:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: ${self:provider.stage}-${self:service}-5fcdbbc1840e14832a5158a7ffa292b5c0028e135df5a6d5955c13325e464148
+    AttributeDefinitions:
+      - AttributeName: domain_id
+        AttributeType: S
+      - AttributeName: key
+        AttributeType: S
+      # - AttributeName: id
+      #   AttributeType: S
+      # - AttributeName: content_type
+      #   AttributeType: S
+      # - AttributeName: content
+      #   AttributeType: M
+      # - AttributeName: domain_path
+      #   AttributeType: S
+      # - AttributeName: path
+      #   AttributeType: S
+      # - AttributeName: usage
+      #   AttributeType: N
+      # - AttributeName: file_created_at
+      #   AttributeType: N
+      # - AttributeName: file_updated_at
+      #   AttributeType: N
+      # - AttributeName: created_at
+      #   AttributeType: N
+      # - AttributeName: updated_at
+      #   AttributeType: N
+    KeySchema:
+      - AttributeName: domain_id
+        KeyType: HASH
+      - AttributeName: key
+        KeyType: RANGE
+    ProvisionedThroughput:
+      ReadCapacityUnits: 5
+      WriteCapacityUnits: 5

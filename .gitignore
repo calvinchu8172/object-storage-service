@@ -2,5 +2,6 @@
 secrets.*.yml
 node_modules
 mochawesome-reports/*
+test_data/*
 endpoints/**/event*.json
 functions/**/event*.json

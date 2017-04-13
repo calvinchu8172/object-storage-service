@@ -216,6 +216,6 @@ functions:
       - s3:
           bucket: ${self:provider.environment.S3_BUCKET_NAME}
           event: s3:ObjectCreated:*
-          rules:
-            - prefix: object_storage_test/
+          # rules:
+            # - prefix: object_storage_test/
             # - suffix: .*
