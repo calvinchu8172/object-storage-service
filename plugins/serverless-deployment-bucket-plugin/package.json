@@ -1,0 +1,21 @@
+{
+  "name": "serverless-deployment-bucket-plugin",
+  "version": "0.1.0",
+  "description": "This plugin is for deployment bucket.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {},
+  "keywords": [
+    "serverless",
+    "plugins",
+    "lambda",
+    "aws"
+  ],
+  "author": {
+    "name": "chouandy@ecoworkinc.com"
+  },
+  "dependencies": {
+    "aws-sdk": "latest",
+    "bluebird": "^3.5.0"
+  }
+}
