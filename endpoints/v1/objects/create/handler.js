@@ -52,6 +52,7 @@ module.exports.handler = (event, context, callback) => {
       let execValidations = ['validateKey', 'validateContentType'];
       if (isJsonTypeObject) {
         requiredParams.push('content');
+        execValidations.push('validateContent');
       }
       return CommonSteps.validateParams(receivedParams, requiredParams, execValidations);
     })

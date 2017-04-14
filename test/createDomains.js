@@ -28,7 +28,7 @@ const expect               = mochaPlugin.chai.expect;
 
 // ================ Lib/Modules =================
 const Utility              = require('lib/utility.js');
-const signatureGenerator   = require('lib/signature_generator.js')
+const signatureGenerator   = require('lib/signature_generator.js');
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require( 'lib/api_errors.js' );
 
@@ -253,10 +253,10 @@ describe('Create Domains API', () => {
         if (err) done(err); // an error occurred
         else {
           expect(response.statusCode).to.equal(401);
-          // let parsedBody = JSON.parse(body);
-          // expect(parsedBody).to.have.all.keys(['code', 'message']);
-          // expect(parsedBody.code).to.equal(ApiErrors.validationFailed.access_token.code);
-          // expect(parsedBody.message).to.equal(ApiErrors.validationFailed.access_token.message);
+          let parsedBody = JSON.parse(body);
+          expect(parsedBody).to.have.all.keys(['code', 'message']);
+          expect(parsedBody.code).to.equal(ApiErrors.unauthorized.access_token_invalid.code);
+          expect(parsedBody.message).to.equal(ApiErrors.unauthorized.access_token_invalid.message);
 
           done();
         }
