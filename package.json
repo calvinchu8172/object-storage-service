@@ -22,7 +22,8 @@
     "util": "^0.10.3",
     "valid-url": "^1.0.9",
     "yamljs": "^0.2.8",
-    "mysql": "latest"
+    "mysql": "latest",
+    "mime-types": "latest"
   },
   "devDependencies": {
     "chai": "^3.5.0",
