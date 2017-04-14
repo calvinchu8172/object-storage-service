@@ -35,7 +35,9 @@ module.exports.handler = ( event, context, callback ) => {
     .then((promises) => {
       return CommonSteps.getS3DomainUsage(promises);
     })
-    .then(() => { // successful response
+    .then((promises) => { // successful response
+      console.log("**********final")
+      console.log(promises);
     //   const response = {
     //   code: "0000",
     //   message: "OK"
