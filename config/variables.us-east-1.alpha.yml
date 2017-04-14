@@ -4,4 +4,4 @@ api_gateway_invoke_url: https://klinuggmyc.execute-api.us-east-1.amazonaws.com/a
 app_id: 886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d
 domains_limit: 500
 pcloud_sso_user_info_url: https://mycloud-sso-alpha.zyxel.ecoworkinc.com/api/v1/my/info
-s3_bucket_name: object-storage-alpha-us-east-1-212868998188
+# s3_bucket_name: object-storage-alpha-us-east-1-212868998188

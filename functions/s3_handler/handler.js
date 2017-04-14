@@ -23,11 +23,6 @@ module.exports.handler = ( event, context, callback ) => {
 
   const s3_record = event.Records;
 
-
-
-  // const response = { code: '0000', message: 'OK' };
-  // callback(null, response);
-
   CommonSteps.parseS3Record(s3_record)
     .then((promises) => {
       return CommonSteps.updateObjectUsage(promises);
@@ -35,14 +30,14 @@ module.exports.handler = ( event, context, callback ) => {
     .then((promises) => {
       return CommonSteps.getS3DomainUsage(promises);
     })
+    .then((promises) => {
+      return CommonSteps.queryDomain(promises);
+    })
+    .then((promises) => {
+      return CommonSteps.updateDomainUsage(promises);
+    })
     .then((promises) => { // successful response
-      console.log("**********final")
-      console.log(promises);
-    //   const response = {
-    //   code: "0000",
-    //   message: "OK"
-    // };
-    //   callback(null, JSON.stringify(response));
+      console.log("Final succeeded:", JSON.stringify(promises, null, 2));
       callback();
     })
     .catch((err) => {
