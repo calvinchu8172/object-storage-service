@@ -19,6 +19,7 @@
     "request": "^2.79.0",
     "rootpath": "latest",
     "underscore.string": "^3.3.4",
+    "underscore": "latest",
     "util": "^0.10.3",
     "valid-url": "^1.0.9",
     "yamljs": "^0.2.8",

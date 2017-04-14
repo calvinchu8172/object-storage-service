@@ -15,36 +15,36 @@ module.exports.handler = ( event, context, callback ) => {
   // const receivedParams = paramsFetcher.fetchFrom(event);
   // const a = 'aaa'
   console.log("*********************************************");
-  console.log(`event: ${JSON.stringify(event, null, 2)}`);
+  // console.log(`event: ${JSON.stringify(event, null, 2)}`);
 
   // console.log(event);
   // console.log(event.Records);
   // console.log(event.Records[0]);
 
-  // const s3_record = event.Records;
+  const s3_record = event.Records;
 
 
 
   // const response = { code: '0000', message: 'OK' };
   // callback(null, response);
 
-  // CommonSteps.parseS3Record(s3_record)
-  //   .then((promises) => {
-  //     return CommonSteps.updateObjectUsage(promises);
-  //   })
-  //   .then((promises) => {
-  //     return CommonSteps.getS3ObjectUsage(promises);
-  //   })
-  //   .then(() => { // successful response
-  //   //   const response = {
-  //   //   code: "0000",
-  //   //   message: "OK"
-  //   // };
-  //   //   callback(null, JSON.stringify(response));
-  //     callback();
-  //   })
-  //   .catch((err) => {
-  //     console.error(`final error: ${JSON.stringify(err)}`);
-  //     callback(JSON.stringify(err));
-  //   });
+  CommonSteps.parseS3Record(s3_record)
+    .then((promises) => {
+      return CommonSteps.updateObjectUsage(promises);
+    })
+    .then((promises) => {
+      return CommonSteps.getS3DomainUsage(promises);
+    })
+    .then(() => { // successful response
+    //   const response = {
+    //   code: "0000",
+    //   message: "OK"
+    // };
+    //   callback(null, JSON.stringify(response));
+      callback();
+    })
+    .catch((err) => {
+      console.error(`final error: ${JSON.stringify(err)}`);
+      callback(JSON.stringify(err));
+    });
 };
