@@ -28,7 +28,7 @@ const expect               = mochaPlugin.chai.expect;
 
 // ================ Lib/Modules =================
 const Utility              = require('lib/utility.js');
-const signatureGenerator   = require('lib/signature_generator.js')
+const signatureGenerator   = require('lib/signature_generator.js');
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require( 'lib/api_errors.js' );
 
