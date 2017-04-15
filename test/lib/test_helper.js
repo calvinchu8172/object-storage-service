@@ -51,12 +51,14 @@ var getDomain = function(cloud_id, app_id, name, callback) {
 } // getJob
 
 var createDomainItem = function(cloud_id, app_id, name, callback) {
+  // var domain_id = uuid.v4()
+  var domain_id = '5743356b-e71f-48cd-b915-019171a7a6a6'
   var params = {
     TableName : `${STAGE}-${SERVICE}-domains`,
     Item: {
         'cloud_id-app_id': `${cloud_id}-${app_id}`,
         'name': name,
-        'id': uuid.v4(),
+        'id': domain_id,
         'app_id': app_id,
         'json_usage': 0,
         'file_usage': 0,
@@ -74,9 +76,58 @@ var createDomainItem = function(cloud_id, app_id, name, callback) {
       callback(err);
     }
     else {
+      data.domain_id = domain_id;
       callback(null, data);
     }
   });
+}
+
+var createObjectItem = function(cloud_id, app_id, key, domain_id, content_type, callback) {
+  // var object_id = uuid.v4();
+  var object_id = '6396f119-98a4-459a-b86a-df258a44c918'
+  var timestamp = Utility.getTimestamp()
+  var content;
+
+  if (content_type == 'application/json') {
+    content = {
+      "message": "OK"
+    }
+    content = JSON.stringify(content);
+  } else {
+    content = null
+  }
+
+  var payload = {
+    TableName: `${STAGE}-${SERVICE}-${app_id}`,
+    Item: {
+      'domain_id': domain_id,
+      'key': key,
+      'id': object_id,
+      'content_type': content_type,
+      'content': content,
+      'domain_path': `${cloud_id}/${app_id}/${domain_id}`,
+      'path': `${cloud_id}/${app_id}/${domain_id}/${key}`,
+      'usage': 128,
+      'file_created_at': timestamp,
+      'file_updated_at': timestamp,
+      'created_at': timestamp,
+      'updated_at': timestamp
+    },
+    // ConditionExpression: 'attribute_not_exists(#hkey)',
+    // ExpressionAttributeNames: {
+      // '#hkey': 'cloud_id-app_id'
+    // },
+    ReturnConsumedCapacity: 'TOTAL'
+  };
+  docClient.put(payload, function (err, data) {
+    if (err) {
+      callback(err);
+    }
+    else {
+      callback(null, data);
+    }
+  });
+
 }
 
 var getJob = function(job_id, callback) {
@@ -270,6 +321,27 @@ var deleteDomain = function (cloud_id, app_id, name, callback) {
     }
   });
 } // deleteDomain
+
+var deleteObject = function (cloud_id, app_id, object, domain_id, callback) {
+  var params = {
+    TableName: `${STAGE}-${SERVICE}-${app_id}`,
+    Key: {
+      'domain_id': domain_id,
+      'key': object
+    }
+  };
+
+  docClient.delete(params, function(err, data) {
+    if (err) {
+      console.log(err);
+      return callback(err); // an error occurred
+    }
+    else {
+      console.log(data);
+      return callback(null, data);           // successful response
+    }
+  });
+} // deleteObject
 
 var deleteJob = function (job_id, callback) {
   var params = {
@@ -550,8 +622,8 @@ var getSignedUploadUrl = function (type, callback) {
 var createAccessToken = function (token, expires_in, callback) {
   var queryString = 'INSERT INTO oauth_access_tokens SET ?';
   var oauth_access_token = {
-    resource_owner_id: 79, 
-    application_id: 6, 
+    resource_owner_id: 79,
+    application_id: 6,
     token: token,
     refresh_token: "refresh_token",
     expires_in: expires_in,
@@ -598,6 +670,7 @@ var deleteAccessToken = function (expired_token_id, callback) {
 module.exports = {
   getDomain,
   createDomainItem,
+  createObjectItem,
   getJob,
   getAccessKey,
   getInboxMessage,
@@ -608,6 +681,7 @@ module.exports = {
   bindUser,
   clearJobsTable,
   deleteDomain,
+  deleteObject,
   deleteJob,
   clearNotificationsTable,
   clearInboxMsgsTable,
