@@ -49,7 +49,7 @@ describe('Create Domains API', () => {
       url: REQUEST_URL,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'X-API-Key': 'pBPw6rQzSR3lLJbwMSpXQ5G79ugIUr317TjUdlvx',
+        'X-API-Key': 'gap62WLIsd6LGag0RD1IH2HX0RndlQb53bIZqKt7',
         'X-Signature': ''
       },
       qs: {
