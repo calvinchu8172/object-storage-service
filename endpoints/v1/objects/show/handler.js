@@ -84,9 +84,6 @@ module.exports.handler = ( event, context, callback ) => {
     .then((domain_data) => {
       return getObjectItem(event, domain_data, domain_id, receivedParams);
     })
-    // .then((path) => {
-    //   return generatePresignedURL(path);
-    // })
     .then((data) => {
       if (data.Item.content_type == 'application/json') {
         var json = data.Item.content;
@@ -99,10 +96,19 @@ module.exports.handler = ( event, context, callback ) => {
     .then((json) => { // successful response
       callback(null, json);
     })
+    // .then(() => { // successful response
+    //   callback();
+    // })
     .catch((err) => {
       console.error(`final error: ${JSON.stringify(err)}`);
       // callback(JSON.stringify(err));
-      callback(err);
+      console.log(typeof err)
+      if (typeof err == 'object'){
+        callback(JSON.stringify(err));
+      } else {
+        callback(err);
+      }
+      // callback(err);
     });
 };
 
@@ -118,7 +124,6 @@ var getDomainItem = function (event, user_info, domain_id, params) {
   console.log(`params: ${JSON.stringify(params, null, 2)}`);
   return new Promise((resolve, reject) => {
     let hash_key = user_info.cloud_id + "-" + user_info.app_id;
-    let error_hash_key = 'aaa-bbb';
     console.log(hash_key);
     console.log(params);
 
@@ -148,6 +153,7 @@ var getObjectItem = function (event, domain_data, domain_id, params) {
   console.log('============== getObjectItem ==============');
   console.log(domain_data);
   var app_id = domain_data.Item.app_id
+  console.log(app_id)
   console.log(domain_id);
 
   return new Promise((resolve, reject) => {
@@ -157,7 +163,6 @@ var getObjectItem = function (event, domain_data, domain_id, params) {
       Key: {
         'domain_id': domain_data.Item.id,
         'key': params.object
-        // 'key': 'aaa.jpg'
       }
     };
     ddb.get(payload, function (err, data) {
