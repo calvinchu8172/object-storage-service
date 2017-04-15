@@ -55,7 +55,7 @@ describe('Create Domains API', () => {
       url: REQUEST_URL,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'X-API-Key': 'pBPw6rQzSR3lLJbwMSpXQ5G79ugIUr317TjUdlvx',
+        'X-API-Key': 'gap62WLIsd6LGag0RD1IH2HX0RndlQb53bIZqKt7',
         'X-Signature': ''
       },
       form: {
@@ -203,34 +203,7 @@ describe('Create Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 6. body 中必要參數 domain 未帶，回傳錯誤訊息。
-  *****************************************************************/
-  describe('Without domain in the body', () => {
-
-    it("Should return 'Missing Required Parameter: domain'", (done) => {
-
-      delete options.form.domain;
-      delete options.headers['X-Signature'];
-      options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
-
-      request(options, (err, response, body) => {
-        if (err) done(err); // an error occurred
-        else {
-          expect(response.statusCode).to.equal(400);
-          let parsedBody = JSON.parse(body);
-          expect(parsedBody).to.have.all.keys(['code', 'message']);
-          expect(parsedBody.code).to.equal(ApiErrors.missingRequiredParams.domain.code);
-          expect(parsedBody.message).to.equal(ApiErrors.missingRequiredParams.domain.message);
-
-          done();
-        }
-      }); // request
-
-    }); // it
-  }); // describe
-
-  /*****************************************************************
-  * 7. body 中必要參數 access_token 帶錯，回傳錯誤訊息。
+  * 6. body 中必要參數 access_token 帶錯，回傳錯誤訊息。
   *****************************************************************/
   describe('Wrong access_token in the body', () => {
 
@@ -266,7 +239,61 @@ describe('Create Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 8. 如果 DDB 內已有一筆資料，則無法建立相同的資料，回傳錯誤訊息。
+  * 7. body 中必要參數 domain 未帶，回傳錯誤訊息。
+  *****************************************************************/
+  describe('Without domain in the body', () => {
+
+    it("Should return 'Missing Required Parameter: domain'", (done) => {
+
+      delete options.form.domain;
+      delete options.headers['X-Signature'];
+      options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
+
+      request(options, (err, response, body) => {
+        if (err) done(err); // an error occurred
+        else {
+          expect(response.statusCode).to.equal(400);
+          let parsedBody = JSON.parse(body);
+          expect(parsedBody).to.have.all.keys(['code', 'message']);
+          expect(parsedBody.code).to.equal(ApiErrors.missingRequiredParams.domain.code);
+          expect(parsedBody.message).to.equal(ApiErrors.missingRequiredParams.domain.message);
+
+          done();
+        }
+      }); // request
+
+    }); // it
+  }); // describe
+
+  /*****************************************************************
+  * 8. body 中必要參數 domain 不合法，回傳錯誤訊息。
+  *****************************************************************/
+  describe('Invalid domain in the body', () => {
+
+    it("Should return 'Invalid domain'", (done) => {
+
+      options.form.domain = '111ecowork';
+      delete options.headers['X-Signature'];
+      options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
+
+      request(options, (err, response, body) => {
+        if (err) done(err); // an error occurred
+        else {
+          expect(response.statusCode).to.equal(400);
+          let parsedBody = JSON.parse(body);
+          expect(parsedBody).to.have.all.keys(['code', 'message']);
+          expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
+          expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
+
+          done();
+        }
+      }); // request
+
+    }); // it
+  }); // describe
+
+  /*****************************************************************
+  * 9. 如果 DDB 內已有一筆資料，則無法建立相同的資料，回傳錯誤訊息。
   *****************************************************************/
   describe('Create domain item fail if has the same id', () => {
 
@@ -308,7 +335,7 @@ describe('Create Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 8. 如果 DDB 內已有兩筆資料，則無法在建立資料，回傳錯誤訊息。
+  * 10. 如果 DDB 內已有兩筆資料，則無法在建立資料，回傳錯誤訊息。
   *****************************************************************/
   describe('Create domain item fail if there are 2 data already', () => {
 
@@ -356,7 +383,7 @@ describe('Create Domains API', () => {
 
 
   /*****************************************************************
-  * 9. Domain 資料建立成功。
+  * 11. Domain 資料建立成功。
   *****************************************************************/
   describe('Successfully create domain item', () => {
 
