@@ -77,7 +77,7 @@ module.exports.handler = (event, context, callback) => {
     .then(() => {
       let object_id = uuidV4();
       let domain_path = `${customs.cloud_id}/${customs.app_id}/${customs.domain_id}`;
-      let path = `${domain_path}/${object_id}`;
+      let path = `${domain_path}/${receivedParams.key}`;
       let timestamp = Utility.getTimestamp();
       let objectItem = {
         domain_id: customs.domain_id,
