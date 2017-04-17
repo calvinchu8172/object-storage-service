@@ -9,11 +9,11 @@ class DeploymentBucket {
     this.logger = this.logger.bind(this)
     this.options = options
     this.provider = this.serverless.getProvider('aws')
-    this.service = this.serverless.variables.populateService()
+    this.service = this.serverless.variables.populateService(options)
     this.deploymentBucket = this.service.provider.deploymentBucket
-
     this.hooks = {
-      'before:deploy:cleanup': this.checkDeploymentBucket.bind(this)
+      'before:deploy:cleanup': this.checkDeploymentBucket.bind(this),
+      'after:remove:remove': this.removeDeploymentBucket.bind(this)
     }
   }
 
@@ -23,6 +23,23 @@ class DeploymentBucket {
       return this.provider.request(
         'S3',
         'createBucket',
+        {
+          Bucket: this.deploymentBucket
+        },
+        this.options.stage,
+        this.options.region
+      ).then((response) => {
+        return BbPromise.resolve()
+      })
+    }
+  }
+
+  removeDeploymentBucket () {
+    if (this.deploymentBucket !== undefined) {
+      this.logger('Removing deployment bucket if it exists...')
+      return this.provider.request(
+        'S3',
+        'deleteBucket',
         {
           Bucket: this.deploymentBucket
         },
