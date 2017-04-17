@@ -40,7 +40,7 @@ describe('Create Domains API', () => {
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
   let domain = 'ecowork1'
   let domain_id = 'test_domain_id'
-  let object = 'test2_mocha.jpg'
+  let object = 'test_mocha.jpg'
 
   console.log(METHOD);
   console.log(REQUEST_URL);
@@ -423,6 +423,7 @@ describe('Create Domains API', () => {
 
 
     it("should return 'OK'", function(done) {
+      this.timeout(12000);
 
       const regexp = /{.*}/;
       // const domain = 'ecowork1';
@@ -525,6 +526,7 @@ describe('Create Domains API', () => {
 
 
     it("should return 'OK'", function(done) {
+      this.timeout(12000);
 
       const regexp = /{.*}/;
       // const domain = 'ecowork1';
