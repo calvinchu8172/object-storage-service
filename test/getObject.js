@@ -30,6 +30,7 @@ const moment               = require( 'moment' );
 const expect               = mochaPlugin.chai.expect;
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require( 'lib/api_errors.js' );
+const isEmpty              = require('is-empty');
 
 
 describe('Get Object API', () => {
@@ -300,9 +301,9 @@ describe('Get Object API', () => {
 
 
   /*****************************************************************
-  * 8. Object 資料搜尋失敗。
+  * 8. path 中必要參數 object 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  describe('Successfully get domain item', () => {
+  describe('Wrong Object in the path', () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -382,7 +383,7 @@ describe('Get Object API', () => {
       }); // createDomainItem
     }); // before
 
-    before('Create a object item', function (done) {
+    before('Create an object item', function (done) {
       this.timeout(12000);
       console.log('create object item');
       // domain_id = tmp.domain_id;
@@ -397,6 +398,20 @@ describe('Get Object API', () => {
           done();
         }
       }); // createObjectItem
+    }); // before
+
+    before('Upload an object to s3', function (done) {
+      this.timeout(12000);
+      console.log('upload object item to s3');
+
+      testHelper.uploadS3ObjectItem(cloud_id, app_id, object, domain_id, 'image/jpg', (err, data) => {
+        if (err) {
+          return done(err);
+        } else {
+          console.log(data);
+          done();
+        }
+      }); // createS3ObjectItem
     }); // before
 
     after('Clear Testing Domain Data', function (done) {
@@ -420,6 +435,20 @@ describe('Get Object API', () => {
       }); // deleteObject
     }); // after
 
+    after('Clear Testing S3 Object Data', function (done) {
+      this.timeout(12000);
+      console.log('delete S3 object item');
+
+      testHelper.deleteS3ObjectItem(cloud_id, app_id, object, domain_id, 'image/jpg', (err, data) => {
+        if (err) {
+          return done(err);
+        } else {
+          console.log(data);
+          done();
+        }
+      }); // deleteS3ObjectItem
+    }); // after
+
 
     it("should return 'OK'", function(done) {
       this.timeout(12000);
@@ -440,14 +469,9 @@ describe('Get Object API', () => {
           request(options, (err, response, body) => {
             if (err) reject(err); // an error occurred
             else {
-              // console.log(body);
-              // console.log(response);
-              // expect(response.statusCode).to.equal(200);
-              // let parsedBody = JSON.parse(body);
-              // console.log(body);
-              // expect(parsedBody).to.have.all.keys(['code', 'message']);
-              // expect(parsedBody.code).to.equal(ApiErrors.notFound.object.code);
-              // expect(parsedBody.message).to.equal(ApiErrors.notFound.object.message);
+              console.log("final result");
+              expect(response.statusCode).to.equal(200);
+              expect(isEmpty(body)).to.equal(false);
               resolve();
             }
           }); // request
