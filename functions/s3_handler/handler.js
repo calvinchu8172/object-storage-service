@@ -15,7 +15,7 @@ module.exports.handler = ( event, context, callback ) => {
   // const receivedParams = paramsFetcher.fetchFrom(event);
   // const a = 'aaa'
   console.log("*********************************************");
-  // console.log(`event: ${JSON.stringify(event, null, 2)}`);
+  console.log(`event: ${JSON.stringify(event, null, 2)}`);
 
   // console.log(event);
   // console.log(event.Records);
