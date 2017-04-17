@@ -28,7 +28,7 @@ const request              = require('request');
 const mochaPlugin          = require('serverless-mocha-plugin');
 const moment               = require( 'moment' );
 const expect               = mochaPlugin.chai.expect;
-const uuid                 = require('node-uuid');
+const uuidV4                 = require('uuid/v4');
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require( 'lib/api_errors.js' );
 
