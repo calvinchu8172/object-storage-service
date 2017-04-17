@@ -319,6 +319,7 @@ describe('Create Domains API', () => {
     }); // after
 
     it("should return 'OK'", function(done) {
+      this.timeout(12000);
 
       const regexp = /{.*}/;
       const domain = 'ecowork1';
