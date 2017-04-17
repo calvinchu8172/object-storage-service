@@ -39,7 +39,8 @@ describe('Create Domains API', () => {
   let cloud_id = 'zMdCD2J7xrdn77gzcgpiJyQ'
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
   let domain = 'ecowork1'
-  let object = 'test_mocha.jpg'
+  let domain_id = 'test_domain_id'
+  let object = 'test2_mocha.jpg'
 
   console.log(METHOD);
   console.log(REQUEST_URL);
@@ -253,7 +254,7 @@ describe('Create Domains API', () => {
     before('Create a domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, domain, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain, domain_id, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
@@ -307,7 +308,7 @@ describe('Create Domains API', () => {
     before('Create a domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, domain, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain, domain_id, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
@@ -367,12 +368,12 @@ describe('Create Domains API', () => {
   *****************************************************************/
   describe('Successfully get object item', () => {
     var tmp;
-    var domain_id;
+    // var domain_id;
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
       console.log('create domain item');
-      testHelper.createDomainItem(cloud_id, app_id, domain, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain, domain_id, (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -385,7 +386,7 @@ describe('Create Domains API', () => {
     before('Create a object item', function (done) {
       this.timeout(12000);
       console.log('create object item');
-      domain_id = tmp.domain_id;
+      // domain_id = tmp.domain_id;
       console.log(domain_id);
       // done();
 
@@ -468,12 +469,12 @@ describe('Create Domains API', () => {
   *****************************************************************/
   describe('Successfully get object item', () => {
     var tmp;
-    var domain_id;
+    // var domain_id;
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
       console.log('create domain item');
-      testHelper.createDomainItem(cloud_id, app_id, domain, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain, domain_id, (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -486,7 +487,7 @@ describe('Create Domains API', () => {
     before('Create a object item', function (done) {
       this.timeout(12000);
       console.log('create object item');
-      domain_id = tmp.domain_id;
+      // domain_id = tmp.domain_id;
       console.log(domain_id);
       object = 'test_mocha.json';
       // done();

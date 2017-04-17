@@ -4,6 +4,7 @@
 const SERVICE = process.env.SERVERLESS_PROJECT;
 const REGION  = process.env.SERVERLESS_REGION;
 const STAGE   = process.env.SERVERLESS_STAGE;
+const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME
 
 // 載入 AWS 相關服務
 const AWS       = require('aws-sdk');
@@ -48,11 +49,33 @@ var getDomain = function(cloud_id, app_id, name, callback) {
       callback(null, data.Item);
     }
   });
-} // getJob
+} // getDomain
 
-var createDomainItem = function(cloud_id, app_id, name, callback) {
+var getObject = function(cloud_id, app_id, domain_id, key, callback) {
+  console.log(REGION);
+  console.log(`${STAGE}-${SERVICE}-${app_id}`);
+  console.log("*********");
+  var params = {
+    TableName : `${STAGE}-${SERVICE}-${app_id}`,
+    Key: {
+      'domain_id': domain_id,
+      'key': key
+    }
+  };
+
+  docClient.get(params, function(err, data) {
+    if (err) {
+      callback(err);
+    }
+    else {
+      callback(null, data.Item);
+    }
+  });
+} // getObject
+
+var createDomainItem = function(cloud_id, app_id, name, domain_id, callback) {
   // var domain_id = uuid.v4()
-  var domain_id = '5743356b-e71f-48cd-b915-019171a7a6a6'
+  // var domain_id = '5743356b-e71f-48cd-b915-019171a7a6a6'
   var params = {
     TableName : `${STAGE}-${SERVICE}-domains`,
     Item: {
@@ -107,7 +130,7 @@ var createObjectItem = function(cloud_id, app_id, key, domain_id, content_type, 
       'content': content,
       'domain_path': `${cloud_id}/${app_id}/${domain_id}`,
       'path': `${cloud_id}/${app_id}/${domain_id}/${key}`,
-      'usage': 128,
+      'usage': 0,
       'file_created_at': timestamp,
       'file_updated_at': timestamp,
       'created_at': timestamp,
@@ -129,6 +152,79 @@ var createObjectItem = function(cloud_id, app_id, key, domain_id, content_type, 
   });
 
 }
+
+var uploadS3ObjectItem = function(cloud_id, app_id, object, domain_id, content_type, callback) {
+
+  fs.readFile(`./test/tmp/${object}`, (err, data) => {
+
+    if (err) {
+      console.error(err);
+    } else {
+      // upload file to s3 bucket
+      console.log(data);
+
+      var params = {
+        Bucket: S3_BUCKET_NAME,
+        Key: `${cloud_id}/${app_id}/${domain_id}/${object}`,
+        // Key: `${cloud_id}/${app_id}/aaaaa/test4_mocha.png`,
+        ACL: 'public-read',
+        Body: data
+      };
+
+      S3.putObject(params, (err, data) => {
+        if (err) {
+          console.error(err);
+          callback(err);
+          // reject(apiErrors.exceptionalErrorHappened);
+        } else {
+          console.log("Uploaded with success!");
+          console.log(data);
+          callback(null, data);
+          // resolve(job);
+        }
+      }); // putObject
+
+    } // else
+  }); // fs
+
+} // uploadObjectItem
+
+var deleteS3ObjectItem = function(cloud_id, app_id, object, domain_id, content_type, callback) {
+
+  var params = {
+    Bucket: S3_BUCKET_NAME,
+    Key: `${cloud_id}/${app_id}/${domain_id}/${object}`
+    // Key: `${cloud_id}/${app_id}/aaaaa/test4_mocha.png`,
+    // ACL: 'public-read',
+    // Body: data
+  };
+
+  S3.deleteObject(params, (err, data) => {
+    if (err) {
+      console.error(err);
+      callback(err);
+      // reject(apiErrors.exceptionalErrorHappened);
+    } else {
+      console.log("Deleted with success!");
+      console.log(data);
+      callback(null, data);
+      // resolve(job);
+    }
+  }); // putObject
+
+} // deleteS3ObjectItem
+
+// var params = {
+//   Bucket: 'STRING_VALUE', /* required */
+//   Key: 'STRING_VALUE', /* required */
+//   MFA: 'STRING_VALUE',
+//   RequestPayer: requester,
+//   VersionId: 'STRING_VALUE'
+// };
+// s3.deleteObject(params, function(err, data) {
+//   if (err) console.log(err, err.stack); // an error occurred
+//   else     console.log(data);           // successful response
+// });
 
 var getJob = function(job_id, callback) {
   const params = {
@@ -669,8 +765,11 @@ var deleteAccessToken = function (expired_token_id, callback) {
 
 module.exports = {
   getDomain,
+  getObject,
   createDomainItem,
   createObjectItem,
+  uploadS3ObjectItem,
+  deleteS3ObjectItem,
   getJob,
   getAccessKey,
   getInboxMessage,

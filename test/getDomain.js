@@ -39,6 +39,7 @@ describe('Create Domains API', () => {
   let cloud_id = 'zMdCD2J7xrdn77gzcgpiJyQ'
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
   let name = 'ecowork1'
+  let domain_id = 'test_domain_id'
 
   console.log(METHOD);
   console.log(REQUEST_URL);
@@ -217,7 +218,7 @@ describe('Create Domains API', () => {
     before('Create a domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, name, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, name, domain_id, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
@@ -302,7 +303,7 @@ describe('Create Domains API', () => {
     before('Create a domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, name, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, name, domain_id, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
