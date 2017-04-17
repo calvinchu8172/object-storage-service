@@ -308,8 +308,8 @@ functions:
             # - suffix: .*
 
   RdsOperator:
-    handler: test/lib/rds_operator.handler
-    timeout: 6
+    handler: functions/rds_operator.handler
+    timeout: 12
     memorySize: 128
     vpc:
       securityGroupIds:

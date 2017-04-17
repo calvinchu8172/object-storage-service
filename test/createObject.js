@@ -378,6 +378,7 @@ describe('Create Object API', () => {
         }
         else {
           customs.expired_token_id = data.insertId;
+          console.log(`data: ${JSON.stringify(data, null, 2)}`);
           console.log(`data.insertId: ${data.insertId}`);
           console.log(`customs.expired_token_id: ${customs.expired_token_id}`);
           done();
@@ -390,8 +391,13 @@ describe('Create Object API', () => {
       console.log(`Delete Expired Token...`);
       console.log(`expired_token_id: ${customs.expired_token_id}`);
       testHelper.deleteAccessToken(customs.expired_token_id, (err, data) => {
-        if (err) done(err);
-        else done();
+        if (err) {
+          done(err);
+        }
+        else {
+          console.log(`data: ${JSON.stringify(data, null, 2)}`);
+          done();
+        }
       }); // registerDevice
     }); // before
 
@@ -530,9 +536,9 @@ describe('Create Object API', () => {
             expect(response.statusCode).to.equal(200);
             console.log(`body: ${body}`);
             console.log(`typeof data: ${typeof body}`);
-            // let parsedBody = JSON.parse(body);
-            // expect(parsedBody).to.have.keys('data');
-            // expect(parsedBody.data).to.have.keys('upload_url');
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.keys('data');
+            expect(parsedBody.data).to.have.keys('upload_url');
             done();
           }
         }); // request

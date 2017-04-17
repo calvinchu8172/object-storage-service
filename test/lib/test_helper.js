@@ -28,8 +28,6 @@ const signatureGenerator = require('lib/signature_generator.js');
 const serverlessYamlObject = yaml.load('serverless.yml');
 const secrets = yaml.load(`secrets.${STAGE}.yml`);
 
-const PUSH_TOKEN = secrets.push_token;
-
 
 
 /**
@@ -374,7 +372,12 @@ var createAccessToken = function (token, expires_in, callback) {
     }
     else {
       console.log(JSON.stringify(data, null, 2));           // successful response
-      callback(null, data);
+      if(data.StatusCode === 200) {
+        data = JSON.parse(data.Payload);
+        callback(null, data);
+      } else {
+        callback(data);
+      }
     }
   }); // lambda
 
@@ -429,7 +432,12 @@ var deleteAccessToken = function (expired_token_id, callback) {
     }
     else {
       console.log(JSON.stringify(data, null, 2));           // successful response
-      callback(null, data);
+      if(data.StatusCode === 200) {
+        data = JSON.parse(data.Payload);
+        callback(null, data);
+      } else {
+        callback(data);
+      }
     }
   }); // lambda
 

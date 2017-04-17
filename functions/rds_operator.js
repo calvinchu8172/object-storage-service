@@ -3,7 +3,12 @@
 require('rootpath')();
 
 
+const STAGE   = process.env.SERVERLESS_STAGE;
+
 const mysql = require('mysql');
+const yaml = require('yamljs');
+const moment = require('moment');
+const secrets = yaml.load(`secrets.${STAGE}.yml`);
 
 module.exports.handler = (event, context, callback) => {
 
@@ -15,6 +20,9 @@ module.exports.handler = (event, context, callback) => {
   else if (event.functionName === 'deleteAccessToken') {
     let expired_token_id = event.expired_token_id;
     deleteAccessToken(expired_token_id, callback);
+  } else {
+    console.log(`else...`);
+    callback();
   }
 
 }
