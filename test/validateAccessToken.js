@@ -129,6 +129,7 @@ describe('Access Token Validator', () => {
     describe('if client requests with that token', function() {
 
       before('Create Valid Token', function(done) {
+        this.timeout(12000);
         console.log(`Create Valid Token...`);
         options.access_token = "valid_access_token";
         console.log(`options.access_token: ${options.access_token}`);
@@ -146,6 +147,7 @@ describe('Access Token Validator', () => {
       }); // before
 
       after('Delete Valid Token', function(done) {
+        this.timeout(12000);
         console.log(`Delete Valid Token...`);
         console.log(`valid_token_id: ${customs.valid_token_id}`);
         testHelper.deleteAccessToken(customs.valid_token_id, (err, data) => {
@@ -171,7 +173,7 @@ describe('Access Token Validator', () => {
             expect(data.StatusCode).to.equal(200);
             let response = JSON.parse(data['Payload']);
             let body = JSON.parse(response.body);
-
+            
             expect(response.statusCode).to.equal(200);
             expect(response.statusCode).to.have.all.keys('app_id', 'cloud_id');
             done();

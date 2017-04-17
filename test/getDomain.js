@@ -33,7 +33,7 @@ const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require( 'lib/api_errors.js' );
 
 
-describe('Create Domains API', () => {
+describe('Get Domains API', () => {
 
   let options = {};
   let cloud_id = 'zMdCD2J7xrdn77gzcgpiJyQ'
