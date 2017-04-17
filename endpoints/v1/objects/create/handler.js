@@ -104,11 +104,9 @@ module.exports.handler = (event, context, callback) => {
       if (isJsonTypeObject) {
         callback();
       } else {
-        let response = {
-          data: {
-            upload_url: signed_url
-          }
-        }
+        let response = {};
+        response['data'] = {};
+        response['data']['upload_url'] = signed_url;
         callback(null, JSON.stringify(response));
       }
     })

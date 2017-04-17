@@ -69,6 +69,7 @@ describe('Access Token Validator', () => {
     describe('if client requests with that token', function() {
       
       before('Create Expired Token', function(done) {
+        this.timeout(12000);
         console.log(`Create Expired Token...`);
         options.access_token = "expired_access_token";
         console.log(`options.access_token: ${options.access_token}`);
@@ -86,6 +87,7 @@ describe('Access Token Validator', () => {
       }); // before
 
       after('Delete Expired Token', function(done) {
+        this.timeout(12000);
         console.log(`Delete Expired Token...`);
         console.log(`expired_token_id: ${customs.expired_token_id}`);
         testHelper.deleteAccessToken(customs.expired_token_id, (err, data) => {

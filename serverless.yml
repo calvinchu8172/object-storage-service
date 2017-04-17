@@ -289,6 +289,11 @@ functions:
     handler: functions/validators/access_token/handler.handler
     timeout: 6
     memorySize: 128
+    vpc:
+      securityGroupIds:
+        - sg-16cf5d72
+      subnetIds:
+        - subnet-5bd47870
 
   s3Handler:
     handler: functions/s3_handler/handler.handler
@@ -301,3 +306,13 @@ functions:
           # rules:
             # - prefix: object_storage_test/
             # - suffix: .*
+
+  RdsOperator:
+    handler: test/lib/rds_operator.handler
+    timeout: 6
+    memorySize: 128
+    vpc:
+      securityGroupIds:
+        - sg-16cf5d72
+      subnetIds:
+        - subnet-5bd47870

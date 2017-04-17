@@ -12,6 +12,7 @@ const S3 = new AWS.S3({ region: REGION });
 const SQS = new AWS.SQS({ region: REGION });
 const docClient = new AWS.DynamoDB.DocumentClient({ region: REGION });
 const sns = new AWS.SNS({ region: REGION });
+const lambda = new AWS.Lambda({ region: REGION });
 
 // 載入外部模組
 const fs = require('fs');
@@ -282,63 +283,6 @@ var deleteObject = function (cloud_id, app_id, object, domain_id, callback) {
   });
 } // deleteObject
 
-/**
-* @function createAccessToken
-* @param  {type} token      {description}
-* @param  {type} expires_in {description}
-* @param  {type} callback   {description}
-* @return {type} {description}
-*/
-var createAccessToken = function (token, expires_in, callback) {
-  var queryString = 'INSERT INTO oauth_access_tokens SET ?';
-  var oauth_access_token = {
-    resource_owner_id: 79,
-    application_id: 6,
-    token: token,
-    refresh_token: "refresh_token",
-    expires_in: expires_in,
-    created_at: moment.utc().format('YYYY-MM-DD hh:mm:ss'),
-    scopes: ""
-  }
-  console.log(JSON.stringify(oauth_access_token));
-  var connection = mysql.createConnection(secrets.databases.pcloud_portal_rds);
-  connection.connect();
-  connection.query(queryString, oauth_access_token, function (error, results, fields) {
-    connection.end();
-    if (error) {
-      console.error(error);
-      callback(error);
-    }
-    else {
-      console.log(`results: ${JSON.stringify(results)}`);
-      callback(null, results);
-    }
-  });
-}
-
-
-/**
-* @function deleteAccessToken
-* @param  {type} expired_token_id {description}
-* @param  {type} callback         {description}
-* @return {type} {description}
-*/
-var deleteAccessToken = function (expired_token_id, callback) {
-  var queryString = `DELETE FROM oauth_access_tokens WHERE id = ${expired_token_id}`;
-  var connection = mysql.createConnection(secrets.databases.pcloud_portal_rds);
-  connection.connect();
-  connection.query(queryString, function (error, results, fields) {
-    connection.end();
-    if (error) {
-      console.error(error);
-      callback(error);
-    }
-    else {
-      console.log(`results: ${JSON.stringify(results)}`);
-      callback();
-    }
-  });
-}
 
 
 /**
@@ -402,6 +346,108 @@ var deleteObjectItem = function (domain_id, key, app_id, callback) {
     }
   });
 } // deleteDomain
+
+
+
+/**
+* @function createAccessToken
+* @param  {type} token      {description}
+* @param  {type} expires_in {description}
+* @param  {type} callback   {description}
+* @return {type} {description}
+*/
+var createAccessToken = function (token, expires_in, callback) {
+  let payload = {
+    functionName: 'createAccessToken',
+    token: token,
+    expires_in: expires_in
+  }
+  let params = {
+    FunctionName: `${SERVICE}-${STAGE}-RdsOperator`, /* required */
+    InvocationType: "RequestResponse",
+    Payload: JSON.stringify(payload)
+  };
+  lambda.invoke(params, function (err, data) {
+    if (err) {
+      console.error(err, err.stack); // an error occurred
+      callback(err);
+    }
+    else {
+      console.log(JSON.stringify(data, null, 2));           // successful response
+      callback(null, data);
+    }
+  }); // lambda
+
+  // var queryString = 'INSERT INTO oauth_access_tokens SET ?';
+  // var oauth_access_token = {
+  //   resource_owner_id: 79,
+  //   application_id: 6,
+  //   token: token,
+  //   refresh_token: "refresh_token",
+  //   expires_in: expires_in,
+  //   created_at: moment.utc().format('YYYY-MM-DD hh:mm:ss'),
+  //   scopes: ""
+  // }
+  // console.log(JSON.stringify(oauth_access_token));
+  // var connection = mysql.createConnection(secrets.databases.pcloud_portal_rds);
+  // connection.connect();
+  // connection.query(queryString, oauth_access_token, function (error, results, fields) {
+  //   connection.end();
+  //   if (error) {
+  //     console.error(error);
+  //     callback(error);
+  //   }
+  //   else {
+  //     console.log(`results: ${JSON.stringify(results)}`);
+  //     callback(null, results);
+  //   }
+  // });
+}
+
+
+/**
+* @function deleteAccessToken
+* @param  {type} expired_token_id {description}
+* @param  {type} callback         {description}
+* @return {type} {description}
+*/
+var deleteAccessToken = function (expired_token_id, callback) {
+
+  let payload = {
+    functionName: 'deleteAccessToken',
+    expired_token_id: expired_token_id
+  }
+  let params = {
+    FunctionName: `${SERVICE}-${STAGE}-RdsOperator`, /* required */
+    InvocationType: "RequestResponse",
+    Payload: JSON.stringify(payload)
+  };
+  lambda.invoke(params, function (err, data) {
+    if (err) {
+      console.error(err, err.stack); // an error occurred
+      callback(err);
+    }
+    else {
+      console.log(JSON.stringify(data, null, 2));           // successful response
+      callback(null, data);
+    }
+  }); // lambda
+
+  // var queryString = `DELETE FROM oauth_access_tokens WHERE id = ${expired_token_id}`;
+  // var connection = mysql.createConnection(secrets.databases.pcloud_portal_rds);
+  // connection.connect();
+  // connection.query(queryString, function (error, results, fields) {
+  //   connection.end();
+  //   if (error) {
+  //     console.error(error);
+  //     callback(error);
+  //   }
+  //   else {
+  //     console.log(`results: ${JSON.stringify(results)}`);
+  //     callback();
+  //   }
+  // });
+}
 
 
 
