@@ -109,7 +109,7 @@ module.exports.handler = (event, context, callback) => {
             upload_url: signed_url
           }
         }
-        callback(null, response);
+        callback(null, JSON.stringify(response));
       }
     })
     .catch((err) => {

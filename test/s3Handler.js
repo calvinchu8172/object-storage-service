@@ -65,7 +65,7 @@ describe('Create Domains API', () => {
       this.timeout(12000);
       console.log('create object item');
 
-      testHelper.createObjectItem(cloud_id, app_id, object1, domain_id, 'image/png', (err, data) => {
+      testHelper.createObjectItem1(cloud_id, app_id, object1, domain_id, 'image/png', (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -79,7 +79,7 @@ describe('Create Domains API', () => {
       this.timeout(12000);
       console.log('create object item');
 
-      testHelper.createObjectItem(cloud_id, app_id, object2, domain_id, 'image/jpg', (err, data) => {
+      testHelper.createObjectItem1(cloud_id, app_id, object2, domain_id, 'image/jpg', (err, data) => {
         if (err) {
           return done(err);
         } else {

@@ -6,35 +6,39 @@
 require('rootpath')();
 
 // ================ ENVs ========================
-const SERVICE              = process.env.SERVERLESS_PROJECT;
-const REGION               = process.env.SERVERLESS_REGION;
-const STAGE                = process.env.SERVERLESS_STAGE;
+const SERVICE = process.env.SERVERLESS_PROJECT;
+const REGION = process.env.SERVERLESS_REGION;
+const STAGE = process.env.SERVERLESS_STAGE;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
-const PRIVATE_KEY_NAME     = "object";
+const PRIVATE_KEY_NAME = "object";
 
 
 // ================ Modules =====================
-const mochaPlugin          = require('serverless-mocha-plugin');
-const request              = require('request');
-const expect               = mochaPlugin.chai.expect;
-const YAML                 = require('yamljs');
+const mochaPlugin = require('serverless-mocha-plugin');
+const request = require('request');
+const expect = mochaPlugin.chai.expect;
+const YAML = require('yamljs');
 const serverlessYamlObject = YAML.load('serverless.yml');
 
 
 // ================ Lib/Modules =================
-const testHelper           = require('./lib/test_helper');
-const signatureGenerator   = require('lib/signature_generator.js')
-const ApiErrors            = require( 'lib/api_errors.js' );
+const testHelper = require('./lib/test_helper');
+const signatureGenerator = require('lib/signature_generator.js')
+const ApiErrors = require('lib/api_errors.js');
 
 
 // ================== AWS ===================
-const AWS                  = require('aws-sdk');
-const lambda               = new AWS.Lambda({region: REGION});
+const AWS = require('aws-sdk');
+const lambda = new AWS.Lambda({ region: REGION });
 
 
-const PATH                 = serverlessYamlObject.functions.createObject.events[0].http.path;
-const METHOD               = serverlessYamlObject.functions.createObject.events[0].http.method;
-const REQUEST_URL          = `${API_GATEWAY_INVOKE_URL}/${PATH}`;
+const PATH = serverlessYamlObject.functions.createObject.events[0].http.path;
+const METHOD = serverlessYamlObject.functions.createObject.events[0].http.method;
+const REQUEST_URL = `${API_GATEWAY_INVOKE_URL}/${PATH}`;
+
+const CLOUD_ID = "zMdCD2J7xrdn77gzcgpiJyQ";
+const APP_ID = "886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d";
+const DOMAIN_NAME = "test_domain";
 
 
 describe('Create Object API', () => {
@@ -66,10 +70,35 @@ describe('Create Object API', () => {
   }); // beforeEach
 
 
+  before('Create Test Domain', function (done) {
+    console.log(`Create Test Domain...`);
+    testHelper.createDomainItem(CLOUD_ID, APP_ID, DOMAIN_NAME, (err, data) => {
+      if (err) {
+        done(err);
+      }
+      else {
+        console.log(`data: ${JSON.stringify(data, null, 2)}`);
+        customs.domain_id = data.domain_id;
+        done();
+      }
+    }); // registerDevice
+  }); // before
+
+
+  after('Delete Test Domain', function (done) {
+    console.log(`Delete Test Domain...`);
+    testHelper.deleteDomain(CLOUD_ID, APP_ID, DOMAIN_NAME, (err, data) => {
+      if (err) done(err);
+      else done();
+    }); // registerDevice
+  }); // before
+
+
+
   // OSS_004_01
-  describe('If the X-Api-Key Header in request is missing', function() {
-    it('should return HTTP 403', function(done) {
-    
+  describe('If the X-Api-Key Header in request is missing', function () {
+    it('should return HTTP 403', function (done) {
+
       delete options.headers['X-API-Key'];
       options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
       request(options, (err, response, body) => {
@@ -85,9 +114,9 @@ describe('Create Object API', () => {
   }); // If the X-Api-Key Header in request is missing
 
   // OSS_004_02
-  describe('If the X-Signature Header in request is missing', function() {
-    it('should return HTTP 400: { "code": "400.0", "message": "Missing Required Header: X-Signature" }', function(done) {
-      
+  describe('If the X-Signature Header in request is missing', function () {
+    it('should return HTTP 400: { "code": "400.0", "message": "Missing Required Header: X-Signature" }', function (done) {
+
       delete options.headers['X-Signature'];
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -107,9 +136,9 @@ describe('Create Object API', () => {
 
 
   // OSS_004_03
-  describe('If the certificate_serial param in request is missing', function() {
-    it('should return HTTP 400: { "code": "400.2", "message": "Missing Required Parameter: certificate_serial" }', function(done) {
-      
+  describe('If the certificate_serial param in request is missing', function () {
+    it('should return HTTP 400: { "code": "400.2", "message": "Missing Required Parameter: certificate_serial" }', function (done) {
+
       delete options.form['certificate_serial'];
       options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
       request(options, (err, response, body) => {
@@ -131,9 +160,9 @@ describe('Create Object API', () => {
 
 
   // OSS_004_04
-  describe('If the certificate_serial param in request is invalid', function() {
-    it('should return HTTP 400: { "code": "400.3", "message": "Invalid certificate_serial" }', function(done) {
-      
+  describe('If the certificate_serial param in request is invalid', function () {
+    it('should return HTTP 400: { "code": "400.3", "message": "Invalid certificate_serial" }', function (done) {
+
       options.form['certificate_serial'] = "invalid_certificate_serial";
       options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
       request(options, (err, response, body) => {
@@ -154,9 +183,9 @@ describe('Create Object API', () => {
 
 
   // OSS_004_05
-  describe('If the signature in request failed the verification', function() {
-    it('server should return HTTP 400: { "code": "400.1", "message": "Invalid Signature" }', function(done) {
-      
+  describe('If the signature in request failed the verification', function () {
+    it('server should return HTTP 400: { "code": "400.1", "message": "Invalid Signature" }', function (done) {
+
       options.headers['X-Signature'] = "invalid_signature";
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -176,9 +205,9 @@ describe('Create Object API', () => {
 
 
   // OSS_004_06
-  describe('If the access_token param in request is missing', function() {
-    it('server should return HTTP 400: { "code": "400.6", "message": "Missing Required Parameter: access_token" }', function(done) {
-      
+  describe('If the access_token param in request is missing', function () {
+    it('server should return HTTP 400: { "code": "400.6", "message": "Missing Required Parameter: access_token" }', function (done) {
+
       delete options.form['access_token'];
       options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
       request(options, (err, response, body) => {
@@ -198,9 +227,9 @@ describe('Create Object API', () => {
 
 
   // OSS_004_07
-  describe('If the key param in request is invalid', function() {
-    it('server should return HTTP 400: { "code": "400.14", "message": "Invalid key" }', function(done) {
-      
+  describe('If the key param in request is invalid', function () {
+    it('server should return HTTP 400: { "code": "400.14", "message": "Invalid key" }', function (done) {
+
       options.form['key'] = "123abc";
       options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
       request(options, (err, response, body) => {
@@ -220,9 +249,9 @@ describe('Create Object API', () => {
 
 
   // OSS_004_08
-  describe('If the content_type param in request is missing', function() {
-    it('should return HTTP 400: { "code": "400.18", "message": "Missing Required Parameter: content_type" }', function(done) {
-      
+  describe('If the content_type param in request is missing', function () {
+    it('should return HTTP 400: { "code": "400.18", "message": "Missing Required Parameter: content_type" }', function (done) {
+
       delete options.form['content_type'];
       options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
       request(options, (err, response, body) => {
@@ -242,9 +271,9 @@ describe('Create Object API', () => {
 
 
   // OSS_004_09
-  describe('If the content_type param in request is invalid', function() {
-    it('should return HTTP 400: { "code": "400.19", "message": "Invalid content_type" }', function(done) {
-      
+  describe('If the content_type param in request is invalid', function () {
+    it('should return HTTP 400: { "code": "400.19", "message": "Invalid content_type" }', function (done) {
+
       options.form['content_type'] = "invalid_content_type";
       options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
       request(options, (err, response, body) => {
@@ -264,8 +293,8 @@ describe('Create Object API', () => {
 
 
   // OSS_004_10
-  describe('If the content param in request is missing', function() {
-    it('should return HTTP 400: { "code": "400.20", "message": "Missing Required Parameter: content" }', function(done) {
+  describe('If the content param in request is missing', function () {
+    it('should return HTTP 400: { "code": "400.20", "message": "Missing Required Parameter: content" }', function (done) {
 
       options.form['content_type'] = 'application/json';
       delete options.form['content'];
@@ -283,12 +312,12 @@ describe('Create Object API', () => {
         }
       }); // request
     }); // it
-  }); // If the content_type param in request is invalid
+  }); // If the content param in request is missing
 
 
   // OSS_004_11
-  describe('If the content param in request is invalid', function() {
-    it('should return HTTP 400: { "code": "400.21", "message": "Invalid content" }', function(done) {
+  describe('If the content param in request is invalid', function () {
+    it('should return HTTP 400: { "code": "400.21", "message": "Invalid content" }', function (done) {
 
       options.form['content_type'] = 'application/json';
       options.form['content'] = "invalid_content";
@@ -306,12 +335,12 @@ describe('Create Object API', () => {
         }
       }); // request
     }); // it
-  }); // If the content_type param in request is invalid
+  }); // If the content param in request is invalid
 
 
   // OSS_004_12
-  describe('If the access_token param in request is invalid', function() {
-    it('should return HTTP 401: { "code": "401.0", "message": "invalid access_token" }', function(done) {
+  describe('If the access_token param in request is invalid', function () {
+    it('should return HTTP 401: { "code": "401.0", "message": "invalid access_token" }', function (done) {
 
       options.form['access_token'] = 'invalid_access_token';
       options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
@@ -328,15 +357,14 @@ describe('Create Object API', () => {
         }
       }); // request
     }); // it
-  }); // If the content_type param in request is invalid
+  }); // If the access_token param in request is invalid
 
 
 
   // OSS_004_13
-  describe('If the access_token param in request is expired', function() {
+  describe('If the access_token param in request is expired', function () {
 
-    
-    before('Create Expired Token', function(done) {
+    before('Create Expired Token', function (done) {
       console.log(`Create Expired Token...`);
       options.access_token = "expired_access_token";
       console.log(`options.access_token: ${options.access_token}`);
@@ -353,7 +381,7 @@ describe('Create Object API', () => {
       }); // registerDevice
     }); // before
 
-    after('Delete Expired Token', function(done) {
+    after('Delete Expired Token', function (done) {
       console.log(`Delete Expired Token...`);
       console.log(`expired_token_id: ${customs.expired_token_id}`);
       testHelper.deleteAccessToken(customs.expired_token_id, (err, data) => {
@@ -362,7 +390,7 @@ describe('Create Object API', () => {
       }); // registerDevice
     }); // before
 
-    it('server should return HTTP 401: { "code": "401.1", "message": "Access Token Expired" }', function(done) {
+    it('server should return HTTP 401: { "code": "401.1", "message": "Access Token Expired" }', function (done) {
 
       options.form['access_token'] = 'expired_access_token';
       options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
@@ -379,8 +407,131 @@ describe('Create Object API', () => {
         }
       }); // request
     }); // it
-  }); // If the content_type param in request is invalid
+  }); // If the access_token param in request is expired
 
+
+
+  // OSS_004_14
+  describe('Can not find domain by domain', function () {
+    it('should return HTTP 404: { "code": "404.0", "message": "Domain Not Found" }', function (done) {
+
+      options.form['domain'] = 'unavailable_domain';
+      options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
+      request(options, (err, response, body) => {
+        if (err) done(err); // an error occurred
+        else {
+          console.log(response.body);
+          expect(response.statusCode).to.equal(ApiErrors.notFound.domain.httpStatus);
+          let parsedBody = JSON.parse(body);
+          expect(parsedBody).to.have.all.keys(['code', 'message']);
+          expect(parsedBody.code).to.equal(ApiErrors.notFound.domain.code);
+          expect(parsedBody.message).to.equal(ApiErrors.notFound.domain.message);
+          done();
+        }
+      }); // request
+    }); // it
+  }); // Can not find domain by domain
+
+
+  // OSS_004_15
+  describe('If the object key client try to create is already exists', function () {
+
+    before('Create Duplicated Object Item', function (done) {
+      console.log(`Create Duplicated Object Item...`);
+      testHelper.createObjectItem(customs.domain_id, options.form.key, APP_ID, (err, data) => {
+        if (err) return done(err);
+        else {
+          console.log(`data: ${JSON.stringify(data)}`);
+          done();
+        }
+      }); // registerDevice
+    }); // before
+
+    after('Delete Duplicated Object Item', function (done) {
+      console.log(`Delete Duplicated Object Item...`);
+      testHelper.deleteObjectItem(customs.domain_id, options.form.key, APP_ID, (err, data) => {
+        if (err) done(err);
+        else done();
+      }); // registerDevice
+    }); // before
+
+    it('should return HTTP 400: { "code": "400.16", "message": "Key Already Exists" }', function (done) {
+
+      options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
+      request(options, (err, response, body) => {
+        if (err) done(err); // an error occurred
+        else {
+          console.log(response.body);
+          expect(response.statusCode).to.equal(ApiErrors.validationFailed.key_duplicated.httpStatus);
+          let parsedBody = JSON.parse(body);
+          expect(parsedBody).to.have.all.keys(['code', 'message']);
+          expect(parsedBody.code).to.equal(ApiErrors.validationFailed.key_duplicated.code);
+          expect(parsedBody.message).to.equal(ApiErrors.validationFailed.key_duplicated.message);
+          done();
+        }
+      }); // request
+    }); // it
+  }); // If the object key client try to create is already exists
+
+
+  // OSS_004_16
+  describe('If client requests creating object successfully', function () {
+    
+    after('Delete Duplicated Object Item', function (done) {
+      console.log(`Delete Duplicated Object Item...`);
+      testHelper.deleteObjectItem(customs.domain_id, options.form.key, APP_ID, (err, data) => {
+        if (err) done(err);
+        else done();
+      }); // deleteObjectItem
+    }); // after
+
+    describe('and the content_type of object is application/json', function () {
+      it('should return HTTP 200', function (done) {
+        options.form['content_type'] = 'application/json';
+        options.form['content'] = '{}';
+        options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            console.log(response.body);
+            expect(response.statusCode).to.equal(200);
+            done();
+          }
+        }); // request
+      }); // it
+    }); // and the content_type of object is application/json
+  }); // If client requests creating object successfully
+
+
+  // OSS_004_17
+  describe('If client requests creating object successfully', function () {
+    
+    after('Delete Duplicated Object Item', function (done) {
+      console.log(`Delete Duplicated Object Item...`);
+      testHelper.deleteObjectItem(customs.domain_id, options.form.key, APP_ID, (err, data) => {
+        if (err) done(err);
+        else done();
+      }); // deleteObjectItem
+    }); // after
+
+    describe('and the content_type of object is not application/json', function () {
+      it('should return HTTP 200 and the response should include Pre-Signed URL for client to upload object file', function (done) {
+        options.form['content_type'] = 'image/png';
+        options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            console.log(response.body);
+            expect(response.statusCode).to.equal(200);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.keys('data');
+            expect(parsedBody.data).to.have.keys('upload_url');
+            done();
+          }
+        }); // request
+      }); // it
+    }); // and the content_type of object is not application/json
+  }); // If client requests creating object successfully
 
 
 });

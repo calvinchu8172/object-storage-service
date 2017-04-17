@@ -390,7 +390,7 @@ describe('Create Domains API', () => {
       console.log(domain_id);
       // done();
 
-      testHelper.createObjectItem(cloud_id, app_id, object, domain_id, 'image/jpg', (err, data) => {
+      testHelper.createObjectItem1(cloud_id, app_id, object, domain_id, 'image/jpg', (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -492,7 +492,7 @@ describe('Create Domains API', () => {
       object = 'test_mocha.json';
       // done();
 
-      testHelper.createObjectItem(cloud_id, app_id, object, domain_id, 'application/json', (err, data) => {
+      testHelper.createObjectItem1(cloud_id, app_id, object, domain_id, 'application/json', (err, data) => {
         if (err) {
           return done(err);
         } else {
