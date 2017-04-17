@@ -12,8 +12,8 @@ const STAGE                = process.env.SERVERLESS_STAGE;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const YAML                 = require('yamljs');
 const serverlessYamlObject = YAML.load('serverless.yml');
-const PATH                 = serverlessYamlObject.functions.createDomains.events[0].http.path;
-const METHOD               = serverlessYamlObject.functions.createDomains.events[0].http.method;
+const PATH                 = serverlessYamlObject.functions.createDomain.events[0].http.path;
+const METHOD               = serverlessYamlObject.functions.createDomain.events[0].http.method;
 const REQUEST_URL            = `${API_GATEWAY_INVOKE_URL}/${PATH}`;
 const PRIVATE_KEY_NAME       = 'object';
 
@@ -48,6 +48,7 @@ describe('Create Domains API', () => {
   let cloud_id = 'zMdCD2J7xrdn77gzcgpiJyQ'
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
   let name = 'ecowork1'
+  let domain_id = 'test_domain_id'
 
   beforeEach('Set Request Options', (done) => {
     options = {
@@ -300,7 +301,7 @@ describe('Create Domains API', () => {
     before('Create a domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, name, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, name, domain_id, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
@@ -341,9 +342,9 @@ describe('Create Domains API', () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
-      testHelper.createDomainItem(cloud_id, app_id, name+'1', (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, name+'1', domain_id, (err, data) => {
         if (err) return done(err);
-        testHelper.createDomainItem(cloud_id, app_id, name+'2', (err, data) => {
+        testHelper.createDomainItem(cloud_id, app_id, name+'2', domain_id, (err, data) => {
           if (err) return done(err);
           done();
         }); // createDomainItem

@@ -123,7 +123,7 @@ custom:
 
 functions:
 
-  createDomains:
+  createDomain:
     handler: endpoints/v1/domains/create/handler.handler
     timeout: 12
     memorySize: 128
