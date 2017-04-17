@@ -2,8 +2,8 @@
 
 // 載入環境參數
 const SERVICE = process.env.SERVERLESS_PROJECT;
-const REGION  = process.env.SERVERLESS_REGION;
-const STAGE   = process.env.SERVERLESS_STAGE;
+const REGION = process.env.SERVERLESS_REGION;
+const STAGE = process.env.SERVERLESS_STAGE;
 const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME
 
 // 載入 AWS 相關服務
@@ -60,19 +60,19 @@ var getDomain = function (cloud_id, app_id, name, callback) {
   });
 } // getDomain
 
-var getObject = function(cloud_id, app_id, domain_id, key, callback) {
+var getObject = function (cloud_id, app_id, domain_id, key, callback) {
   console.log(REGION);
   console.log(`${STAGE}-${SERVICE}-${app_id}`);
   console.log("*********");
   var params = {
-    TableName : `${STAGE}-${SERVICE}-${app_id}`,
+    TableName: `${STAGE}-${SERVICE}-${app_id}`,
     Key: {
       'domain_id': domain_id,
       'key': key
     }
   };
 
-  docClient.get(params, function(err, data) {
+  docClient.get(params, function (err, data) {
     if (err) {
       callback(err);
     }
@@ -90,7 +90,7 @@ var getObject = function(cloud_id, app_id, domain_id, key, callback) {
 * @param  {type} callback {description}
 * @return {type} {description}
 */
-var createDomainItem = function(cloud_id, app_id, name, domain_id, callback) {
+var createDomainItem = function (cloud_id, app_id, name, domain_id, callback) {
   // var domain_id = uuid.v4()
   // var domain_id = '5743356b-e71f-48cd-b915-019171a7a6a6'
   var params = {
@@ -122,7 +122,7 @@ var createDomainItem = function(cloud_id, app_id, name, domain_id, callback) {
   });
 }
 
-var createObjectItem1 = function(cloud_id, app_id, key, domain_id, content_type, callback) {
+var createObjectItem1 = function (cloud_id, app_id, key, domain_id, content_type, callback) {
   // var object_id = uuid.v4();
   var object_id = '6396f119-98a4-459a-b86a-df258a44c918'
   var timestamp = Utility.getTimestamp()
@@ -155,7 +155,7 @@ var createObjectItem1 = function(cloud_id, app_id, key, domain_id, content_type,
     },
     // ConditionExpression: 'attribute_not_exists(#hkey)',
     // ExpressionAttributeNames: {
-      // '#hkey': 'cloud_id-app_id'
+    // '#hkey': 'cloud_id-app_id'
     // },
     ReturnConsumedCapacity: 'TOTAL'
   };
@@ -170,7 +170,7 @@ var createObjectItem1 = function(cloud_id, app_id, key, domain_id, content_type,
 
 }
 
-var uploadS3ObjectItem = function(cloud_id, app_id, object, domain_id, content_type, callback) {
+var uploadS3ObjectItem = function (cloud_id, app_id, object, domain_id, content_type, callback) {
 
   fs.readFile(`./test/tmp/${object}`, (err, data) => {
 
@@ -206,7 +206,7 @@ var uploadS3ObjectItem = function(cloud_id, app_id, object, domain_id, content_t
 
 } // uploadObjectItem
 
-var deleteS3ObjectItem = function(cloud_id, app_id, object, domain_id, content_type, callback) {
+var deleteS3ObjectItem = function (cloud_id, app_id, object, domain_id, content_type, callback) {
 
   var params = {
     Bucket: S3_BUCKET_NAME,
@@ -269,7 +269,7 @@ var deleteObject = function (cloud_id, app_id, object, domain_id, callback) {
     }
   };
 
-  docClient.delete(params, function(err, data) {
+  docClient.delete(params, function (err, data) {
     if (err) {
       console.log(err);
       return callback(err); // an error occurred
@@ -372,7 +372,7 @@ var createAccessToken = function (token, expires_in, callback) {
     }
     else {
       console.log(JSON.stringify(data, null, 2));           // successful response
-      if(data.StatusCode === 200) {
+      if (data.StatusCode === 200) {
         data = JSON.parse(data.Payload);
         callback(null, data);
       } else {
@@ -432,7 +432,7 @@ var deleteAccessToken = function (expired_token_id, callback) {
     }
     else {
       console.log(JSON.stringify(data, null, 2));           // successful response
-      if(data.StatusCode === 200) {
+      if (data.StatusCode === 200) {
         data = JSON.parse(data.Payload);
         callback(null, data);
       } else {
