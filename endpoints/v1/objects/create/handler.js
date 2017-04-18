@@ -97,7 +97,7 @@ module.exports.handler = (event, context, callback) => {
         console.log(`usage: ${result.usage}`);
         return updateDomainJsonUsage(customs.cloud_id, customs.app_id, customs.domain_name, result.usage, source_ip);
       } else {
-        return generatePresignedURL(result.path);
+        return generatePresignedURL(result.path, receivedParams.content_type);
       }
     })
     .then((signed_url) => { // successful response
@@ -233,7 +233,7 @@ var updateDomainJsonUsage = function (cloud_id, app_id, domain_name, usage, sour
 * @param  {type} path {description}
 * @return {type} {description}
 */
-var generatePresignedURL = function (path) {
+var generatePresignedURL = function (path, content_type) {
   console.log('============== generatePresignedURL ==============');
   console.log(`S3_BUCKET: ${S3_BUCKET}`);
   console.log(`path: ${path}`);
@@ -241,7 +241,8 @@ var generatePresignedURL = function (path) {
     var params = {
       Bucket: S3_BUCKET, 
       Key: path, 
-      Expires: 3600 // 1 hour
+      Expires: 3600, // 1 hour
+      ContentType: content_type
     };
     var url = s3.getSignedUrl('putObject', params, function (err, url) {
       console.log('The URL is', url);
