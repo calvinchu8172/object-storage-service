@@ -1,7 +1,7 @@
 account_id: 909603057100
-api_gateway_invoke_url: https://klinuggmyc.execute-api.us-east-1.amazonaws.com/alpha/v1
-# app_id: 7c9e131ae86c0692042354821f23526929922dae666746b61801d630b84c72b1
-app_id: 886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d
+api_gateway_invoke_url: https://nlxdt7tw8b.execute-api.us-east-1.amazonaws.com/beta/v1
+app_id_1: a04d8a971cf5e326030f03025479992ab83a3830520537536daa1b9c7111b459
+app_id_2: d0e58d22a5f505552f5aa305b63a47944500b2c78cdf06bbf3cc17effd90b329
 domains_limit: 500
 pcloud_sso_user_info_url: https://mycloud-sso-beta.zyxel.com/api/v1/my/info
 security_group_id: sg-fb60569e

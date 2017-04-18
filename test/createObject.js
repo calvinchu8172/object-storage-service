@@ -37,7 +37,7 @@ const PATH = serverlessYamlObject.functions.createObject.events[0].http.path;
 const METHOD = serverlessYamlObject.functions.createObject.events[0].http.method;
 const REQUEST_URL = `${API_GATEWAY_INVOKE_URL}/${PATH}`;
 
-const CLOUD_ID = "zMdCD2J7xrdn77gzcgpiJyQ";
+const CLOUD_ID = "zLanZi_liQQ_N_xGLr5g8mw";
 const APP_ID = "886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d";
 const DOMAIN_NAME = "test_domain";
 
@@ -54,7 +54,7 @@ describe('Create Object API', () => {
       url: REQUEST_URL,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'X-API-Key': 'gap62WLIsd6LGag0RD1IH2HX0RndlQb53bIZqKt7',
+        'X-API-Key': 'fZABpQGFiwab1a6xoWIJA2nm3STLKpNk4UUKNiY1',
         'X-Signature': ''
       },
       form: {
@@ -74,14 +74,14 @@ describe('Create Object API', () => {
   before('Create Test Domain', function (done) {
     console.log(`Create Test Domain...`);
     let domain_id = uuidV4();
-    
+
     testHelper.createDomainItem(CLOUD_ID, APP_ID, DOMAIN_NAME, domain_id, (err, data) => {
       if (err) {
         done(err);
       }
       else {
         console.log(`data: ${JSON.stringify(data, null, 2)}`);
-        customs.domain_id = data.domain_id;    
+        customs.domain_id = data.domain_id;
         done();
       }
     }); // registerDevice
@@ -487,7 +487,7 @@ describe('Create Object API', () => {
 
   // OSS_004_16
   describe('If client requests creating object successfully', function () {
-    
+
     after('Delete Duplicated Object Item', function (done) {
       console.log(`Delete Duplicated Object Item...`);
       testHelper.deleteObjectItem(customs.domain_id, options.form.key, APP_ID, (err, data) => {
@@ -516,7 +516,7 @@ describe('Create Object API', () => {
 
   // OSS_004_17
   describe('If client requests creating object successfully', function () {
-    
+
     after('Delete Duplicated Object Item', function (done) {
       console.log(`Delete Duplicated Object Item...`);
       testHelper.deleteObjectItem(customs.domain_id, options.form.key, APP_ID, (err, data) => {

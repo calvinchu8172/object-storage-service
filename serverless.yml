@@ -34,12 +34,6 @@ provider:
   apiKeys:
     - ${self:service}-${self:provider.stage}-smart-wifi
   vpc:
-    # securityGroupIds:
-    #   - ${self:provider.environment.SECURITY_GROUP_ID}
-    # subnetIds:
-    #   - subnet-5bd47870
-    #   - subnet-942147e3
-    #   - subnet-480d8911
     securityGroupIds:
       - ${self:provider.environment.SECURITY_GROUP_ID}
     subnetIds:

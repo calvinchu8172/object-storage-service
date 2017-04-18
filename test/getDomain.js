@@ -36,7 +36,7 @@ const ApiErrors            = require( 'lib/api_errors.js' );
 describe('Get Domains API', () => {
 
   let options = {};
-  let cloud_id = 'zMdCD2J7xrdn77gzcgpiJyQ'
+  let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
   let name = 'ecowork1'
   let domain_id = 'test_domain_id'
@@ -50,7 +50,7 @@ describe('Get Domains API', () => {
       url: REQUEST_URL,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'X-API-Key': 'gap62WLIsd6LGag0RD1IH2HX0RndlQb53bIZqKt7',
+        'X-API-Key': 'fZABpQGFiwab1a6xoWIJA2nm3STLKpNk4UUKNiY1',
         'X-Signature': ''
       },
       qs: {

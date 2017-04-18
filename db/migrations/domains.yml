@@ -7,22 +7,8 @@ DomainsTable:
         AttributeType: S
       - AttributeName: name
         AttributeType: S
-      # - AttributeName: id
-      #   AttributeType: S
-      # - AttributeName: app_id
-      #   AttributeType: S
-      # - AttributeName: json_usage
-      #   AttributeType: N
-      # - AttributeName: file_usage
-      #   AttributeType: N
-      # - AttributeName: created_by
-      #   AttributeType: S
-      # - AttributeName: created_at
-      #   AttributeType: N
-      # - AttributeName: updated_by
-      #   AttributeType: S
-      # - AttributeName: updated_at
-      #   AttributeType: N
+      - AttributeName: id
+        AttributeType: S
     KeySchema:
       - AttributeName: cloud_id-app_id
         KeyType: HASH
@@ -31,3 +17,15 @@ DomainsTable:
     ProvisionedThroughput:
       ReadCapacityUnits: 5
       WriteCapacityUnits: 5
+    GlobalSecondaryIndexes:
+      - IndexName: cloud_id-app_id-id-index
+        KeySchema:
+          - AttributeName: cloud_id-app_id
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5

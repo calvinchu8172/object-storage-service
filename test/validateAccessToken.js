@@ -65,9 +65,9 @@ describe('Access Token Validator', () => {
   }); // Given an invalid access token
 
 
-  describe('Given an expired access token', function() {    
+  describe('Given an expired access token', function() {
     describe('if client requests with that token', function() {
-      
+
       before('Create Expired Token', function(done) {
         this.timeout(12000);
         console.log(`Create Expired Token...`);

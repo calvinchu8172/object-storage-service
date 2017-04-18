@@ -35,7 +35,7 @@ const ApiErrors            = require( 'lib/api_errors.js' );
 describe('S3 Handler', () => {
 
   let options = {};
-  let cloud_id = 'zMdCD2J7xrdn77gzcgpiJyQ'
+  let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
   let domain = 'ecowork1'
   let domain_id = 'test_domain_id'
