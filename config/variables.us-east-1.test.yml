@@ -1,6 +1,10 @@
 account_id: 212868998188
 api_gateway_invoke_url: https://c7rn4lxmne.execute-api.us-east-1.amazonaws.com/test
+# app_id: 886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d
 app_id: 7c9e131ae86c0692042354821f23526929922dae666746b61801d630b84c72b1
 domains_limit: 2
 pcloud_sso_user_info_url: https://mycloud-sso-alpha.zyxel.ecoworkinc.com/api/v1/my/info
-# s3_bucket_name: object-storage-test-us-east-1-212868998188
+security_group_id: sg-16cf5d72
+subnet_id_1: subnet-5bd47870
+subnet_id_2: subnet-942147e3
+subnet_id_3: subnet-480d8911

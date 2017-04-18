@@ -6,6 +6,7 @@ plugins:
   - serverless-offline
   - serverless-mocha-plugin
   - serverless-secrets-plugin
+  - serverless-deployment-bucket-plugin
   - serverless-dynamodb-migrations-plugin
 
 package:
@@ -20,7 +21,7 @@ provider:
   stage: ${opt:stage, self:custom.defaultStage}
   region: us-east-1
   profile: ${self:custom.profiles.${self:provider.stage}}
-  deploymentBucket: ${self:service}-deployment
+  deploymentBucket: ${self:service}-${self:provider.stage}-deployment-${self:provider.environment.ACCOUNT_ID}
   environment: ${file(config/env.yml)}
   iamRoleStatements:
     - Effect: "Allow"
@@ -33,12 +34,18 @@ provider:
   apiKeys:
     - ${self:service}-${self:provider.stage}-smart-wifi
   vpc:
+    # securityGroupIds:
+    #   - ${self:provider.environment.SECURITY_GROUP_ID}
+    # subnetIds:
+    #   - subnet-5bd47870
+    #   - subnet-942147e3
+    #   - subnet-480d8911
     securityGroupIds:
-      - sg-16cf5d72
+      - ${self:provider.environment.SECURITY_GROUP_ID}
     subnetIds:
-      - subnet-5bd47870
-      - subnet-942147e3
-      - subnet-480d8911
+      - ${self:provider.environment.SUBNET_ID_1}
+      - ${self:provider.environment.SUBNET_ID_2}
+      - ${self:provider.environment.SUBNET_ID_3}
 
 
 custom:
@@ -46,7 +53,8 @@ custom:
   profiles:
     test: pcloud_alpha
     alpha: pcloud_alpha
-    prod: pcloud_beta_and_production
+    beta: pcloud_beta_and_prod
+    prod: pcloud_beta_and_prod
   httpGetRequestTemplate: >
     #set($allParams = $input.params())
     {
@@ -291,9 +299,11 @@ functions:
     memorySize: 128
     vpc:
       securityGroupIds:
-        - sg-16cf5d72
+        - ${self:provider.environment.SECURITY_GROUP_ID}
       subnetIds:
-        - subnet-5bd47870
+        - ${self:provider.environment.SUBNET_ID_1}
+        - ${self:provider.environment.SUBNET_ID_2}
+        - ${self:provider.environment.SUBNET_ID_3}
 
   s3Handler:
     handler: functions/s3_handler/handler.handler
@@ -313,6 +323,8 @@ functions:
     memorySize: 128
     vpc:
       securityGroupIds:
-        - sg-16cf5d72
+        - ${self:provider.environment.SECURITY_GROUP_ID}
       subnetIds:
-        - subnet-5bd47870
+        - ${self:provider.environment.SUBNET_ID_1}
+        - ${self:provider.environment.SUBNET_ID_2}
+        - ${self:provider.environment.SUBNET_ID_3}
