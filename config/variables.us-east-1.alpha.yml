@@ -1,5 +1,5 @@
 account_id: 212868998188
-api_gateway_invoke_url: https://klinuggmyc.execute-api.us-east-1.amazonaws.com/alpha/v1
+api_gateway_invoke_url: https://oss-alpha.zyxel.ecoworkinc.com
 app_id_1: 886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d
 app_id_2: 5fcdbbc1840e14832a5158a7ffa292b5c0028e135df5a6d5955c13325e464148
 domains_limit: 500

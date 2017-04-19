@@ -1,5 +1,5 @@
 account_id: 909603057100
-api_gateway_invoke_url: https://nlxdt7tw8b.execute-api.us-east-1.amazonaws.com/beta/v1
+api_gateway_invoke_url: https://oss-beta.zyxel.ecoworkinc.com
 app_id_1: a04d8a971cf5e326030f03025479992ab83a3830520537536daa1b9c7111b459
 app_id_2: d0e58d22a5f505552f5aa305b63a47944500b2c78cdf06bbf3cc17effd90b329
 domains_limit: 500
