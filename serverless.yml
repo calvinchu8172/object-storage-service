@@ -121,7 +121,7 @@ custom:
 
   httpServerErrorResponseTemplate: >
     #set($inputRoot = $input.path('$'))
-    ""
+
 
 # API endpints:
 
