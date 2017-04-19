@@ -119,7 +119,9 @@ custom:
       "message" : "$errorMessageObj.message"
     }
 
-  httpServerErrorResponseTemplate: ""
+  httpServerErrorResponseTemplate: >
+    #set($inputRoot = $input.path('$'))
+    ""
 
 # API endpints:
 
