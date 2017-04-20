@@ -163,7 +163,8 @@ functions:
                     pattern: '.*"httpStatus":500.*'
                     template:
                       text/plain: ${self:custom.httpServerErrorResponseTemplate}
-
+                    headers:
+                      Content-Type: "'text/plain'"
   getDomain:
     handler: endpoints/v1/domains/show/handler.handler
     timeout: 12
