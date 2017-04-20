@@ -242,6 +242,8 @@ functions:
                     pattern: '.*"httpStatus":500.*'
                     template:
                       text/plain: ${self:custom.httpServerErrorResponseTemplate}
+                    headers:
+                      Content-Type: "'text/plain'"
   getObject:
     handler: endpoints/v1/objects/show/handler.handler
     timeout: 12
