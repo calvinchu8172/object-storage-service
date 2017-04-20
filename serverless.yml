@@ -120,7 +120,7 @@ custom:
     }
 
   httpServerErrorResponseTemplate: >
-    #set($inputRoot = $input.path('$'))
+    {}
 
 # API endpints:
 
@@ -162,9 +162,7 @@ functions:
                 500:
                     pattern: '.*"httpStatus":500.*'
                     template:
-                      text/plain: ${self:custom.httpServerErrorResponseTemplate}
-                    headers:
-                      Content-Type: "'text/plain'"
+                      application/json: ${self:custom.httpServerErrorResponseTemplate}
   getDomain:
     handler: endpoints/v1/domains/show/handler.handler
     timeout: 12
@@ -220,6 +218,7 @@ functions:
               application/json: ${self:custom.httpPostRequestTemplate}
               application/x-www-form-urlencoded: ${self:custom.httpPostRequestTemplate}
           response:
+            template: $input.path('$')
             statusCodes:
                 400:
                     pattern: '.*"httpStatus":400.*'
@@ -240,9 +239,7 @@ functions:
                 500:
                     pattern: '.*"httpStatus":500.*'
                     template:
-                      text/plain: ${self:custom.httpServerErrorResponseTemplate}
-                    headers:
-                      Content-Type: "'text/plain'"
+                      application/json: ${self:custom.httpServerErrorResponseTemplate}
   getObject:
     handler: endpoints/v1/objects/show/handler.handler
     timeout: 12
