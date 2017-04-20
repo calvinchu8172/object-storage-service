@@ -119,7 +119,8 @@ custom:
       "message" : "$errorMessageObj.message"
     }
 
-  httpServerErrorResponseTemplate: ""
+  httpServerErrorResponseTemplate: >
+    {}
 
 # API endpints:
 
@@ -161,8 +162,7 @@ functions:
                 500:
                     pattern: '.*"httpStatus":500.*'
                     template:
-                      text/plain: ${self:custom.httpServerErrorResponseTemplate}
-
+                      application/json: ${self:custom.httpServerErrorResponseTemplate}
   getDomain:
     handler: endpoints/v1/domains/show/handler.handler
     timeout: 12
@@ -277,7 +277,7 @@ functions:
                 500:
                     pattern: '.*"httpStatus":500.*'
                     template:
-                      text/plain: ${self:custom.httpServerErrorResponseTemplate}
+                      application/json: ${self:custom.httpServerErrorResponseTemplate}
   getObject:
     handler: endpoints/v1/objects/show/handler.handler
     timeout: 12

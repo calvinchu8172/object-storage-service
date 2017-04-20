@@ -114,10 +114,9 @@ module.exports.handler = (event, context, callback) => {
       if (empty(err.httpStatus) || empty(err.code) || empty(err.message)) {
         console.error(err);
         err = ApiErrors.unexceptedError;
-      } else { // handled error
-        err = JSON.stringify(err);
-        console.error(err);
       }
+      err = JSON.stringify(err);
+      console.error(err);
       callback(err);
     });
 
@@ -131,7 +130,7 @@ module.exports.handler = (event, context, callback) => {
 * @return {type} {description}
 */
 var createObjectItem = function (objectItem, app_id) {
-  console.log('============== createDomainItem ==============');
+  console.log('============== createObjectItem ==============');
   console.log(`objectItem: ${JSON.stringify(objectItem, null, 2)}`);
 
   return new Promise((resolve, reject) => {
@@ -239,8 +238,8 @@ var generatePresignedURL = function (path, content_type) {
   console.log(`path: ${path}`);
   return new Promise((resolve, reject) => {
     var params = {
-      Bucket: S3_BUCKET, 
-      Key: path, 
+      Bucket: S3_BUCKET,
+      Key: path,
       Expires: 3600, // 1 hour
       ContentType: content_type
     };
