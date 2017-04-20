@@ -80,7 +80,9 @@ module.exports.handler = ( event, context, callback ) => {
     })
     .then((data) => { // successful response
       console.log(data);
-      callback(null, JSON.stringify(data, null, 2));
+      var result = {};
+      result.data = data;
+      callback(null, JSON.stringify(result, null, 2));
     })
     .catch((err) => {
       console.error(`final error: ${JSON.stringify(err)}`);
