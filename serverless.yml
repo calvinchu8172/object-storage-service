@@ -220,7 +220,6 @@ functions:
               application/json: ${self:custom.httpPostRequestTemplate}
               application/x-www-form-urlencoded: ${self:custom.httpPostRequestTemplate}
           response:
-            template: $input.path('$')
             statusCodes:
                 400:
                     pattern: '.*"httpStatus":400.*'
