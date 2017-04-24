@@ -12,17 +12,17 @@ DomainsTable:
     KeySchema:
       - AttributeName: cloud_id-app_id
         KeyType: HASH
-      - AttributeName: name
+      - AttributeName: id
         KeyType: RANGE
     ProvisionedThroughput:
       ReadCapacityUnits: 5
       WriteCapacityUnits: 5
     GlobalSecondaryIndexes:
-      - IndexName: cloud_id-app_id-id-index
+      - IndexName: cloud_id-app_id-name-index
         KeySchema:
           - AttributeName: cloud_id-app_id
             KeyType: HASH
-          - AttributeName: id
+          - AttributeName: name
             KeyType: RANGE
         Projection:
           ProjectionType: ALL

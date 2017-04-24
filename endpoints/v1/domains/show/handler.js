@@ -14,7 +14,7 @@ const ddb = new AWS.DynamoDB.DocumentClient({ region: REGION });
 
 // ================ Modules =====================
 const uuidV4 = require('uuid/v4');
-const isEmpty         = require('is-empty');
+const isEmpty = require('is-empty');
 
 
 // ================ Lib/Modules =================
@@ -23,7 +23,7 @@ const CommonSteps = require('lib/common_steps');
 const Utility = require('lib/utility.js');
 const ApiErrors = require('lib/api_errors.js');
 
-module.exports.handler = ( event, context, callback ) => {
+module.exports.handler = (event, context, callback) => {
   console.log(`event: ${JSON.stringify(event, null, 2)}`);
 
   const headers = event.headers;
@@ -41,11 +41,11 @@ module.exports.handler = ( event, context, callback ) => {
   console.log(`request_id: ${request_id}`);
   console.log(`source_ip: ${source_ip}`);
   console.log(`certificate_serial: ${certificate_serial}`);
-  console.log(`receivedParams: ${receivedParams}`);
+
   console.log("**************************1");
   console.log(receivedParams);
   receivedParams.domain = domain;
-  console.log(receivedParams);
+  console.log(`receivedParams: ${JSON.stringify(receivedParams, null, 2)}`);
   console.log(`headers: ${headers}`);
   console.log("**************************2");
   console.log(headers);
@@ -71,11 +71,8 @@ module.exports.handler = ( event, context, callback ) => {
     .then((user_info) => {
       return CommonSteps.writeAccessLog(event, receivedParams, domain_id, user_info);
     })
-    // .then((user_info) => {
-      // return CommonSteps.countDomains(user_info);
-    // })
     .then((user_info) => {
-      return getDomainItem(event, user_info, domain_id, receivedParams);
+      return getDomainItem(event, user_info, receivedParams);
     })
     .then(() => { // successful response
       callback();
@@ -93,54 +90,44 @@ module.exports.handler = ( event, context, callback ) => {
 * @param  {type} params    {description}
 * @return {type} {description}
 */
-var getDomainItem = function (event, user_info, domain_id, params) {
+var getDomainItem = function (event, user_info, params) {
   console.log('============== getDomainItem ==============');
   console.log(`params: ${JSON.stringify(params, null, 2)}`);
   return new Promise((resolve, reject) => {
     let hash_key = user_info.cloud_id + "-" + user_info.app_id;
-    let error_hash_key = 'aaa-bbb';
-    console.log(hash_key);
-    console.log(params);
-    // let timestamp = Utility.getTimestamp();
-    // var payload = {
-    //   TableName: `${STAGE}-${SERVICE}-domains`,
-    //   Item: {
-    //     'cloud_id-app_id': hash_key,
-    //     'name': params.domain,
-    //     'id': domain_id,
-    //     'app_id': user_info.app_id,
-    //     'json_usage': 0,
-    //     'file_usage': 0,
-    //     'created_by': event.source_ip,
-    //     'created_at': timestamp,
-    //     'updated_by': event.source_ip,
-    //     'updated_at': timestamp
-    //   },
-    //   ConditionExpression: 'attribute_not_exists(#hkey)',
-    //   ExpressionAttributeNames: {
-    //     '#hkey': 'cloud_id-app_id'
-    //   },
-    //   ReturnConsumedCapacity: 'TOTAL'
-    // };
     var payload = {
-      TableName : `${STAGE}-${SERVICE}-domains`,
-      Key: {
-        'cloud_id-app_id': hash_key,
-        'name': params.domain
+      TableName: `${STAGE}-${SERVICE}-domains`,
+      IndexName: 'cloud_id-app_id-name-index',
+      KeyConditionExpression: '#hkey = :hkey and #rkey = :rkey',
+      ExpressionAttributeNames: {
+        "#hkey": "cloud_id-app_id",
+        "#rkey": "name"
+      },
+      ExpressionAttributeValues: {
+        ':hkey': hash_key,
+        ':rkey': params.domain
       }
-    };
-    ddb.get(payload, function (err, data) {
+    }; //params
+    console.log(`payload: ${JSON.stringify(payload, null, 2)}`);
+    ddb.query(payload, function (err, data) {
+      console.log(`data: ${JSON.stringify(data, null, 2)}`);
       if (err) {
         console.log(err);
         reject(ApiErrors.unexceptedError);
       }
-      else if (isEmpty(data)) {
-        reject(ApiErrors.notFound.domain);
+      else if (data.Items) {
+        if (data.Items.length > 0) {
+          resolve();
+        } else {
+          reject(ApiErrors.notFound.domain);
+        }
       }
       else {
-        resolve();
+        reject(ApiErrors.unexceptedError);
       }
-    });
+    }); // ddb
+
+
   });
 }
 

@@ -23,7 +23,6 @@ const lambda               = new AWS.Lambda({region: REGION});
 
 const Utility              = require('lib/utility.js');
 const signatureGenerator   = require('lib/signature_generator.js')
-// const randomstring         = require("randomstring");
 const request              = require('request');
 const mochaPlugin          = require('serverless-mocha-plugin');
 const moment               = require( 'moment' );
@@ -50,7 +49,7 @@ describe('Get Object API', () => {
       method: METHOD,
       url: REQUEST_URL,
       headers: {
-        'X-API-Key': 'fZABpQGFiwab1a6xoWIJA2nm3STLKpNk4UUKNiY1',
+        'X-API-Key': 'rsDcF3bDxC4mA2cYeWgr81wbSsLTgEmA1iIJYQTe',
         'X-Signature': ''
       },
       qs: {
@@ -58,16 +57,6 @@ describe('Get Object API', () => {
         access_token: '7eda6dd4de708b1886ed34f6c0460ffef2d9094e5052fb706ad7635cadb8ea8b'
       }
     }; // options
-
-    // console.log("***********before");
-    // console.log(options);
-    // options.qs.domain = 'ecowork1';
-    // console.log("***********after");
-    // console.log(options);
-
-    // options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
-    // console.log(options.headers['X-Signature']);
-
     done();
   }); // beforeEach
 
@@ -79,8 +68,7 @@ describe('Get Object API', () => {
     it("Should return 'Missing Required Parameter: certificate_serial'", (done) => {
 
       delete options.qs.certificate_serial;
-      // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
-
+      
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
         else {
@@ -105,8 +93,6 @@ describe('Get Object API', () => {
     it("Should return 'Invalid certificate_serial'", (done) => {
 
       options.qs.certificate_serial = 'invalid_certificate_serial';
-      // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
-
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -263,7 +249,7 @@ describe('Get Object API', () => {
     after('Clear Testing Data', function (done) {
       this.timeout(12000);
 
-      testHelper.deleteDomain(cloud_id, app_id, domain, (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain
@@ -317,7 +303,7 @@ describe('Get Object API', () => {
     after('Clear Testing Data', function (done) {
       this.timeout(12000);
 
-      testHelper.deleteDomain(cloud_id, app_id, domain, (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain
@@ -418,7 +404,7 @@ describe('Get Object API', () => {
       this.timeout(12000);
       console.log('delete domain item');
       // done();
-      testHelper.deleteDomain(cloud_id, app_id, domain, (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain

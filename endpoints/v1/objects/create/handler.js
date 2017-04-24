@@ -75,6 +75,9 @@ module.exports.handler = (event, context, callback) => {
       return CommonSteps.writeAccessLog(event, receivedParams, customs.domain_id, customs.user_info);
     })
     .then(() => {
+      return queryObjectItem(customs.domain_id, receivedParams.key, customs.app_id);
+    })
+    .then(() => {
       let object_id = uuidV4();
       let domain_path = `${customs.cloud_id}/${customs.app_id}/${customs.domain_id}`;
       let path = `${domain_path}/${receivedParams.key}`;
@@ -95,7 +98,7 @@ module.exports.handler = (event, context, callback) => {
     .then((result) => {
       if (isJsonTypeObject) {
         console.log(`usage: ${result.usage}`);
-        return updateDomainJsonUsage(customs.cloud_id, customs.app_id, customs.domain_name, result.usage, source_ip);
+        return updateDomainJsonUsage(customs.cloud_id, customs.app_id, customs.domain_id, result.usage, source_ip);
       } else {
         return generatePresignedURL(result.path, receivedParams.content_type);
       }
@@ -121,6 +124,44 @@ module.exports.handler = (event, context, callback) => {
       callback(err);
     });
 
+}
+
+
+/**
+* @function queryObjectItem
+* @param  {type} objectItem {description}
+* @param  {type} app_id     {description}
+* @return {type} {description}
+*/
+var queryObjectItem = function (domain_id, key, app_id) {
+  return new Promise((resolve, reject) => {
+    var payload = {
+      TableName: `${STAGE}-${SERVICE}-${app_id}`,
+      IndexName: 'domain_id-key-index',
+      KeyConditionExpression: '#hkey = :hkey and #rkey = :rkey',
+      ExpressionAttributeNames: {
+        "#hkey": "domain_id",
+        "#rkey": "key"
+      },
+      ExpressionAttributeValues: {
+        ':hkey': domain_id,
+        ':rkey': key
+      }
+    }; //params
+    ddb.query(payload, function (err, data) {
+      console.log(`data: ${JSON.stringify(data, null, 2)}`);
+      if (err) {
+        console.log(err);
+        reject(ApiErrors.unexceptedError);
+      }
+      else if (data.Items && data.Items.length > 0) {
+        reject(ApiErrors.validationFailed.key_duplicated);
+      }
+      else {
+        resolve();
+      }
+    });
+  });
 }
 
 
@@ -183,7 +224,7 @@ var createObjectItem = function (objectItem, app_id) {
 * @param  {type} usage       {description}
 * @return {type} {description}
 */
-var updateDomainJsonUsage = function (cloud_id, app_id, domain_name, usage, source_ip) {
+var updateDomainJsonUsage = function (cloud_id, app_id, domain_id, usage, source_ip) {
   console.log('============== updateDomainJsonUsage ==============');
   return new Promise((resolve, reject) => {
 
@@ -191,7 +232,7 @@ var updateDomainJsonUsage = function (cloud_id, app_id, domain_name, usage, sour
       TableName: `${STAGE}-${SERVICE}-domains`,
       Key: {
         "cloud_id-app_id": `${cloud_id}-${app_id}`,
-        "name": domain_name
+        "id": domain_id
       },
       UpdateExpression: 'SET #json_usage = #json_usage + :json_usage, #updated_at = :updated_at,  #updated_by = :updated_by',
       ConditionExpression: 'attribute_exists(#hkey)',
@@ -239,8 +280,8 @@ var generatePresignedURL = function (path, content_type) {
   console.log(`path: ${path}`);
   return new Promise((resolve, reject) => {
     var params = {
-      Bucket: S3_BUCKET, 
-      Key: path, 
+      Bucket: S3_BUCKET,
+      Key: path,
       Expires: 3600, // 1 hour
       ContentType: content_type
     };

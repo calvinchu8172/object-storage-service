@@ -14,6 +14,7 @@ const ddb = new AWS.DynamoDB.DocumentClient({ region: REGION });
 
 // ================ Modules =====================
 const uuidV4 = require('uuid/v4');
+const empty = require('is-empty');
 
 
 // ================ Lib/Modules =================
@@ -66,6 +67,9 @@ module.exports.handler = (event, context, callback) => {
       return CommonSteps.countDomains(user_info);
     })
     .then((user_info) => {
+      return getDomainItem(event, user_info, receivedParams.domain, receivedParams);
+    })
+    .then((user_info) => {
       return createDomainItem(event, user_info, domain_id, receivedParams);
     })
     .then(() => { // successful response
@@ -105,9 +109,9 @@ var createDomainItem = function (event, user_info, domain_id, params) {
         'updated_by': event.source_ip,
         'updated_at': timestamp
       },
-      ConditionExpression: 'attribute_not_exists(#hkey)',
+      ConditionExpression: 'attribute_not_exists(#name)',
       ExpressionAttributeNames: {
-        '#hkey': 'cloud_id-app_id'
+        '#name': 'names'
       },
       ReturnConsumedCapacity: 'TOTAL'
     };
@@ -125,4 +129,48 @@ var createDomainItem = function (event, user_info, domain_id, params) {
       }
     });
   });
+}
+
+
+/**
+* @function getDomainItem
+* @param  {type} user_info {description}
+* @param  {type} event     {description}
+* @param  {type} params    {description}
+* @return {type} {description}
+*/
+var getDomainItem = function (event, user_info, domain_name, params) {
+  console.log('============== getDomainItem ==============');
+  console.log(`params: ${JSON.stringify(params, null, 2)}`);
+  return new Promise((resolve, reject) => {
+    let hash_key = user_info.cloud_id + "-" + user_info.app_id;
+    console.log(hash_key);
+    console.log(params);
+    var payload = {
+      TableName: `${STAGE}-${SERVICE}-domains`,
+      IndexName: 'cloud_id-app_id-name-index',
+      KeyConditionExpression: '#hkey = :hkey and #rkey = :rkey',
+      ExpressionAttributeNames: {
+        "#hkey": "cloud_id-app_id",
+        "#rkey": "name"
+      },
+      ExpressionAttributeValues: {
+        ':hkey': hash_key,
+        ':rkey': domain_name
+      }
+    }; //params
+    ddb.query(payload, function (err, data) {
+      console.log(`data: ${JSON.stringify(data, null, 2)}`);
+      if (err) {
+        console.log(err);
+        reject(ApiErrors.unexceptedError);
+      }
+      else if (data.Items && data.Items.length > 0) {
+        reject(ApiErrors.validationFailed.domain_duplicated);
+      }
+      else {
+        resolve(user_info);
+      }
+    });
+  }); // Promise
 }

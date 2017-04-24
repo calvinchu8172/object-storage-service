@@ -15,3 +15,15 @@ ObjectsTable2:
     ProvisionedThroughput:
       ReadCapacityUnits: 5
       WriteCapacityUnits: 5
+    GlobalSecondaryIndexes:
+      - IndexName: domain_id-key-index
+        KeySchema:
+          - AttributeName: domain_id
+            KeyType: HASH
+          - AttributeName: key
+            KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5

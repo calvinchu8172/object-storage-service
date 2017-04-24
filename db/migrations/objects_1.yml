@@ -5,13 +5,25 @@ ObjectsTable1:
     AttributeDefinitions:
       - AttributeName: domain_id
         AttributeType: S
-      - AttributeName: key
+      - AttributeName: id
         AttributeType: S
     KeySchema:
       - AttributeName: domain_id
         KeyType: HASH
-      - AttributeName: key
+      - AttributeName: id
         KeyType: RANGE
     ProvisionedThroughput:
       ReadCapacityUnits: 5
       WriteCapacityUnits: 5
+    GlobalSecondaryIndexes:
+      - IndexName: domain_id-key-index
+        KeySchema:
+          - AttributeName: domain_id
+            KeyType: HASH
+          - AttributeName: key
+            KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5

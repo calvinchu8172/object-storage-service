@@ -50,7 +50,7 @@ describe('Get Domains API', () => {
       url: REQUEST_URL,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'X-API-Key': 'fZABpQGFiwab1a6xoWIJA2nm3STLKpNk4UUKNiY1',
+        'X-API-Key': 'rsDcF3bDxC4mA2cYeWgr81wbSsLTgEmA1iIJYQTe',
         'X-Signature': ''
       },
       qs: {
@@ -58,16 +58,6 @@ describe('Get Domains API', () => {
         access_token: '7eda6dd4de708b1886ed34f6c0460ffef2d9094e5052fb706ad7635cadb8ea8b'
       }
     }; // options
-
-    // console.log("***********before");
-    // console.log(options);
-    // options.qs.domain = 'ecowork1';
-    // console.log("***********after");
-    // console.log(options);
-
-    // options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
-    // console.log(options.headers['X-Signature']);
-
     done();
   }); // beforeEach
 
@@ -227,7 +217,7 @@ describe('Get Domains API', () => {
     after('Clear Testing Data', function (done) {
       this.timeout(12000);
 
-      testHelper.deleteDomain(cloud_id, app_id, name, (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain
@@ -312,7 +302,7 @@ describe('Get Domains API', () => {
     after('Clear Testing Data', function (done) {
       this.timeout(12000);
 
-      testHelper.deleteDomain(cloud_id, app_id, name, (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain

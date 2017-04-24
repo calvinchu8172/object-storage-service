@@ -16,7 +16,7 @@ const s3 = new AWS.S3({ region: REGION });
 
 // ================ Modules =====================
 const uuidV4 = require('uuid/v4');
-const isEmpty         = require('is-empty');
+const isEmpty = require('is-empty');
 
 
 // ================ Lib/Modules =================
@@ -25,35 +25,28 @@ const CommonSteps = require('lib/common_steps');
 const Utility = require('lib/utility.js');
 const ApiErrors = require('lib/api_errors.js');
 
-module.exports.handler = ( event, context, callback ) => {
+module.exports.handler = (event, context, callback) => {
   console.log(`event: ${JSON.stringify(event, null, 2)}`);
 
   const headers = event.headers;
   const request_id = event.request_id;
   const source_ip = event.source_ip;
-  // const receivedParams = ParamsFetcher.fetchFrom(event);
   const receivedParams = event.query;
   const certificate_serial = receivedParams.certificate_serial;
   const domain_id = uuidV4();
 
   const domain = event.path.domain;
-  const object = event.path.object;
+  const key = event.path.key;
 
-  // console.log(`SERVICE: ${SERVICE}`);
-  // console.log(`STAGE: ${STAGE}`);
-  // console.log(`request_id: ${request_id}`);
-  // console.log(`source_ip: ${source_ip}`);
-  // console.log(`certificate_serial: ${certificate_serial}`);
-  // console.log(`receivedParams: ${receivedParams}`);
   console.log("**************************1");
   console.log(receivedParams);
   receivedParams.domain = domain;
-  receivedParams.object = object;
+  receivedParams.key = key;
   console.log(receivedParams);
   console.log(`headers: ${headers}`);
   console.log("**************************2");
   console.log(headers);
-
+  let customs = {};
 
   CommonSteps.checkCertificateSerial(certificate_serial)
     .then((certificate_serial) => {
@@ -73,37 +66,40 @@ module.exports.handler = ( event, context, callback ) => {
       return CommonSteps.verifyAccessToken(receivedParams.access_token);
     })
     .then((user_info) => {
-      return CommonSteps.writeAccessLog(event, receivedParams, domain_id, user_info);
+      customs.user_info = user_info;
+      customs.cloud_id = user_info.cloud_id;
+      customs.app_id = user_info.app_id;
     })
-    // .then((user_info) => {
-      // return CommonSteps.countDomains(user_info);
-    // })
-    .then((user_info) => {
-      return getDomainItem(event, user_info, domain_id, receivedParams);
+    .then(() => {
+      return CommonSteps.getDomainItem(customs.cloud_id, customs.app_id, domain);
     })
     .then((domain_data) => {
-      return getObjectItem(event, domain_data, domain_id, receivedParams);
+      customs.domain_id = domain_data.domain_id;
+      console.log(`customs: ${JSON.stringify(customs, null, 2)}`);
     })
-    .then((data) => {
-      if (data.Item.content_type == 'application/json') {
-        var json = data.Item.content;
+    .then(() => {
+      return CommonSteps.writeAccessLog(event, receivedParams, customs.domain_id, custums.user_info);
+    })
+    .then(() => {
+      return getObjectItem(event, customs.app_id, customs.domain_id, receivedParams);
+    })
+    .then((item) => {
+      if (item.content_type == 'application/json') {
+        var json = item.content;
         return responseJSON(json);
       } else {
-        var path = data.Item.path;
+        var path = item.path;
         return generatePresignedURL(path);
       }
     })
     .then((json) => { // successful response
       callback(null, json);
     })
-    // .then(() => { // successful response
-    //   callback();
-    // })
     .catch((err) => {
       console.error(`final error: ${JSON.stringify(err)}`);
       // callback(JSON.stringify(err));
       console.log(typeof err)
-      if (typeof err == 'object'){
+      if (typeof err == 'object') {
         callback(JSON.stringify(err));
       } else {
         callback(err);
@@ -119,73 +115,73 @@ module.exports.handler = ( event, context, callback ) => {
 * @param  {type} params    {description}
 * @return {type} {description}
 */
-var getDomainItem = function (event, user_info, domain_id, params) {
-  console.log('============== getDomainItem ==============');
-  console.log(`params: ${JSON.stringify(params, null, 2)}`);
-  return new Promise((resolve, reject) => {
-    let hash_key = user_info.cloud_id + "-" + user_info.app_id;
-    console.log(hash_key);
-    console.log(params);
+// var getDomainItem = function (event, user_info, domain_id, params) {
+//   console.log('============== getDomainItem ==============');
+//   console.log(`params: ${JSON.stringify(params, null, 2)}`);
+//   return new Promise((resolve, reject) => {
+//     let hash_key = user_info.cloud_id + "-" + user_info.app_id;
+//     console.log(hash_key);
+//     console.log(params);
 
-    var payload = {
-      TableName : `${STAGE}-${SERVICE}-domains`,
-      Key: {
-        'cloud_id-app_id': hash_key,
-        'name': params.domain
-      }
-    };
-    ddb.get(payload, function (err, data) {
-      if (err) {
-        console.log(err);
-        reject(ApiErrors.unexceptedError);
-      }
-      else if (isEmpty(data)) {
-        reject(ApiErrors.notFound.domain);
-      }
-      else {
-        resolve(data);
-      }
-    });
-  }); // Promise
-}
+//     var payload = {
+//       TableName : `${STAGE}-${SERVICE}-domains`,
+//       Key: {
+//         'cloud_id-app_id': hash_key,
+//         'name': params.domain
+//       }
+//     };
+//     ddb.get(payload, function (err, data) {
+//       if (err) {
+//         console.log(err);
+//         reject(ApiErrors.unexceptedError);
+//       }
+//       else if (isEmpty(data)) {
+//         reject(ApiErrors.notFound.domain);
+//       }
+//       else {
+//         resolve(data);
+//       }
+//     });
+//   }); // Promise
+// }
 
-var getObjectItem = function (event, domain_data, domain_id, params) {
+var getObjectItem = function (event, app_id, domain_id, params) {
   console.log('============== getObjectItem ==============');
-  console.log(domain_data);
-  var app_id = domain_data.Item.app_id
-  console.log(app_id)
-  console.log(domain_id);
-
   return new Promise((resolve, reject) => {
-
     var payload = {
-      TableName : `${STAGE}-${SERVICE}-${app_id}`,
-      Key: {
-        'domain_id': domain_data.Item.id,
-        'key': params.object
+      TableName: `${STAGE}-${SERVICE}-${app_id}`,
+      IndexName: 'domain_id-key-index',
+      KeyConditionExpression: '#hkey = :hkey and #rkey = :rkey',
+      ExpressionAttributeNames: {
+        "#hkey": "domain_id",
+        "#rkey": "key"
+      },
+      ExpressionAttributeValues: {
+        ':hkey': domain_id,
+        ':rkey': params.key
       }
-    };
-    ddb.get(payload, function (err, data) {
+    }; //payload
+
+    ddb.query(payload, function (err, data) {
+      console.log(`data: ${JSON.stringify(data, null, 2)}`);
       if (err) {
         console.log(err);
         reject(ApiErrors.unexceptedError);
       }
-      else if (isEmpty(data)) {
-        reject(ApiErrors.notFound.object);
+      else if (data.Items) {
+        if (data.Items.length > 0) {
+          let item = data.Items[0];
+          resolve(item);
+        } else {
+          reject(ApiErrors.notFound.object);
+        }
       }
       else {
-        console.log(data);
-        var path = data.Item.path
-        console.log(path);
-        // var s3_url = generatePresignedURL(path);
-        // console.log("******s3_url");
-        // console.log(s3_url);
-        // resolve(path);
-        resolve(data);
-        // reject(s3_url)
+        reject(ApiErrors.unexceptedError);
       }
-    }); //ddb
-  // resolve('aaa');
+
+    }); // ddb
+    // resolve('aaa');
   }); // Promise
 
 }

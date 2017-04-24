@@ -23,6 +23,7 @@ const PRIVATE_KEY_NAME       = 'object';
 const request              = require('request');
 const mochaPlugin          = require('serverless-mocha-plugin');
 const moment               = require( 'moment' );
+const uuidV4               = require( 'uuid/v4' );
 const expect               = mochaPlugin.chai.expect;
 
 
@@ -45,6 +46,7 @@ const lambda               = new AWS.Lambda({region: REGION});
 describe('Create Domains API', () => {
 
   let options = {};
+  let customs = {};
   let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
   let name = 'ecowork1'
@@ -56,7 +58,7 @@ describe('Create Domains API', () => {
       url: REQUEST_URL,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'X-API-Key': 'fZABpQGFiwab1a6xoWIJA2nm3STLKpNk4UUKNiY1',
+        'X-API-Key': 'rsDcF3bDxC4mA2cYeWgr81wbSsLTgEmA1iIJYQTe',
         'X-Signature': ''
       },
       form: {
@@ -310,7 +312,7 @@ describe('Create Domains API', () => {
     after('Clear Testing Data', function (done) {
       this.timeout(12000);
 
-      testHelper.deleteDomain(cloud_id, app_id, name, (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain
@@ -342,9 +344,11 @@ describe('Create Domains API', () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
-      testHelper.createDomainItem(cloud_id, app_id, name+'1', domain_id, (err, data) => {
+      customs.domain_id_1 = uuidV4();
+      customs.domain_id_2 = uuidV4();
+      testHelper.createDomainItem(cloud_id, app_id, name+'1',customs.domain_id_1 , (err, data) => {
         if (err) return done(err);
-        testHelper.createDomainItem(cloud_id, app_id, name+'2', domain_id, (err, data) => {
+        testHelper.createDomainItem(cloud_id, app_id, name+'2',customs.domain_id_2, (err, data) => {
           if (err) return done(err);
           done();
         }); // createDomainItem
@@ -354,9 +358,9 @@ describe('Create Domains API', () => {
     after('Clear Testing Data', function (done) {
       this.timeout(12000);
 
-      testHelper.deleteDomain(cloud_id, app_id, name+'1', (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, customs.domain_id_1, (err, data) => {
         if (err) return done(err);
-        testHelper.deleteDomain(cloud_id, app_id, name+'2', (err, data) => {
+        testHelper.deleteDomain(cloud_id, app_id, customs.domain_id_2, (err, data) => {
           if (err) return done(err);
           return done();
         }); // deleteDomain
@@ -388,19 +392,10 @@ describe('Create Domains API', () => {
   *****************************************************************/
   describe('Successfully create domain item', () => {
 
-    // before('Register a device', function (done) {
-    //   this.timeout(12000);
-    //   // 註冊裝置
-    //   testHelper.registerDevice(udid, (err) => {
-    //     if (err) return done(err);
-    //     done();
-    //   }); // registerDevice
-    // }); // before
-
     after('Clear Testing Data', function (done) {
       this.timeout(12000);
       // 刪除裝置
-      testHelper.deleteDomain(cloud_id, app_id, name, (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, customs.domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain
@@ -409,11 +404,11 @@ describe('Create Domains API', () => {
     it("should return 'OK'", function(done) {
 
       options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
-      // console.log(options.headers['X-Signature']);
-      // done();
 
       let createDomains = function () {
         return new Promise((resolve, reject) => {
+          console.log(`create domains .....`);
+          console.log(`options: ${JSON.stringify(options, null, 2)}`);
           request(options, (err, response, body) => {
             if (err) reject(err); // an error occurred
             else {
@@ -427,7 +422,7 @@ describe('Create Domains API', () => {
       createDomains()
       .then(() => {
         return new Promise((resolve, reject) => {
-          testHelper.getDomain(cloud_id, app_id, name, (err, domain) => {
+          testHelper.getDomain(cloud_id, app_id, options.form.domain, (err, domain) => {
             if (err) return reject(err);
             console.log(domain);
             expect(domain).to.have.all.keys([
@@ -442,6 +437,7 @@ describe('Create Domains API', () => {
               'updated_at',
               'updated_by'
             ]);
+            customs.domain_id = domain.id;
             expect(domain['cloud_id-app_id']).to.equal(`${cloud_id}-${app_id}`);
             expect(domain.name).to.equal(name);
             resolve();

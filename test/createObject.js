@@ -54,7 +54,7 @@ describe('Create Object API', () => {
       url: REQUEST_URL,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'X-API-Key': 'fZABpQGFiwab1a6xoWIJA2nm3STLKpNk4UUKNiY1',
+        'X-API-Key': 'rsDcF3bDxC4mA2cYeWgr81wbSsLTgEmA1iIJYQTe',
         'X-Signature': ''
       },
       form: {
@@ -74,7 +74,6 @@ describe('Create Object API', () => {
   before('Create Test Domain', function (done) {
     console.log(`Create Test Domain...`);
     let domain_id = uuidV4();
-
     testHelper.createDomainItem(CLOUD_ID, APP_ID, DOMAIN_NAME, domain_id, (err, data) => {
       if (err) {
         done(err);
@@ -90,11 +89,11 @@ describe('Create Object API', () => {
 
   after('Delete Test Domain', function (done) {
     console.log(`Delete Test Domain...`);
-    testHelper.deleteDomain(CLOUD_ID, APP_ID, DOMAIN_NAME, (err, data) => {
+    testHelper.deleteDomain(CLOUD_ID, APP_ID, customs.domain_id, (err, data) => {
       if (err) done(err);
       else done();
     }); // registerDevice
-  }); // before
+  }); // after
 
 
 
@@ -449,7 +448,8 @@ describe('Create Object API', () => {
 
     before('Create Duplicated Object Item', function (done) {
       console.log(`Create Duplicated Object Item...`);
-      testHelper.createObjectItem(customs.domain_id, options.form.key, APP_ID, (err, data) => {
+      customs.object_id = uuidV4();
+      testHelper.createObjectItem(customs.domain_id, customs.object_id, options.form.key, APP_ID, (err, data) => {
         if (err) return done(err);
         else {
           console.log(`data: ${JSON.stringify(data)}`);
@@ -460,7 +460,7 @@ describe('Create Object API', () => {
 
     after('Delete Duplicated Object Item', function (done) {
       console.log(`Delete Duplicated Object Item...`);
-      testHelper.deleteObjectItem(customs.domain_id, options.form.key, APP_ID, (err, data) => {
+      testHelper.deleteObjectItem(customs.domain_id, customs.object_id, APP_ID, (err, data) => {
         if (err) done(err);
         else done();
       }); // registerDevice
@@ -490,7 +490,7 @@ describe('Create Object API', () => {
 
     after('Delete Duplicated Object Item', function (done) {
       console.log(`Delete Duplicated Object Item...`);
-      testHelper.deleteObjectItem(customs.domain_id, options.form.key, APP_ID, (err, data) => {
+      testHelper.deleteObjectItem(customs.domain_id, customs.object_id, APP_ID, (err, data) => {
         if (err) done(err);
         else done();
       }); // deleteObjectItem
@@ -506,7 +506,12 @@ describe('Create Object API', () => {
           else {
             console.log(response.body);
             expect(response.statusCode).to.equal(200);
-            done();
+            testHelper.getObject(CLOUD_ID, APP_ID, customs.domain_id, options.form.key, (err, item) => {
+              if(err) return done(err);
+              console.log(`item: ${JSON.stringify(item, null, 2)}`);
+              customs.object_id = item.id;
+              done();
+            });
           }
         }); // request
       }); // it
@@ -519,7 +524,7 @@ describe('Create Object API', () => {
 
     after('Delete Duplicated Object Item', function (done) {
       console.log(`Delete Duplicated Object Item...`);
-      testHelper.deleteObjectItem(customs.domain_id, options.form.key, APP_ID, (err, data) => {
+      testHelper.deleteObjectItem(customs.domain_id, customs.object_id, APP_ID, (err, data) => {
         if (err) done(err);
         else done();
       }); // deleteObjectItem
@@ -539,7 +544,12 @@ describe('Create Object API', () => {
             let parsedBody = JSON.parse(body);
             expect(parsedBody).to.have.keys('data');
             expect(parsedBody.data).to.have.keys('upload_url');
-            done();
+            testHelper.getObject(CLOUD_ID, APP_ID, customs.domain_id, options.form.key, (err, item) => {
+              if(err) return done(err);
+              console.log(`item: ${JSON.stringify(item, null, 2)}`);
+              customs.object_id = item.id;
+              done();
+            });
           }
         }); // request
       }); // it
