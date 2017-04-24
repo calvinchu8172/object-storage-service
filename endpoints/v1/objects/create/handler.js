@@ -117,10 +117,9 @@ module.exports.handler = (event, context, callback) => {
       if (empty(err.httpStatus) || empty(err.code) || empty(err.message)) {
         console.error(err);
         err = ApiErrors.unexceptedError;
-      } else { // handled error
-        err = JSON.stringify(err);
-        console.error(err);
       }
+      err = JSON.stringify(err);
+      console.error(err);
       callback(err);
     });
 
@@ -172,7 +171,7 @@ var queryObjectItem = function (domain_id, key, app_id) {
 * @return {type} {description}
 */
 var createObjectItem = function (objectItem, app_id) {
-  console.log('============== createDomainItem ==============');
+  console.log('============== createObjectItem ==============');
   console.log(`objectItem: ${JSON.stringify(objectItem, null, 2)}`);
 
   return new Promise((resolve, reject) => {
