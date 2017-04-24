@@ -512,7 +512,7 @@ describe('Get Object API', () => {
     after('Clear Testing Domain Data', function (done) {
       this.timeout(12000);
       console.log('delete domain item');
-      testHelper.deleteDomain(cloud_id, app_id, domain, (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain
