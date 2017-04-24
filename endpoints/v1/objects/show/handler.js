@@ -78,9 +78,10 @@ module.exports.handler = (event, context, callback) => {
       console.log(`customs: ${JSON.stringify(customs, null, 2)}`);
     })
     .then(() => {
-      return CommonSteps.writeAccessLog(event, receivedParams, customs.domain_id, custums.user_info);
+      console.log(`xxxxxxxx.....`);
+      return CommonSteps.writeAccessLog(event, receivedParams, customs.domain_id, customs.user_info);
     })
-    .then(() => {
+    .then((user_info) => {
       return getObjectItem(event, customs.app_id, customs.domain_id, receivedParams);
     })
     .then((item) => {

@@ -63,8 +63,8 @@ describe('S3 Handler', () => {
     before('Create an object1 item', function (done) {
       this.timeout(12000);
       console.log('create object item');
-
-      testHelper.createObjectItem1(cloud_id, app_id, object1, domain_id, 'image/png', (err, data) => {
+      var object_id = '6396f119-98a4-459a-b86a-df258a44c918';
+      testHelper.createObjectItem1(cloud_id, app_id, object1, domain_id, object_id, 'image/png', (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -77,8 +77,8 @@ describe('S3 Handler', () => {
     before('Create an object2 item', function (done) {
       this.timeout(12000);
       console.log('create object item');
-
-      testHelper.createObjectItem1(cloud_id, app_id, object2, domain_id, 'image/jpg', (err, data) => {
+      var object_id = '6396f119-98a4-459a-b86a-df258a44c918';
+      testHelper.createObjectItem1(cloud_id, app_id, object2, domain_id, object_id, 'image/jpg', (err, data) => {
         if (err) {
           return done(err);
         } else {
