@@ -14,6 +14,7 @@ const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const REQUEST_URL            = `${API_GATEWAY_INVOKE_URL}/${PATH}`;
 const PRIVATE_KEY_NAME       = 'object';
 const PROJECT_NAME           = process.env.SERVERLESS_PROJECT;
+const X_API_KEY              = process.env.X_API_KEY;
 
 const AWS                  = require('aws-sdk');
 const REGION               = process.env.SERVERLESS_REGION;
@@ -50,7 +51,7 @@ describe('Get Object API', () => {
       method: METHOD,
       url: REQUEST_URL,
       headers: {
-        'X-API-Key': 'rsDcF3bDxC4mA2cYeWgr81wbSsLTgEmA1iIJYQTe',
+        'X-API-Key': X_API_KEY,
         'X-Signature': ''
       },
       qs: {
@@ -69,7 +70,7 @@ describe('Get Object API', () => {
     it("Should return 'Missing Required Parameter: certificate_serial'", (done) => {
 
       delete options.qs.certificate_serial;
-      
+
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
         else {
