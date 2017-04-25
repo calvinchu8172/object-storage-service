@@ -14,6 +14,7 @@ const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const REQUEST_URL            = `${API_GATEWAY_INVOKE_URL}/${PATH}`;
 const PRIVATE_KEY_NAME       = 'object';
 const PROJECT_NAME           = process.env.SERVERLESS_PROJECT;
+const X_API_KEY              = process.env.X_API_KEY;
 
 const AWS                  = require('aws-sdk');
 const REGION               = process.env.SERVERLESS_REGION;
@@ -51,7 +52,7 @@ describe('Get Domains API', () => {
       url: REQUEST_URL,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'X-API-Key': 'fZABpQGFiwab1a6xoWIJA2nm3STLKpNk4UUKNiY1',
+        'X-API-Key': X_API_KEY,
         'X-Signature': ''
       },
       qs: {
@@ -405,7 +406,7 @@ describe('Get Domains API', () => {
     before('Create a domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, name + '1', domain_id, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, `${name}_1`, `${domain_id}_1`, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
@@ -414,7 +415,7 @@ describe('Get Domains API', () => {
     after('Clear Testing Data', function (done) {
       this.timeout(12000);
 
-      testHelper.deleteDomain(cloud_id, app_id, name, (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain
@@ -423,7 +424,7 @@ describe('Get Domains API', () => {
     after('Clear Testing Data', function (done) {
       this.timeout(12000);
 
-      testHelper.deleteDomain(cloud_id, app_id, name + '1', (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, `${domain_id}_1`, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain

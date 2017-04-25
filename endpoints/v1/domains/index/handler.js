@@ -108,7 +108,7 @@ var queryDomainItem = function (event, user_info, domain_id, params) {
 
     var payload = {
       TableName : `${STAGE}-${SERVICE}-domains`,
-      IndexName: 'cloud_id-app_id-id-index',
+      IndexName: 'cloud_id-app_id-name-index',
       KeyConditionExpression: '#hkey = :hkey',
       ExpressionAttributeNames:{
         "#hkey": "cloud_id-app_id"
