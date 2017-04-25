@@ -35,6 +35,7 @@ const isEmpty              = require('is-empty');
 describe('Get Object API', () => {
 
   let options = {};
+  let customs = {};
   let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
   let domain = 'ecowork1'
@@ -372,11 +373,10 @@ describe('Get Object API', () => {
     before('Create an object item', function (done) {
       this.timeout(12000);
       console.log('create object item');
-      // domain_id = tmp.domain_id;
       console.log(domain_id);
-      // done();
-
-      testHelper.createObjectItem1(cloud_id, app_id, object, domain_id, 'image/jpg', (err, data) => {
+      var object_id = '6396f119-98a4-459a-b86a-df258a44c918';
+      customs.object_id = object_id;
+      testHelper.createObjectItem1(cloud_id, app_id, object, domain_id, object_id, 'image/jpg', (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -413,9 +413,7 @@ describe('Get Object API', () => {
     after('Clear Testing Object Data', function (done) {
       this.timeout(12000);
       console.log('delete object item');
-      // done();
-
-      testHelper.deleteObject(cloud_id, app_id, object, domain_id, (err, data) => {
+      testHelper.deleteObject(cloud_id, app_id, customs.object_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteObject
@@ -497,12 +495,11 @@ describe('Get Object API', () => {
     before('Create a object item', function (done) {
       this.timeout(12000);
       console.log('create object item');
-      // domain_id = tmp.domain_id;
       console.log(domain_id);
       object = 'test_mocha.json';
-      // done();
-
-      testHelper.createObjectItem1(cloud_id, app_id, object, domain_id, 'application/json', (err, data) => {
+      var object_id = '6396f119-98a4-459a-b86a-df258a44c918';
+      customs.object_id = object_id;
+      testHelper.createObjectItem1(cloud_id, app_id, object, domain_id, object_id, 'application/json', (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -515,8 +512,7 @@ describe('Get Object API', () => {
     after('Clear Testing Domain Data', function (done) {
       this.timeout(12000);
       console.log('delete domain item');
-      // done();
-      testHelper.deleteDomain(cloud_id, app_id, domain, (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain
@@ -527,7 +523,7 @@ describe('Get Object API', () => {
       console.log('delete object item');
       // done();
 
-      testHelper.deleteObject(cloud_id, app_id, object, domain_id, (err, data) => {
+      testHelper.deleteObject(cloud_id, app_id, customs.object_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteObject

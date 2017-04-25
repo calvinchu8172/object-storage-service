@@ -7,6 +7,8 @@ ObjectsTable1:
         AttributeType: S
       - AttributeName: id
         AttributeType: S
+      - AttributeName: key
+        AttributeType: S
     KeySchema:
       - AttributeName: domain_id
         KeyType: HASH
