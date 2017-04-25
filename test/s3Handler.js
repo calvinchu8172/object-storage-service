@@ -23,8 +23,8 @@ const lambda               = new AWS.Lambda({region: REGION});
 
 const Utility              = require('lib/utility.js');
 const signatureGenerator   = require('lib/signature_generator.js')
-// const randomstring         = require("randomstring");
 const request              = require('request');
+const uuidV4               = require('uuid/v4');
 const mochaPlugin          = require('serverless-mocha-plugin');
 const moment               = require( 'moment' );
 const expect               = mochaPlugin.chai.expect;
@@ -35,6 +35,7 @@ const ApiErrors            = require( 'lib/api_errors.js' );
 describe('S3 Handler', () => {
 
   let options = {};
+  let customs = {};
   let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
   let domain = 'ecowork1'
@@ -63,8 +64,9 @@ describe('S3 Handler', () => {
     before('Create an object1 item', function (done) {
       this.timeout(12000);
       console.log('create object item');
-      var object_id = '6396f119-98a4-459a-b86a-df258a44c918';
-      testHelper.createObjectItem1(cloud_id, app_id, object1, domain_id, object_id, 'image/png', (err, data) => {
+      var object_id_1 = uuidV4();
+      customs.object_id_1 = object_id_1;
+      testHelper.createObjectItem1(cloud_id, app_id, object1, domain_id, object_id_1, 'image/png', (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -77,8 +79,9 @@ describe('S3 Handler', () => {
     before('Create an object2 item', function (done) {
       this.timeout(12000);
       console.log('create object item');
-      var object_id = '6396f119-98a4-459a-b86a-df258a44c918';
-      testHelper.createObjectItem1(cloud_id, app_id, object2, domain_id, object_id, 'image/jpg', (err, data) => {
+      var object_id_2 = uuidV4();
+      customs.object_id_2 = object_id_2;
+      testHelper.createObjectItem1(cloud_id, app_id, object2, domain_id, object_id_2, 'image/jpg', (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -88,27 +91,11 @@ describe('S3 Handler', () => {
       }); // createObjectItem
     }); // before
 
-    // before('Upload an object to s3', function (done) {
-    //   this.timeout(12000);
-    //   console.log('upload object item to s3');
-    //   // done();
-
-    //   testHelper.uploadS3ObjectItem(cloud_id, app_id, object, domain_id, 'image/png', (err, data) => {
-    //     if (err) {
-    //       return done(err);
-    //     } else {
-    //       console.log(data);
-    //       done();
-    //     }
-    //   }); // createObjectItem
-    // }); // before
-
-
     after('Clear Testing Domain Data', function (done) {
       this.timeout(12000);
       console.log('delete domain item');
       // done();
-      testHelper.deleteDomain(cloud_id, app_id, domain, (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain
@@ -117,8 +104,8 @@ describe('S3 Handler', () => {
     after('Clear Testing Object1 Data', function (done) {
       this.timeout(12000);
       console.log('delete objec1 item');
-
-      testHelper.deleteObject(cloud_id, app_id, object1, domain_id, (err, data) => {
+      
+      testHelper.deleteObject(cloud_id, app_id, customs.object_id_1, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteObject
@@ -128,7 +115,7 @@ describe('S3 Handler', () => {
       this.timeout(12000);
       console.log('delete object2 item');
 
-      testHelper.deleteObject(cloud_id, app_id, object2, domain_id, (err, data) => {
+      testHelper.deleteObject(cloud_id, app_id, customs.object_id_2, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteObject
@@ -180,7 +167,6 @@ describe('S3 Handler', () => {
               console.log(err)
               reject(err); // an error occurred
             } else {
-              // console.log(data);
               before_upload_domain_usage = data.file_usage;
               console.log('before upload domain usage: ', before_upload_domain_usage);
               resolve(data);
