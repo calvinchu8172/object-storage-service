@@ -5,12 +5,14 @@ ObjectsTable2:
     AttributeDefinitions:
       - AttributeName: domain_id
         AttributeType: S
+      - AttributeName: id
+        AttributeType: S
       - AttributeName: key
         AttributeType: S
     KeySchema:
       - AttributeName: domain_id
         KeyType: HASH
-      - AttributeName: key
+      - AttributeName: id
         KeyType: RANGE
     ProvisionedThroughput:
       ReadCapacityUnits: 5
