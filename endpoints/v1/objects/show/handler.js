@@ -77,12 +77,16 @@ module.exports.handler = (event, context, callback) => {
       customs.domain_id = domain_data.domain_id;
       console.log(`customs: ${JSON.stringify(customs, null, 2)}`);
     })
+    // .then(() => {
+    //   console.log(`xxxxxxxx.....`);
+    //   return CommonSteps.writeAccessLog(event, receivedParams, customs.domain_id, customs.user_info);
+    // })
     .then(() => {
       console.log(`xxxxxxxx.....`);
-      return CommonSteps.writeAccessLog(event, receivedParams, customs.domain_id, customs.user_info);
-    })
-    .then((user_info) => {
       return getObjectItem(event, customs.app_id, customs.domain_id, receivedParams);
+    })
+    .then((item) => {
+      return CommonSteps.writeAccessObjectLog(event, receivedParams, customs.domain_id, customs.user_info, item);
     })
     .then((item) => {
       if (item.content_type == 'application/json') {
