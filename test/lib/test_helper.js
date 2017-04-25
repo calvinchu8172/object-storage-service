@@ -41,13 +41,6 @@ const secrets = yaml.load(`secrets.${STAGE}.yml`);
 */
 var getDomain = function (cloud_id, app_id, domain_name, callback) {
   console.log('============== test_helper.getDomain ==============');
-  // var params = {
-  //   TableName: `${STAGE}-${SERVICE}-domains`,
-  //   Key: {
-  //     'cloud_id-app_id': `${cloud_id}-${app_id}`,
-  //     'id': domain_id
-  //   }
-  // };
   var hash_key = `${cloud_id}-${app_id}`;
   var params = {
     TableName: `${STAGE}-${SERVICE}-domains`,
@@ -89,22 +82,6 @@ var getDomain = function (cloud_id, app_id, domain_name, callback) {
 */
 var getObject = function (cloud_id, app_id, domain_id, key, callback) {
   console.log('============== test_helper.getObject ==============');
-  // var params = {
-  //   TableName: `${STAGE}-${SERVICE}-${app_id}`,
-  //   Key: {
-  //     'domain_id': domain_id,
-  //     'key': key
-  //   }
-  // };
-  // console.log(`params: ${JSON.stringify(params, null, 2)}`);
-  // docClient.get(params, function (err, data) {
-  //   if (err) {
-  //     callback(err);
-  //   }
-  //   else {
-  //     callback(null, data.Item);
-  //   }
-  // });
 
   var params = {
     TableName: `${STAGE}-${SERVICE}-${app_id}`,
