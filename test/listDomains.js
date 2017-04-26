@@ -38,7 +38,7 @@ const lambda               = new AWS.Lambda({region: REGION});
 
 
 
-describe('Get Domains API', () => {
+describe('List Domains API', () => {
 
   let options = {};
   let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
