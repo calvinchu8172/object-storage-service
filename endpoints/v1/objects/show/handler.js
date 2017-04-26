@@ -78,7 +78,6 @@ module.exports.handler = (event, context, callback) => {
       console.log(`customs: ${JSON.stringify(customs, null, 2)}`);
     })
     .then(() => {
-      console.log(`xxxxxxxx.....`);
       return CommonSteps.writeAccessLog(event, receivedParams, customs.domain_id, customs.user_info);
     })
     .then((user_info) => {

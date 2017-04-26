@@ -5,16 +5,17 @@
 
 require('rootpath')();
 
+
+// ================ Modules =====================
+const mochaPlugin          = require('serverless-mocha-plugin');
+const expect               = mochaPlugin.chai.expect;
+
+
 // ================ ENVs ========================
 const SERVICE              = process.env.SERVERLESS_PROJECT;
 const REGION               = process.env.SERVERLESS_REGION;
 const STAGE                = process.env.SERVERLESS_STAGE;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
-
-
-// ================ Modules =====================
-const mochaPlugin          = require('serverless-mocha-plugin');
-const expect               = mochaPlugin.chai.expect;
 
 
 // ================ Lib/Modules =================
@@ -25,8 +26,6 @@ const testHelper           = require('./lib/test_helper');
 const AWS                  = require('aws-sdk');
 const lambda               = new AWS.Lambda({region: REGION});
 
-
-// const serverlessYamlObject = YAML.load('serverless.yml');
 
 describe('Access Token Validator', () => {
 
