@@ -210,42 +210,42 @@ functions:
                     template:
                       application/json: ${self:custom.httpResponseTemplate}
 
-  # listDomains:
-  #   handler: endpoints/v1/domains/index/handler.handler
-  #   timeout: 12
-  #   memorySize: 128
-  #   events:
-  #     - http:
-  #         path: v1/domains
-  #         method: get
-  #         integration: lambda
-  #         private: true
-  #         request:
-  #           template:
-  #             application/json: ${self:custom.httpGetRequestTemplate}
-  #         response:
-  #           template: $input.path('$')
-  #           statusCodes:
-  #               400:
-  #                   pattern: '.*"httpStatus":400.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               401:
-  #                   pattern: '.*"httpStatus":401.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               403:
-  #                   pattern: '.*"httpStatus":403.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               404:
-  #                   pattern: '.*"httpStatus":404.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               500:
-  #                   pattern: '.*"httpStatus":500.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
+  listDomains:
+    handler: endpoints/v1/domains/index/handler.handler
+    timeout: 12
+    memorySize: 128
+    events:
+      - http:
+          path: v1/domains
+          method: get
+          integration: lambda
+          private: true
+          request:
+            template:
+              application/json: ${self:custom.httpGetRequestTemplate}
+          response:
+            template: $input.path('$')
+            statusCodes:
+                400:
+                    pattern: '.*"httpStatus":400.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                401:
+                    pattern: '.*"httpStatus":401.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                403:
+                    pattern: '.*"httpStatus":403.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                404:
+                    pattern: '.*"httpStatus":404.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                500:
+                    pattern: '.*"httpStatus":500.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
 
   createObject:
     handler: endpoints/v1/objects/create/handler.handler
@@ -285,47 +285,47 @@ functions:
                     template:
                       application/json: ${self:custom.httpServerErrorResponseTemplate}
 
-  # updateObject:
-  #   handler: endpoints/v1/objects/update/handler.handler
-  #   timeout: 12
-  #   memorySize: 128
-  #   events:
-  #     - http:
-  #         path: v1/objects/{domain}/{key}
-  #         method: put
-  #         integration: lambda
-  #         private: true
-  #         request:
-  #           parameters:
-  #             paths:
-  #               domain: true
-  #               key: true
-  #           template:
-  #             application/json: ${self:custom.httpPostRequestTemplate}
-  #             application/x-www-form-urlencoded: ${self:custom.httpPostRequestTemplate}
-  #         response:
-  #           template: $input.path('$')
-  #           statusCodes:
-  #               400:
-  #                   pattern: '.*"httpStatus":400.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               401:
-  #                   pattern: '.*"httpStatus":401.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               403:
-  #                   pattern: '.*"httpStatus":403.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               404:
-  #                   pattern: '.*"httpStatus":404.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               500:
-  #                   pattern: '.*"httpStatus":500.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpServerErrorResponseTemplate}
+  updateObject:
+    handler: endpoints/v1/objects/update/handler.handler
+    timeout: 12
+    memorySize: 128
+    events:
+      - http:
+          path: v1/objects/{domain}/{key}
+          method: put
+          integration: lambda
+          private: true
+          request:
+            parameters:
+              paths:
+                domain: true
+                key: true
+            template:
+              application/json: ${self:custom.httpPostRequestTemplate}
+              application/x-www-form-urlencoded: ${self:custom.httpPostRequestTemplate}
+          response:
+            template: $input.path('$')
+            statusCodes:
+                400:
+                    pattern: '.*"httpStatus":400.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                401:
+                    pattern: '.*"httpStatus":401.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                403:
+                    pattern: '.*"httpStatus":403.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                404:
+                    pattern: '.*"httpStatus":404.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                500:
+                    pattern: '.*"httpStatus":500.*'
+                    template:
+                      application/json: ${self:custom.httpServerErrorResponseTemplate}
 
   getObject:
     handler: endpoints/v1/objects/show/handler.handler
@@ -374,45 +374,45 @@ functions:
                     template:
                       application/json: ${self:custom.httpResponseTemplate}
 
-  # listObjects:
-  #   handler: endpoints/v1/objects/index/handler.handler
-  #   timeout: 12
-  #   memorySize: 128
-  #   events:
-  #     - http:
-  #         path: v1/objects/{domain}
-  #         method: get
-  #         integration: lambda
-  #         private: true
-  #         request:
-  #           parameters:
-  #             paths:
-  #               domain: true
-  #           template:
-  #             application/json: ${self:custom.httpGetRequestTemplate}
-  #         response:
-  #           template: $input.path('$')
-  #           statusCodes:
-  #               400:
-  #                   pattern: '.*"httpStatus":400.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               401:
-  #                   pattern: '.*"httpStatus":401.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               403:
-  #                   pattern: '.*"httpStatus":403.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               404:
-  #                   pattern: '.*"httpStatus":404.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
-  #               500:
-  #                   pattern: '.*"httpStatus":500.*'
-  #                   template:
-  #                     application/json: ${self:custom.httpResponseTemplate}
+  listObjects:
+    handler: endpoints/v1/objects/index/handler.handler
+    timeout: 12
+    memorySize: 128
+    events:
+      - http:
+          path: v1/objects/{domain}
+          method: get
+          integration: lambda
+          private: true
+          request:
+            parameters:
+              paths:
+                domain: true
+            template:
+              application/json: ${self:custom.httpGetRequestTemplate}
+          response:
+            template: $input.path('$')
+            statusCodes:
+                400:
+                    pattern: '.*"httpStatus":400.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                401:
+                    pattern: '.*"httpStatus":401.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                403:
+                    pattern: '.*"httpStatus":403.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                404:
+                    pattern: '.*"httpStatus":404.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                500:
+                    pattern: '.*"httpStatus":500.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
 
   validateAccessToken:
     handler: functions/validators/access_token/handler.handler
