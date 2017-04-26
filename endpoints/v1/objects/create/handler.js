@@ -34,7 +34,9 @@ module.exports.handler = (event, context, callback) => {
   let headers = event.headers;
   let source_ip = event.source_ip;
   let certificate_serial = receivedParams.certificate_serial;
-  let customs = {};
+  let customs = {
+    object_id: uuidV4()
+  };
   let isJsonTypeObject = (receivedParams.content_type === 'application/json');
 
   CommonSteps.checkCertificateSerial(certificate_serial)
@@ -72,13 +74,16 @@ module.exports.handler = (event, context, callback) => {
       customs.domain_name = result.domain_name;
       console.log(`customs.domain_id: ${customs.domain_id}`);
       console.log(`customs.domain_name: ${customs.domain_name}`);
-      return CommonSteps.writeAccessLog(event, receivedParams, customs.domain_id, customs.user_info);
+      let item = {};
+      item.id = customs.object_id;
+      item.key = receivedParams.key;
+      return CommonSteps.writeAccessObjectLog(event, receivedParams, customs.domain_id, customs.user_info, item);
     })
     .then(() => {
       return queryObjectItem(customs.domain_id, receivedParams.key, customs.app_id);
     })
     .then(() => {
-      let object_id = uuidV4();
+      let object_id = customs.object_id;
       let domain_path = `${customs.cloud_id}/${customs.app_id}/${customs.domain_id}`;
       let path = `${domain_path}/${receivedParams.key}`;
       let timestamp = Utility.getTimestamp();
