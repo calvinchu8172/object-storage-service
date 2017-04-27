@@ -73,19 +73,35 @@ module.exports.handler = (event, context, callback) => {
       customs.cloud_id = user_info.cloud_id;
       customs.app_id = user_info.app_id;
     })
+    // .then((user_info) => {
+    //   return CommonSteps.writeAccessLog(event, receivedParams, domain_id, customs.user_info);
+    // })
     .then((user_info) => {
-      return CommonSteps.writeAccessLog(event, receivedParams, domain_id, customs.user_info);
-    })
-    .then((user_info) => {
-      // return getDomainItem(event, user_info, receivedParams);
       return CommonSteps.getDomainItem(customs.cloud_id, customs.app_id, domain);
     })
-    .then((result) => {
-      return queryObjectItem(event, customs.app_id, result.domain_id);
+    .then((domain_data) => {
+      customs.domain_id = domain_data.domain_id;
+      console.log(`customs: ${JSON.stringify(customs, null, 2)}`);
+    })
+    .then(() => {
+      return queryObjectItem(event, customs.app_id, customs.domain_id, receivedParams.key, receivedParams.begins_with);
+    })
+    .then((item) => {
+      return CommonSteps.writeListObjectLog(event, receivedParams, customs.domain_id, customs.user_info, item);
     })
     .then((data) => { // successful response
       console.log("==================final=====================")
       console.log(data);
+      data.map(e => {
+        delete e.content;
+        delete e.id;
+        delete e.created_by;
+        delete e.updated_by;
+        delete e.path;
+        delete e.domain_path;
+        delete e.id;
+        delete e.domain_id;
+      });
       var result = {};
       result.data = data;
       callback(null, JSON.stringify(result, null, 2));
@@ -96,20 +112,59 @@ module.exports.handler = (event, context, callback) => {
     });
 };
 
-var queryObjectItem = function (event, app_id, domain_id) {
+var queryObjectItem = function (event, app_id, domain_id, key, begins_with) {
   console.log('============== gueryObjectItem ==============');
   return new Promise((resolve, reject) => {
-    var payload = {
-      TableName: `${STAGE}-${SERVICE}-${app_id}`,
-      IndexName: 'domain_id-key-index',
-      KeyConditionExpression: '#hkey = :hkey',
-      ExpressionAttributeNames: {
-        "#hkey": "domain_id"
-      },
-      ExpressionAttributeValues: {
-        ':hkey': domain_id
-      }
-    }; //payload
+
+    console.log(key)
+    console.log(begins_with)
+
+    var payload;
+
+    if (key) {
+      console.log('***********1 query object by key');
+      payload = {
+        TableName: `${STAGE}-${SERVICE}-${app_id}`,
+        IndexName: 'domain_id-key-index',
+        KeyConditionExpression: '#hkey = :hkey and #key = :rkey',
+        ExpressionAttributeNames: {
+          "#hkey": "domain_id",
+          "#key": "key"
+        },
+        ExpressionAttributeValues: {
+          ':hkey': domain_id,
+          ':rkey': key
+        }
+      }; //payload
+    } else if (begins_with) {
+      console.log('***********2 query object by begins_with');
+      payload = {
+        TableName: `${STAGE}-${SERVICE}-${app_id}`,
+        IndexName: 'domain_id-key-index',
+        KeyConditionExpression: '#hkey = :hkey and begins_with(#key, :rkey)',
+        ExpressionAttributeNames: {
+          "#hkey": "domain_id",
+          "#key": "key"
+        },
+        ExpressionAttributeValues: {
+          ':hkey': domain_id,
+          ':rkey': begins_with
+        }
+      }; //payload
+    } else {
+      console.log('***********3 query object by domain_id(all)');
+      payload = {
+        TableName: `${STAGE}-${SERVICE}-${app_id}`,
+        IndexName: 'domain_id-key-index',
+        KeyConditionExpression: '#hkey = :hkey',
+        ExpressionAttributeNames: {
+          "#hkey": "domain_id"
+        },
+        ExpressionAttributeValues: {
+          ':hkey': domain_id
+        }
+      }; //payload
+    } // else
 
     ddb.query(payload, function (err, data) {
       console.log(JSON.stringify(data, null, 2));
@@ -121,16 +176,16 @@ var queryObjectItem = function (event, app_id, domain_id) {
         reject(ApiErrors.notFound.domain);
       }
       else {
-        data.Items.map(e => {
-          delete e.content;
-          delete e.id;
-          delete e.created_by;
-          delete e.updated_by;
-          delete e.path;
-          delete e.domain_path;
-          delete e.id;
-          delete e.domain_id;
-        });
+        // data.Items.map(e => {
+        //   delete e.content;
+        //   delete e.id;
+        //   delete e.created_by;
+        //   delete e.updated_by;
+        //   delete e.path;
+        //   delete e.domain_path;
+        //   delete e.id;
+        //   delete e.domain_id;
+        // });
         resolve(data.Items);
       }
 
