@@ -173,7 +173,7 @@ var queryObjectItem = function (event, app_id, domain_id, key, begins_with) {
         reject(ApiErrors.unexceptedError);
       }
       else if (isEmpty(data.Items)) {
-        reject(ApiErrors.notFound.domain);
+        reject(ApiErrors.notFound.object);
       }
       else {
         // data.Items.map(e => {

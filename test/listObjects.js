@@ -10,6 +10,7 @@ const mochaPlugin          = require('serverless-mocha-plugin');
 const moment               = require( 'moment' );
 const expect               = mochaPlugin.chai.expect;
 const uuidV4               = require('uuid/v4');
+const isEmpty              = require('is-empty');
 
 // ================ ENVs ========================
 const REGION               = process.env.SERVERLESS_REGION;
@@ -41,10 +42,18 @@ const lambda               = new AWS.Lambda({region: REGION});
 describe('List Objects API', () => {
 
   let options = {};
+  // let customs = {};
   let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
   let name = 'ecowork1'
   let domain_id = 'test_domain_id'
+  let object1 = 'test1_mocha.json'
+  let object_id1 = 'test_object_id_1'
+  let object2 = 'test2_mocha.jpg'
+  let object_id2 = 'test_object_id_2'
+  // let object3 = 'test3_mocha.jpg'
+  // let object_id3 = 'test_object_id_3'
+  let prefix = 'test2'
 
   console.log(METHOD);
   console.log(REQUEST_URL);
@@ -403,9 +412,9 @@ describe('List Objects API', () => {
   }); // describe
 
   /*****************************************************************
-  * 8. Domain 資料建立成功。
+  * 8. 找不到 Object。
   *****************************************************************/
-  describe('Successfully get domain item', () => {
+  describe('Cannot find object item', () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -416,16 +425,7 @@ describe('List Objects API', () => {
       }); // createDomainItem
     }); // before
 
-    // before('Create a domain item', function (done) {
-    //   this.timeout(12000);
-
-    //   testHelper.createDomainItem(cloud_id, app_id, `${name}_1`, `${domain_id}_1`, (err, data) => {
-    //     if (err) return done(err);
-    //     done();
-    //   }); // createDomainItem
-    // }); // before
-
-    after('Clear Testing Data', function (done) {
+    after('Clear a domain item Data', function (done) {
       this.timeout(12000);
 
       testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
@@ -434,14 +434,103 @@ describe('List Objects API', () => {
       }); // deleteDomain
     }); // after
 
-    // after('Clear Testing Data', function (done) {
-    //   this.timeout(12000);
+    it("should return 'Domain Not Found'", function(done) {
+      this.timeout(12000);
 
-    //   testHelper.deleteDomain(cloud_id, app_id, `${domain_id}_1`, (err, data) => {
-    //     if (err) return done(err);
-    //     return done();
-    //   }); // deleteDomain
-    // }); // after
+      const regexp = /{.*}/;
+      const domain = 'ecowork1';
+      options.url = options.url.replace(regexp, domain);
+      let queryParams = Object.assign({ domain }, options.qs);
+      console.log(queryParams);
+
+      options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+      console.log(options);
+      // options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
+
+      let queryObject = function () {
+        return new Promise((resolve, reject) => {
+          request(options, (err, response, body) => {
+            if (err) reject(err); // an error occurred
+            else {
+              expect(response.statusCode).to.equal(404);
+              let parsedBody = JSON.parse(body);
+              expect(parsedBody).to.have.all.keys(['code', 'message']);
+              expect(parsedBody.code).to.equal(ApiErrors.notFound.object.code);
+              expect(parsedBody.message).to.equal(ApiErrors.notFound.object.message);
+              resolve();
+            }
+          }); // request
+        }); // Promise
+      };
+
+      queryObject()
+      .then(() => done())
+      .catch((err) => {
+        console.log("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
+        done(err);
+      });
+    }); // it
+  }); // describe
+
+
+  /*****************************************************************
+  * 9. List Object All 成功。
+  *****************************************************************/
+  describe('Successfully list all object item', () => {
+
+    before('Create a domain item', function (done) {
+      this.timeout(12000);
+
+      testHelper.createDomainItem(cloud_id, app_id, name, domain_id, (err, data) => {
+        if (err) return done(err);
+        done();
+      }); // createDomainItem
+    }); // before
+
+    before('Create object item1', function (done) {
+      this.timeout(12000);
+
+      testHelper.createObjectItem1(cloud_id, app_id, object1, domain_id, object_id1, 'application/json', (err, data) => {
+        if (err) return done(err);
+        done();
+      }); // createDomainItem
+    }); // before
+
+    before('Create object item2', function (done) {
+      this.timeout(12000);
+
+      testHelper.createObjectItem1(cloud_id, app_id, object2, domain_id, object_id2, 'application/json', (err, data) => {
+        if (err) return done(err);
+        done();
+      }); // createDomainItem
+    }); // before
+
+    after('Clear Testing Domain Data', function (done) {
+      this.timeout(12000);
+
+      testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
+        if (err) return done(err);
+        return done();
+      }); // deleteDomain
+    }); // after
+
+    after('Clear Testing Object item1', function (done) {
+      this.timeout(12000);
+
+      testHelper.deleteObject(cloud_id, app_id, object_id1, domain_id, (err, data) => {
+        if (err) return done(err);
+        return done();
+      }); // deleteDomain
+    }); // after
+
+    after('Clear Testing Object item2', function (done) {
+      this.timeout(12000);
+
+      testHelper.deleteObject(cloud_id, app_id, object_id2, domain_id, (err, data) => {
+        if (err) return done(err);
+        return done();
+      }); // deleteDomain
+    }); // after
 
     it("should return 'OK'", function(done) {
       this.timeout(12000);
@@ -454,19 +543,19 @@ describe('List Objects API', () => {
 
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
 
-      console.log(options);
-
-      // options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
-
       let getDomain = function () {
         return new Promise((resolve, reject) => {
           request(options, (err, response, body) => {
             if (err) reject(err); // an error occurred
             else {
-              // expect(response.statusCode).to.equal(200);
+              expect(response.statusCode).to.equal(200);
               let parsedBody = JSON.parse(body);
-              console.log(parsedBody);
+              // console.log(parsedBody);
+              // console.log(body);
+              // console.log(parsedBody.data[0].key)
               expect(parsedBody).to.have.all.keys(['data']);
+              expect(parsedBody.data[0].key).to.equal(object1);
+              expect(parsedBody.data[1].key).to.equal(object2);
               resolve();
             }
           }); // request
@@ -482,5 +571,204 @@ describe('List Objects API', () => {
     }); // it
   }); // describe
 
+
+  /*****************************************************************
+  * 10. List Object by key 成功，而且當 query string 內同時有 key 與 begins_with 時，會以 key 為優先。
+  *****************************************************************/
+  describe('Successfully list object item by key', () => {
+
+    before('Create a domain item', function (done) {
+      this.timeout(12000);
+
+      testHelper.createDomainItem(cloud_id, app_id, name, domain_id, (err, data) => {
+        if (err) return done(err);
+        done();
+      }); // createDomainItem
+    }); // before
+
+    before('Create object item1', function (done) {
+      this.timeout(12000);
+
+      testHelper.createObjectItem1(cloud_id, app_id, object1, domain_id, object_id1, 'application/json', (err, data) => {
+        if (err) return done(err);
+        done();
+      }); // createDomainItem
+    }); // before
+
+    before('Create object item2', function (done) {
+      this.timeout(12000);
+
+      testHelper.createObjectItem1(cloud_id, app_id, object2, domain_id, object_id2, 'image/jpeg', (err, data) => {
+        if (err) return done(err);
+        done();
+      }); // createDomainItem
+    }); // before
+
+    after('Clear Testing Domain Data', function (done) {
+      this.timeout(12000);
+
+      testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
+        if (err) return done(err);
+        return done();
+      }); // deleteDomain
+    }); // after
+
+    after('Clear Testing Object item1', function (done) {
+      this.timeout(12000);
+
+      testHelper.deleteObject(cloud_id, app_id, object_id1, domain_id, (err, data) => {
+        if (err) return done(err);
+        return done();
+      }); // deleteDomain
+    }); // after
+
+    after('Clear Testing Object item2', function (done) {
+      this.timeout(12000);
+
+      testHelper.deleteObject(cloud_id, app_id, object_id2, domain_id, (err, data) => {
+        if (err) return done(err);
+        return done();
+      }); // deleteDomain
+    }); // after
+
+    it("should return 'OK'", function(done) {
+      this.timeout(12000);
+
+      options.qs.key = object1;
+      options.qs.begins_with = prefix;
+
+      const regexp = /{.*}/;
+      const domain = 'ecowork1';
+      options.url = options.url.replace(regexp, domain);
+      let queryParams = Object.assign({ domain }, options.qs);
+      console.log(queryParams);
+
+      options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+      console.log(options);
+
+      let getDomain = function () {
+        return new Promise((resolve, reject) => {
+          request(options, (err, response, body) => {
+            if (err) reject(err); // an error occurred
+            else {
+              expect(response.statusCode).to.equal(200);
+              let parsedBody = JSON.parse(body);
+              console.log(parsedBody.data[1]);
+              expect(parsedBody).to.have.all.keys(['data']);
+              expect(parsedBody.data[0].key).to.equal(object1);
+              expect(isEmpty(parsedBody.data[1])).to.equal(true);
+              resolve();
+            }
+          }); // request
+        }); // Promise
+      };
+
+      getDomain()
+      .then(() => done())
+      .catch((err) => {
+        console.log("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
+        done(err);
+      });
+    }); // it
+  }); // describe
+
+  /*****************************************************************
+  * 11. List Object by begins_with 成功。
+  *****************************************************************/
+  describe('Successfully list object item by key', () => {
+
+    before('Create a domain item', function (done) {
+      this.timeout(12000);
+
+      testHelper.createDomainItem(cloud_id, app_id, name, domain_id, (err, data) => {
+        if (err) return done(err);
+        done();
+      }); // createDomainItem
+    }); // before
+
+    before('Create object item1', function (done) {
+      this.timeout(12000);
+
+      testHelper.createObjectItem1(cloud_id, app_id, object1, domain_id, object_id1, 'application/json', (err, data) => {
+        if (err) return done(err);
+        done();
+      }); // createDomainItem
+    }); // before
+
+    before('Create object item2', function (done) {
+      this.timeout(12000);
+
+      testHelper.createObjectItem1(cloud_id, app_id, object2, domain_id, object_id2, 'image/jpeg', (err, data) => {
+        if (err) return done(err);
+        done();
+      }); // createDomainItem
+    }); // before
+
+    after('Clear Testing Domain Data', function (done) {
+      this.timeout(12000);
+
+      testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
+        if (err) return done(err);
+        return done();
+      }); // deleteDomain
+    }); // after
+
+    after('Clear Testing Object item1', function (done) {
+      this.timeout(12000);
+
+      testHelper.deleteObject(cloud_id, app_id, object_id1, domain_id, (err, data) => {
+        if (err) return done(err);
+        return done();
+      }); // deleteDomain
+    }); // after
+
+    after('Clear Testing Object item2', function (done) {
+      this.timeout(12000);
+
+      testHelper.deleteObject(cloud_id, app_id, object_id2, domain_id, (err, data) => {
+        if (err) return done(err);
+        return done();
+      }); // deleteDomain
+    }); // after
+
+    it("should return 'OK'", function(done) {
+      this.timeout(12000);
+
+      options.qs.begins_with = prefix;
+
+      const regexp = /{.*}/;
+      const domain = 'ecowork1';
+      options.url = options.url.replace(regexp, domain);
+      let queryParams = Object.assign({ domain }, options.qs);
+      console.log(queryParams);
+
+      options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+      console.log(options);
+
+      let getDomain = function () {
+        return new Promise((resolve, reject) => {
+          request(options, (err, response, body) => {
+            if (err) reject(err); // an error occurred
+            else {
+              expect(response.statusCode).to.equal(200);
+              let parsedBody = JSON.parse(body);
+              console.log(parsedBody);
+              expect(parsedBody).to.have.all.keys(['data']);
+              expect(parsedBody.data[0].key).to.equal(object2);
+              expect(isEmpty(parsedBody.data[1])).to.equal(true);
+              resolve();
+            }
+          }); // request
+        }); // Promise
+      };
+
+      getDomain()
+      .then(() => done())
+      .catch((err) => {
+        console.log("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
+        done(err);
+      });
+    }); // it
+  }); // describe
 
 }); // outter describe

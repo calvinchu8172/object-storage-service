@@ -166,7 +166,7 @@ var createDomainItem = function (cloud_id, app_id, name, domain_id, callback) {
 * @return {type} {description}
 */
 var createObjectItem1 = function (cloud_id, app_id, key, domain_id, object_id, content_type, callback) {
-  
+
   var timestamp = Utility.getTimestamp()
   var content;
 
@@ -325,6 +325,7 @@ var deleteDomain = function (cloud_id, app_id, domain_id, callback) {
 * @return {type} {description}
 */
 var deleteObject = function (cloud_id, app_id, object_id, domain_id, callback) {
+  console.log('============== test_helper.deleteObject ==============');
   var params = {
     TableName: `${STAGE}-${SERVICE}-${app_id}`,
     Key: {
