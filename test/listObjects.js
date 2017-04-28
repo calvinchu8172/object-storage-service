@@ -30,6 +30,7 @@ const Utility              = require('lib/utility.js');
 const signatureGenerator   = require('lib/signature_generator.js')
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require( 'lib/api_errors.js' );
+const testDescription      = require('./lib/test_description');
 
 
 // ================== AWS ===================
@@ -39,20 +40,17 @@ const lambda               = new AWS.Lambda({region: REGION});
 
 
 
-describe('List Objects API', () => {
+describe('OSS_009: List Objects API', () => {
 
   let options = {};
-  // let customs = {};
   let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
-  let name = 'ecowork1'
+  let domain_name = 'test_domain_name'
   let domain_id = 'test_domain_id'
   let object1 = 'test1_mocha.json'
   let object_id1 = 'test_object_id_1'
   let object2 = 'test2_mocha.jpg'
   let object_id2 = 'test_object_id_2'
-  // let object3 = 'test3_mocha.jpg'
-  // let object_id3 = 'test_object_id_3'
   let prefix = 'test2'
 
   console.log(METHOD);
@@ -79,12 +77,11 @@ describe('List Objects API', () => {
   /*****************************************************************
   * 1. query string 中必要參數 certificate_serial 未帶，回傳錯誤訊息。
   *****************************************************************/
-  describe('Without certificate_serial in the body', () => {
+  describe(`OSS_009_01: ${testDescription.missingRequiredParams.certificate_serial}`, () => {
 
-    it("Should return 'Missing Required Parameter: certificate_serial'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`, (done) => {
 
       delete options.qs.certificate_serial;
-      // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -105,13 +102,11 @@ describe('List Objects API', () => {
   /*****************************************************************
   * 2. query string 中必要參數 certificate_serial 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  describe('Wrong certificate_serial in the body', () => {
+  describe(`OSS_009_02: ${testDescription.validationFailed.certificate_serial}`, () => {
 
-    it("Should return 'Invalid certificate_serial'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`, (done) => {
 
       options.qs.certificate_serial = 'invalid_certificate_serial';
-      // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
-
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -130,11 +125,35 @@ describe('List Objects API', () => {
   }); // describe
 
   /*****************************************************************
+  * 3. header 中必要參數 X-API-Key 未帶，回傳錯誤訊息。
+  *****************************************************************/
+  describe(`OSS_009_03: ${testDescription.missingRequiredParams.api_key}`, () => {
+
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.forbidden.x_api_key)}`, (done) => {
+
+      delete options.headers['X-API-Key'];
+
+      request(options, (err, response, body) => {
+        if (err) done(err); // an error occurred
+        else {
+          expect(response.statusCode).to.equal(403);
+          let parsedBody = JSON.parse(body);
+          expect(parsedBody).to.have.all.keys(['message']);
+          expect(parsedBody.message).to.equal(ApiErrors.forbidden.x_api_key.message);
+
+          done();
+        }
+      }); // request
+
+    }); // it
+  }); // describe
+
+  /*****************************************************************
   * 3. header 中必要參數 X-Signature 未帶，回傳錯誤訊息。
   *****************************************************************/
-  describe('Without X-Signature in the header', () => {
+  describe(`OSS_009_04: ${testDescription.missingRequiredParams.signature}`, () => {
 
-    it("Should return 'Missing Required Header: X-Signature'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`, (done) => {
 
       delete options.headers['X-Signature'];
 
@@ -157,9 +176,9 @@ describe('List Objects API', () => {
   /*****************************************************************
   * 4. header 中必要參數 X-Signature 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  describe('Wrong X-Signature in the header', () => {
+  describe(`OSS_009_05: ${testDescription.validationFailed.signature}`, () => {
 
-    it("Should return 'Invalid Signature'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`, (done) => {
 
       options.headers['X-Signature'] = 'invalid_signaure';
       // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
@@ -184,23 +203,22 @@ describe('List Objects API', () => {
   /*****************************************************************
   * 5. query string 中必要參數 access_token 未帶，回傳錯誤訊息。
   *****************************************************************/
-  describe('Without access_token in the body', () => {
+  describe(`OSS_009_06: ${testDescription.missingRequiredParams.access_token}`, () => {
 
-    it("Should return 'Missing Required Parameter: access_token'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`, (done) => {
 
       delete options.qs.access_token;
       delete options.headers['X-Signature'];
 
       const regexp = /{.*}/;
-      const domain = 'ecowork1';
-      options.url = options.url.replace(regexp, domain);
-      let queryParams = Object.assign({ domain }, options.qs);
+      options.url = options.url.replace(regexp, domain_name);
+      let queryParams = Object.assign({ domain: domain_name }, options.qs);
       console.log(queryParams);
 
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
       // options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
 
-      // console.log(options);
+      console.log(options);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -272,17 +290,16 @@ describe('List Objects API', () => {
   /*****************************************************************
   * 7. query string 中必要參數 access_token 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  describe('Wrong access_token in the body', () => {
+  describe(`OSS_009_07: ${testDescription.unauthorized.access_token_invalid}`, () => {
 
-    it("Should return 'Invalid access_token'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`, (done) => {
 
       delete options.headers['X-Signature'];
       options.qs.access_token = 'invalid_access_token';
 
       const regexp = /{.*}/;
-      const domain = 'ecowork1';
-      options.url = options.url.replace(regexp, domain);
-      let queryParams = Object.assign({ domain }, options.qs);
+      options.url = options.url.replace(regexp, domain_name);
+      let queryParams = Object.assign({ domain: domain_name }, options.qs);
       console.log(queryParams);
 
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
@@ -307,7 +324,7 @@ describe('List Objects API', () => {
   /*****************************************************************
   * 7. query string 中必要參數 access_token 過期，回傳錯誤訊息。
   *****************************************************************/
-  describe('Expired access_token in the body', () => {
+  describe(`OSS_009_08: ${testDescription.unauthorized.access_token_expired}`, () => {
 
     let customs = {};
 
@@ -339,15 +356,14 @@ describe('List Objects API', () => {
       }); // registerDevice
     }); // before
 
-    it("Should return 'Access Token Expired'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`, (done) => {
 
       options.qs.access_token = 'expired_access_token';
       delete options.headers['X-Signature'];
 
       const regexp = /{.*}/;
-      const domain = 'ecowork1';
-      options.url = options.url.replace(regexp, domain);
-      let queryParams = Object.assign({ domain }, options.qs);
+      options.url = options.url.replace(regexp, domain_name);
+      let queryParams = Object.assign({ domain: domain_name }, options.qs);
       console.log(queryParams);
 
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
@@ -371,15 +387,14 @@ describe('List Objects API', () => {
   /*****************************************************************
   * 8. 找不到 Domain。
   *****************************************************************/
-  describe('Cannot find domain item', () => {
+  describe(`OSS_009_09: ${testDescription.notFound.domain}`, () => {
 
-    it("should return 'Domain Not Found'", function(done) {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.domain)}`, function(done) {
       this.timeout(12000);
 
       const regexp = /{.*}/;
-      const domain = 'ecowork1';
-      options.url = options.url.replace(regexp, domain);
-      let queryParams = Object.assign({ domain }, options.qs);
+      options.url = options.url.replace(regexp, domain_name);
+      let queryParams = Object.assign({ domain: domain_name }, options.qs);
       console.log(queryParams);
 
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
@@ -414,12 +429,12 @@ describe('List Objects API', () => {
   /*****************************************************************
   * 8. 找不到 Object。
   *****************************************************************/
-  describe('Cannot find object item', () => {
+  describe(`OSS_009_10: ${testDescription.notFound.object}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, name, domain_id, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
@@ -434,13 +449,12 @@ describe('List Objects API', () => {
       }); // deleteDomain
     }); // after
 
-    it("should return 'Domain Not Found'", function(done) {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.object)}`, function(done) {
       this.timeout(12000);
 
       const regexp = /{.*}/;
-      const domain = 'ecowork1';
-      options.url = options.url.replace(regexp, domain);
-      let queryParams = Object.assign({ domain }, options.qs);
+      options.url = options.url.replace(regexp, domain_name);
+      let queryParams = Object.assign({ domain: domain_name }, options.qs);
       console.log(queryParams);
 
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
@@ -476,12 +490,12 @@ describe('List Objects API', () => {
   /*****************************************************************
   * 9. List Object All 成功。
   *****************************************************************/
-  describe('Successfully list all object item', () => {
+  describe(`OSS_009_11: ${testDescription.Found.list_object_by_all}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, name, domain_id, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
@@ -532,18 +546,17 @@ describe('List Objects API', () => {
       }); // deleteDomain
     }); // after
 
-    it("should return 'OK'", function(done) {
+    it(`${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`, function(done) {
       this.timeout(12000);
 
       const regexp = /{.*}/;
-      const domain = 'ecowork1';
-      options.url = options.url.replace(regexp, domain);
-      let queryParams = Object.assign({ domain }, options.qs);
+      options.url = options.url.replace(regexp, domain_name);
+      let queryParams = Object.assign({ domain: domain_name }, options.qs);
       console.log(queryParams);
 
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
 
-      let getDomain = function () {
+      let queryObject = function () {
         return new Promise((resolve, reject) => {
           request(options, (err, response, body) => {
             if (err) reject(err); // an error occurred
@@ -562,7 +575,7 @@ describe('List Objects API', () => {
         }); // Promise
       };
 
-      getDomain()
+      queryObject()
       .then(() => done())
       .catch((err) => {
         console.log("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
@@ -575,12 +588,12 @@ describe('List Objects API', () => {
   /*****************************************************************
   * 10. List Object by key 成功，而且當 query string 內同時有 key 與 begins_with 時，會以 key 為優先。
   *****************************************************************/
-  describe('Successfully list object item by key', () => {
+  describe(`OSS_009_12: ${testDescription.Found.list_object_by_key}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, name, domain_id, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
@@ -631,22 +644,21 @@ describe('List Objects API', () => {
       }); // deleteDomain
     }); // after
 
-    it("should return 'OK'", function(done) {
+    it(`${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`, function(done) {
       this.timeout(12000);
 
       options.qs.key = object1;
       options.qs.begins_with = prefix;
 
       const regexp = /{.*}/;
-      const domain = 'ecowork1';
-      options.url = options.url.replace(regexp, domain);
-      let queryParams = Object.assign({ domain }, options.qs);
+      options.url = options.url.replace(regexp, domain_name);
+      let queryParams = Object.assign({ domain: domain_name }, options.qs);
       console.log(queryParams);
 
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
       console.log(options);
 
-      let getDomain = function () {
+      let queryObject = function () {
         return new Promise((resolve, reject) => {
           request(options, (err, response, body) => {
             if (err) reject(err); // an error occurred
@@ -663,7 +675,7 @@ describe('List Objects API', () => {
         }); // Promise
       };
 
-      getDomain()
+      queryObject()
       .then(() => done())
       .catch((err) => {
         console.log("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
@@ -675,12 +687,12 @@ describe('List Objects API', () => {
   /*****************************************************************
   * 11. List Object by begins_with 成功。
   *****************************************************************/
-  describe('Successfully list object item by key', () => {
+  describe(`OSS_009_13: ${testDescription.Found.list_object_by_begins_with}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, name, domain_id, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
@@ -731,21 +743,21 @@ describe('List Objects API', () => {
       }); // deleteDomain
     }); // after
 
-    it("should return 'OK'", function(done) {
+    it(`${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`, function(done) {
       this.timeout(12000);
 
       options.qs.begins_with = prefix;
 
       const regexp = /{.*}/;
-      const domain = 'ecowork1';
-      options.url = options.url.replace(regexp, domain);
-      let queryParams = Object.assign({ domain }, options.qs);
+      // const domain = 'ecowork1';
+      options.url = options.url.replace(regexp, domain_name);
+      let queryParams = Object.assign({ domain: domain_name }, options.qs);
       console.log(queryParams);
 
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
       console.log(options);
 
-      let getDomain = function () {
+      let queryObject = function () {
         return new Promise((resolve, reject) => {
           request(options, (err, response, body) => {
             if (err) reject(err); // an error occurred
@@ -762,7 +774,7 @@ describe('List Objects API', () => {
         }); // Promise
       };
 
-      getDomain()
+      queryObject()
       .then(() => done())
       .catch((err) => {
         console.log("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
