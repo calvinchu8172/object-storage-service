@@ -170,6 +170,48 @@ functions:
                     pattern: '.*"httpStatus":500.*'
                     template:
                       application/json: ${self:custom.httpServerErrorResponseTemplate}
+
+  updateDomain:
+    handler: endpoints/v1/domains/update/handler.handler
+    timeout: 12
+    memorySize: 128
+    events:
+      - http:
+          path: v1/domains/{domain}
+          method: put
+          integration: lambda
+          private: true
+          request:
+            parameters:
+              paths:
+                domain: true
+            template:
+              application/json: ${self:custom.httpPostRequestTemplate}
+              application/x-www-form-urlencoded: ${self:custom.httpPostRequestTemplate}
+          response:
+            template: $input.path('$')
+            statusCodes:
+                400:
+                    pattern: '.*"httpStatus":400.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                401:
+                    pattern: '.*"httpStatus":401.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                403:
+                    pattern: '.*"httpStatus":403.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                404:
+                    pattern: '.*"httpStatus":404.*'
+                    template:
+                      application/json: ${self:custom.httpResponseTemplate}
+                500:
+                    pattern: '.*"httpStatus":500.*'
+                    template:
+                      application/json: ${self:custom.httpServerErrorResponseTemplate}
+
   getDomain:
     handler: endpoints/v1/domains/show/handler.handler
     timeout: 12
