@@ -9,3 +9,4 @@ subnet_id_1: subnet-5bd47870
 subnet_id_2: subnet-942147e3
 subnet_id_3: subnet-480d8911
 x_api_key: wBJ57vwNfd55Hjvb1lF5H2CGrSZDe6MW9kCRxAxV
+sqs_url: https://sqs.us-east-1.amazonaws.com/212868998188/object-storage-service-test-jobs

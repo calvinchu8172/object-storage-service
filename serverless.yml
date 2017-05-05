@@ -29,6 +29,7 @@ provider:
         - "s3:*"
         - "lambda:InvokeFunction"
         - "dynamodb:*"
+        - "sqs:*"
         - "logs:*"
       Resource: "*"
   apiKeys:
@@ -78,6 +79,7 @@ custom:
         #end
       }
     }
+
   httpPostRequestTemplate: >
     #define( $body )
       {
@@ -303,11 +305,9 @@ functions:
             parameters:
               paths:
                 domain: true
-            # template:
-              # application/json: ${self:custom.httpGetRequestTemplate}
             template:
-              application/json: ${self:custom.httpPostRequestTemplate}
-              application/x-www-form-urlencoded: ${self:custom.httpPostRequestTemplate}
+              application/json: ${self:custom.httpGetRequestTemplate}
+              application/x-www-form-urlencoded: ${self:custom.httpGetRequestTemplate}
           response:
             template: $input.path('$')
             statusCodes:

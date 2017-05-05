@@ -8,3 +8,4 @@ security_group_id: sg-16cf5d72
 subnet_id_1: subnet-5bd47870
 subnet_id_2: subnet-942147e3
 subnet_id_3: subnet-480d8911
+sqs_url: https://sqs.us-east-1.amazonaws.com/212868998188/object-storage-service-alpha-jobs
