@@ -60,11 +60,12 @@ var getDomain = function (cloud_id, app_id, domain_name, callback) {
     if (err) {
       callback(err);
     }
-    else if (!empty(data.Items)) {
-      callback(null, data.Items[0]);
-    }
+    // else if (!empty(data.Items)) {
+      // callback(null, data.Items[0]);
+    // }
     else {
-      callback(new Error(`Domain Item Not Found ...`));
+      // callback(new Error(`Domain Item Not Found ...`));
+      callback(null, data.Items[0]);
     }
   });
 } // getDomain

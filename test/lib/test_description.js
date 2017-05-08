@@ -42,6 +42,10 @@ testDescription.Updated.object = 'Successfully updated object item.'
 testDescription.Updated.fail = {}
 testDescription.Updated.fail.new_domain_exists = 'Cannot update domain item. New domain has already exist.'
 
+testDescription.delete = {}
+testDescription.delete.domain = 'Successfully deleted domain item.'
+testDescription.delete.object = 'Successfully deleted object item.'
+
 testDescription.server_return = 'Server should return'
 testDescription.OK = { httpStatus: 200 }
 
