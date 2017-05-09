@@ -73,55 +73,57 @@ module.exports.handler = (event, context, callback) => {
     .then((user_info) => {
       console.log("************** save user_info to customs")
       customs.user_info = user_info;
-      customs.cloud_id = user_info.cloud_id;
-      customs.app_id = user_info.app_id;
+      // customs.cloud_id = user_info.cloud_id;
+      // customs.app_id = user_info.app_id;
       console.log(customs);
     })
     .then((user_info) => {
-      return CommonSteps.getDomainItem(customs.cloud_id, customs.app_id, receivedParams.domain);
+      return CommonSteps.getDomainItem(customs.user_info.cloud_id, customs.user_info.app_id, receivedParams.domain);
     })
     .then((data) => {
       console.log("************** save domain to customs")
       console.log(data);
-      domain_id = data.domain_id;
+      // domain_id = data.domain_id;
       customs.domain = {};
       customs.domain.id = data.domain_id;
       customs.domain.json_usage = data.domain_json_usage;
       customs.domain.file_usage = data.domain_file_usage;
     })
     .then((data) => {
-      return CommonSteps.getObjectItem(customs.app_id, domain_id, key);
+      return CommonSteps.getObjectItem(customs.user_info.app_id, customs.domain.id, key);
     })
     .then((data) => {
       console.log("************** save object to customs")
       console.log(data);
-      object_id = data.id;
-      customs.content_type = data.content_type;
-      customs.usage = data.usage;
+      // object_id = data.id;
+      // customs.content_type = data.content_type;
+      // customs.usage = data.usage;
       customs.object = {};
       customs.object.id = data.id;
       customs.object.key = data.key;
+      customs.object.content_type = data.content_type;
+      customs.object.usage = data.usage;
     })
     .then((data) => {
-      return CommonSteps.deleteObjectItem(customs.app_id, domain_id, object_id);
+      return CommonSteps.deleteObjectItem(customs.user_info.app_id, customs.domain.id, customs.object.id);
     })
     .then((data) => {
       console.log(customs)
       let usage;
-      if ( customs.content_type == 'application/json' ) {
-        usage = customs.domain.json_usage - customs.usage
+      if ( customs.object.content_type == 'application/json' ) {
+        usage = customs.domain.json_usage - customs.object.usage
       } else {
-        usage = customs.domain.file_usage - customs.usage
+        usage = customs.domain.file_usage - customs.object.usage
       }
-      return updateDomainItemUsage(customs.cloud_id, customs.app_id, domain_id, customs.content_type, usage);
+      return updateDomainItemUsage(customs.user_info.cloud_id, customs.user_info.app_id, customs.domain.id, customs.object.content_type, usage);
     })
     .then(() => {
-      if (customs.content_type != 'application/json') {
-        return deleteS3ObjectItem(customs.cloud_id, customs.app_id, domain_id, key);
+      if (customs.object.content_type != 'application/json') {
+        return deleteS3ObjectItem(customs.user_info.cloud_id, customs.user_info.app_id, customs.domain.id, key);
       }
     })
     .then((data) => {
-      return CommonSteps.writeAccessObjectLog(event, receivedParams, domain_id, customs.user_info, customs.object);
+      return CommonSteps.writeAccessObjectLog(event, receivedParams, customs.domain.id, customs.user_info, customs.object);
     })
     .then(() => { // successful response
       // const response = { code: '0000', message: 'OK' };
