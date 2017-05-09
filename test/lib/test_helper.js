@@ -102,11 +102,12 @@ var getObject = function (cloud_id, app_id, domain_id, key, callback) {
     if (err) {
       callback(err);
     }
-    else if (!empty(data.Items)) {
-      callback(null, data.Items[0]);
-    }
+    // else if (!empty(data.Items)) {
+      // callback(null, data.Items[0]);
+    // }
     else {
-      callback(new Error(`Object Item Not Found ...`));
+      // callback(new Error(`Object Item Not Found ...`));
+      callback(null, data.Items[0]);
     }
   });
 
@@ -132,8 +133,8 @@ var createDomainItem = function (cloud_id, app_id, name, domain_id, callback) {
       'name': name,
       'id': domain_id,
       'app_id': app_id,
-      'json_usage': 0,
-      'file_usage': 0,
+      'json_usage': 100000,
+      'file_usage': 100000,
       'created_by': '1.1.1.1',
       'created_at': timestamp,
       'updated_by': '1.1.1.1',
@@ -190,7 +191,7 @@ var createObjectItem1 = function (cloud_id, app_id, key, domain_id, object_id, c
       'content': content,
       'domain_path': `${cloud_id}/${app_id}/${domain_id}`,
       'path': `${cloud_id}/${app_id}/${domain_id}/${key}`,
-      'usage': 0,
+      'usage': 500,
       'file_created_at': timestamp,
       'file_updated_at': timestamp,
       'created_at': timestamp,

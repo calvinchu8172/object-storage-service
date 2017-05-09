@@ -17,6 +17,8 @@ testDescription.validationFailed.signature = 'If the signature in request failed
 testDescription.validationFailed.access_token = 'If the access_token param in request is invalid.'
 testDescription.validationFailed.domain_in_path = 'If the domain in path is invalid.'
 testDescription.validationFailed.new_domain = 'If the new domain param is invalid.'
+testDescription.validationFailed.key = 'If the key in path is invalid.'
+testDescription.validationFailed.new_key = 'If the new key in param is invalid.'
 
 testDescription.unauthorized = {}
 testDescription.unauthorized.access_token_invalid = 'If the access_token param in request is invalid.'
