@@ -419,9 +419,9 @@ describe('OSS_010: Update Domain API', () => {
       // delete options.form.domain;
       delete options.headers['X-Signature'];
       const regexp = /{.*}/;
-      domain_name = 'invalid_domain';
-      options.url = options.url.replace(regexp, domain_name);
-      let queryParams = Object.assign({ domain: domain_name }, options.qs);
+      let invalid_domain = 'invalid_domain';
+      options.url = options.url.replace(regexp, invalid_domain);
+      let queryParams = Object.assign({ domain: invalid_domain }, options.qs);
       console.log(queryParams);
 
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
