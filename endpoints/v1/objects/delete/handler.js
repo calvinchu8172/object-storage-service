@@ -89,7 +89,7 @@ module.exports.handler = (event, context, callback) => {
       customs.domain.json_usage = data.domain_json_usage;
       customs.domain.file_usage = data.domain_file_usage;
     })
-    .then((data) => {
+    .then(() => {
       return CommonSteps.getObjectItem(customs.user_info.app_id, customs.domain.id, key);
     })
     .then((data) => {
@@ -104,10 +104,10 @@ module.exports.handler = (event, context, callback) => {
       customs.object.content_type = data.content_type;
       customs.object.usage = data.usage;
     })
-    .then((data) => {
+    .then(() => {
       return CommonSteps.deleteObjectItem(customs.user_info.app_id, customs.domain.id, customs.object.id);
     })
-    .then((data) => {
+    .then(() => {
       console.log(customs)
       let usage;
       if ( customs.object.content_type == 'application/json' ) {
@@ -122,7 +122,7 @@ module.exports.handler = (event, context, callback) => {
         return deleteS3ObjectItem(customs.user_info.cloud_id, customs.user_info.app_id, customs.domain.id, key);
       }
     })
-    .then((data) => {
+    .then(() => {
       return CommonSteps.writeAccessObjectLog(event, receivedParams, customs.domain.id, customs.user_info, customs.object);
     })
     .then(() => { // successful response
