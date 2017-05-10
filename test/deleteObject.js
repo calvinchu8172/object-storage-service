@@ -520,7 +520,7 @@ describe('OSS_013: Delete Object API', () => {
   /*****************************************************************
   * 13. Delete JSON Object 成功。
   *****************************************************************/
-  describe(`OSS_013_13: ${testDescription.delete.object}`, () => {
+  describe(`OSS_013_13: ${testDescription.delete.object.json}`, () => {
 
     let domain_file_usage;
     let domain_json_usage;
@@ -674,7 +674,7 @@ describe('OSS_013: Delete Object API', () => {
   /*****************************************************************
   * 14. Delete File Object 成功。
   *****************************************************************/
-  describe(`OSS_013_14: ${testDescription.delete.object}`, () => {
+  describe(`OSS_013_14: ${testDescription.delete.object.file}`, () => {
 
     let domain_file_usage;
     let domain_json_usage;
@@ -712,6 +712,7 @@ describe('OSS_013: Delete Object API', () => {
 
     before('Sleep for a while', function (done) {
       this.timeout(6000);
+      // 因在 gitlab-ci 跑測試時，上一步 upload file 至 s3 觸發 s3Handler Lamda 後還沒更新完 domain 與 Object，下一步過快取得的 usage 會導致測試錯誤，所以等待兩秒
       sleep.sleep(2);
       done();
     }); // before
