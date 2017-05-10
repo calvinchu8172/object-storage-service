@@ -150,6 +150,7 @@ var createDomainItem = function (cloud_id, app_id, name, domain_id, callback) {
       callback(err);
     }
     else {
+      console.log(data);
       data.domain_id = domain_id;
       callback(null, data);
     }
@@ -168,17 +169,21 @@ var createDomainItem = function (cloud_id, app_id, name, domain_id, callback) {
 * @return {type} {description}
 */
 var createObjectItem1 = function (cloud_id, app_id, key, domain_id, object_id, content_type, callback) {
+  console.log('============== test_helper.createObjectItem1 ==============');
 
   var timestamp = Utility.getTimestamp()
   var content;
+  var usage;
 
   if (content_type == 'application/json') {
     content = {
       "message": "OK"
     }
     content = JSON.stringify(content);
+    usage = Buffer.byteLength(content, 'utf8');
   } else {
-    content = null
+    content = null;
+    usage = 0
   }
 
   var payload = {
@@ -191,7 +196,7 @@ var createObjectItem1 = function (cloud_id, app_id, key, domain_id, object_id, c
       'content': content,
       'domain_path': `${cloud_id}/${app_id}/${domain_id}`,
       'path': `${cloud_id}/${app_id}/${domain_id}/${key}`,
-      'usage': 0,
+      'usage': usage,
       'file_created_at': timestamp,
       'file_updated_at': timestamp,
       'created_at': timestamp,
@@ -210,6 +215,49 @@ var createObjectItem1 = function (cloud_id, app_id, key, domain_id, object_id, c
 
 }
 
+var updateDomainJsonUsage = function ( cloud_id, app_id, domain_id, json_usage, callback ) {
+  console.log('============== test_helper.updateDomainJsonUsage ==============');
+
+  var timestamp = Utility.getTimestamp()
+
+  var payload = {
+    TableName: `${STAGE}-${SERVICE}-domains`,
+    Key:{
+      "cloud_id-app_id": `${cloud_id}-${app_id}`,
+      "id": domain_id
+    },
+    Expected: { // optional (map of attribute name to ExpectedAttributeValue)
+      "cloud_id-app_id": {
+        Exists: true,
+        Value: `${cloud_id}-${app_id}`
+      },
+    },
+    AttributeUpdates: { // The attributes to update (map of attribute name to AttributeValueUpdate)
+      "json_usage": {
+        Action: 'PUT',
+        Value: json_usage
+      },
+      "updated_at": {
+        Action: 'PUT',
+        Value: timestamp
+      }
+    },
+    ReturnConsumedCapacity: 'TOTAL'
+  };
+
+  docClient.update(payload, function(err, data) {
+    if (err) {
+      console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
+      callback(err);
+    } else {
+      console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
+      console.log(data);
+      callback(null, data);
+    }
+  });
+
+} // updateDomain
+
 
 
 /**
@@ -223,6 +271,8 @@ var createObjectItem1 = function (cloud_id, app_id, key, domain_id, object_id, c
 * @return {type} {description}
 */
 var uploadS3ObjectItem = function (cloud_id, app_id, object, domain_id, content_type, callback) {
+  console.log('============== test_helper.uploadS3ObjectItem ==============');
+
   fs.readFile(`./test/tmp/${object}`, (err, data) => {
     if (err) {
       console.error(err);
@@ -492,6 +542,7 @@ module.exports = {
   getObject,
   createDomainItem,
   createObjectItem1,
+  updateDomainJsonUsage,
   uploadS3ObjectItem,
   deleteS3ObjectItem,
   deleteDomain,
