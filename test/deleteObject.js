@@ -10,6 +10,7 @@ const mochaPlugin          = require('serverless-mocha-plugin');
 const moment               = require('moment');
 const expect               = mochaPlugin.chai.expect;
 const uuidV4               = require('uuid/v4');
+const sleep                = require('sleep');
 
 
 // ================ ENVs ========================
@@ -707,6 +708,12 @@ describe('OSS_013: Delete Object API', () => {
         if (err) return done(err);
         done();
       }) // uploadS3ObjectItem
+    }); // before
+
+    before('Sleep for a while', function (done) {
+      this.timeout(6000);
+      sleep.sleep(2);
+      done();
     }); // before
 
     before('Get Domain item usage', function (done) {
