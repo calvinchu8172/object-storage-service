@@ -108,6 +108,11 @@ module.exports.handler = (event, context, callback) => {
       return CommonSteps.deleteObjectItem(customs.user_info.app_id, customs.domain.id, customs.object.id);
     })
     .then(() => {
+      if (customs.object.content_type != 'application/json') {
+        return deleteS3ObjectItem(customs.user_info.cloud_id, customs.user_info.app_id, customs.domain.id, key);
+      }
+    })
+    .then(() => {
       console.log(customs)
       let usage;
       if ( customs.object.content_type == 'application/json' ) {
@@ -116,11 +121,6 @@ module.exports.handler = (event, context, callback) => {
         usage = customs.domain.file_usage - customs.object.usage
       }
       return updateDomainItemUsage(customs.user_info.cloud_id, customs.user_info.app_id, customs.domain.id, customs.object.content_type, usage);
-    })
-    .then(() => {
-      if (customs.object.content_type != 'application/json') {
-        return deleteS3ObjectItem(customs.user_info.cloud_id, customs.user_info.app_id, customs.domain.id, key);
-      }
     })
     .then(() => {
       return CommonSteps.writeAccessObjectLog(event, receivedParams, customs.domain.id, customs.user_info, customs.object);
