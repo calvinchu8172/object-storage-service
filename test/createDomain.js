@@ -365,7 +365,7 @@ describe('OSS_003: Create Domain API', () => {
       }); // it
     }); // describe
 
-    describe(`${testDescription.invalidDomain.begins_with_underscore}`, () => {
+    describe(`${testDescription.invalidDomain.with_unacceptable_characters}`, () => {
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
         options.form.domain = 'invalid_test_domain_*_name';

@@ -123,14 +123,14 @@ var getObject = function (cloud_id, app_id, domain_id, key, callback) {
 * @param  {type} callback  {description}
 * @return {type} {description}
 */
-var createDomainItem = function (cloud_id, app_id, name, domain_id, callback) {
+var createDomainItem = function (cloud_id, app_id, domain_name, domain_id, callback) {
   console.log('============== test_helper.createDomainItem ==============');
   let timestamp = Utility.getTimestamp();
   var params = {
     TableName: `${STAGE}-${SERVICE}-domains`,
     Item: {
       'cloud_id-app_id': `${cloud_id}-${app_id}`,
-      'name': name,
+      'name': domain_name,
       'id': domain_id,
       'app_id': app_id,
       'json_usage': 0,
@@ -144,13 +144,13 @@ var createDomainItem = function (cloud_id, app_id, name, domain_id, callback) {
     ExpressionAttributeNames: { '#p_key': 'cloud_id-app_id' },
     ReturnConsumedCapacity: 'TOTAL'
   };
-  console.log(`params: ${JSON.stringify(params, null, 2)}`);
+  // console.log(`params: ${JSON.stringify(params, null, 2)}`);
   docClient.put(params, function (err, data) {
     if (err) {
       callback(err);
     }
     else {
-      console.log(data);
+      // console.log(data);
       data.domain_id = domain_id;
       callback(null, data);
     }

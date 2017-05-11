@@ -59,7 +59,6 @@ describe('OSS_012: Delete Domain API', () => {
       method: METHOD,
       url: REQUEST_URL,
       headers: {
-        // 'Content-Type': 'application/x-www-form-urlencoded',
         'X-API-Key': X_API_KEY,
         'X-Signature': ''
       },
@@ -203,13 +202,10 @@ describe('OSS_012: Delete Domain API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`, (done) => {
 
       delete options.qs.access_token;
-      delete options.headers['X-Signature'];
 
       const regexp = /{.*}/;
       options.url = options.url.replace(regexp, domain_name);
       let queryParams = Object.assign({ domain: domain_name }, options.qs);
-      console.log(queryParams);
-
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
@@ -237,13 +233,10 @@ describe('OSS_012: Delete Domain API', () => {
 
       options.qs.access_token = 'invalid_access_token';
 
-      delete options.headers['X-Signature'];
       const regexp = /{.*}/;
       options.url = options.url.replace(regexp, domain_name);
       let queryParams = Object.assign({ domain: domain_name }, options.qs);
-      console.log(queryParams);
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
-      console.log(options);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -299,13 +292,10 @@ describe('OSS_012: Delete Domain API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`, (done) => {
 
       options.qs.access_token = 'expired_access_token';
-      delete options.headers['X-Signature'];
 
       const regexp = /{.*}/;
       options.url = options.url.replace(regexp, domain_name);
       let queryParams = Object.assign({ domain: domain_name }, options.qs);
-      console.log(queryParams);
-
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
@@ -329,32 +319,83 @@ describe('OSS_012: Delete Domain API', () => {
   *****************************************************************/
   describe(`OSS_012_09: ${testDescription.validationFailed.domain_in_path}`, () => {
 
-    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
+    describe(`${testDescription.invalidDomain.begins_with_number}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
-      delete options.headers['X-Signature'];
+        const regexp = /{.*}/;
+        let invalid_domain_name = '111_invalid_domain_name'
+        options.url = options.url.replace(regexp, invalid_domain_name);
+        let queryParams = Object.assign({ domain: invalid_domain_name }, options.qs);
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
 
-      const regexp = /{.*}/;
-      let invalid_domain_name = '111_invalid_domain_name'
-      options.url = options.url.replace(regexp, invalid_domain_name);
-      let queryParams = Object.assign({ domain: invalid_domain_name }, options.qs);
-      console.log(queryParams);
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
 
-      options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
 
-      request(options, (err, response, body) => {
-        if (err) done(err); // an error occurred
-        else {
-          expect(response.statusCode).to.equal(400);
-          let parsedBody = JSON.parse(body);
-          expect(parsedBody).to.have.all.keys(['code', 'message']);
-          expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
-          expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
+    describe(`${testDescription.invalidDomain.with_unacceptable_characters}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
-          done();
+        const regexp = /{.*}/;
+        let invalid_domain_name = 'invalid_test_domain_*_name'
+        options.url = options.url.replace(regexp, invalid_domain_name);
+        let queryParams = Object.assign({ domain: invalid_domain_name }, options.qs);
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
+
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
+    describe(`${testDescription.invalidDomain.over_128_characters}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
+
+        let invalid_domain_name = domain_name;
+
+        while (invalid_domain_name.length < 129) {
+          invalid_domain_name += ('_' + domain_name);
         }
-      }); // request
 
-    }); // it
+        const regexp = /{.*}/;
+        options.url = options.url.replace(regexp, invalid_domain_name);
+        let queryParams = Object.assign({ domain: invalid_domain_name }, options.qs);
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
+
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
   }); // describe
 
   /****************************************************************
@@ -382,14 +423,10 @@ describe('OSS_012: Delete Domain API', () => {
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.domain)}`, (done) => {
 
-      // delete options.form.domain;
-      delete options.headers['X-Signature'];
       const regexp = /{.*}/;
       let invalid_domain = 'invalid_domain';
       options.url = options.url.replace(regexp, invalid_domain);
       let queryParams = Object.assign({ domain: invalid_domain }, options.qs);
-      console.log(queryParams);
-
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
@@ -437,10 +474,7 @@ describe('OSS_012: Delete Domain API', () => {
       const regexp = /{.*}/;
       options.url = options.url.replace(regexp, domain_name);
       let queryParams = Object.assign({ domain: domain_name }, options.qs);
-      console.log(queryParams);
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
-      console.log(options.headers['X-Signature']);
-      // done();
 
       let deleteDomain = function () {
         return new Promise((resolve, reject) => {

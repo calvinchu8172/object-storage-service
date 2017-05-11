@@ -28,7 +28,7 @@ testDescription.validationFailed.content = 'If the content param in request is i
 
 testDescription.invalidDomain = {}
 testDescription.invalidDomain.begins_with_number = 'Invalid domain name begins with number.'
-testDescription.invalidDomain.begins_with_underscore = 'Invalid domain name with unacceptable characters.'
+testDescription.invalidDomain.with_unacceptable_characters = 'Invalid domain name with unacceptable characters.'
 testDescription.invalidDomain.over_128_characters = 'Invalid domain name over 128 characters.'
 
 testDescription.unauthorized = {}
