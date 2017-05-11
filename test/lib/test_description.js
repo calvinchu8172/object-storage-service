@@ -31,6 +31,11 @@ testDescription.invalidDomain.begins_with_number = 'Invalid domain name begins w
 testDescription.invalidDomain.with_unacceptable_characters = 'Invalid domain name with unacceptable characters.'
 testDescription.invalidDomain.over_128_characters = 'Invalid domain name over 128 characters.'
 
+testDescription.invalidObject = {}
+testDescription.invalidObject.begins_with_number = 'Invalid object name begins with number.'
+testDescription.invalidObject.with_unacceptable_characters = 'Invalid object name with unacceptable characters.'
+testDescription.invalidObject.over_128_characters = 'Invalid object name over 128 characters.'
+
 testDescription.unauthorized = {}
 testDescription.unauthorized.access_token_invalid = 'If the access_token param in request is invalid.'
 testDescription.unauthorized.access_token_expired = 'If the access_token param in request is expired.'

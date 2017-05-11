@@ -49,8 +49,6 @@ describe('OSS_013: Delete Object API', () => {
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
   let domain_name = 'test_domain_name'
   let domain_id = 'test_domain_id'
-  // let new_domain_name = 'new_test_domain_name'
-  // let new_domain_id = 'new_test_domain_id'
   let object_json = 'test1_mocha.json'
   let object_json_id = 'test_object_json_id'
   let object_jpg = 'test2_mocha.jpg'
@@ -65,7 +63,6 @@ describe('OSS_013: Delete Object API', () => {
       method: METHOD,
       url: REQUEST_URL,
       headers: {
-        // 'Content-Type': 'application/x-www-form-urlencoded',
         'X-API-Key': X_API_KEY,
         'X-Signature': ''
       },
@@ -209,13 +206,12 @@ describe('OSS_013: Delete Object API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`, (done) => {
 
       delete options.qs.access_token;
-      delete options.headers['X-Signature'];
+      // delete options.headers['X-Signature'];
 
       const regexp = /{.*}/;
       options.url = options.url.replace(regexp, `${domain_name}/${object_jpg}`);
       let queryParams = Object.assign({ domain: domain_name, key: object_jpg }, options.qs);
-      console.log(queryParams);
-
+      // console.log(queryParams);
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
@@ -243,13 +239,13 @@ describe('OSS_013: Delete Object API', () => {
 
       options.qs.access_token = 'invalid_access_token';
 
-      delete options.headers['X-Signature'];
+      // delete options.headers['X-Signature'];
       const regexp = /{.*}/;
       options.url = options.url.replace(regexp, `${domain_name}/${object_jpg}`);
       let queryParams = Object.assign({ domain: domain_name, key: object_jpg }, options.qs);
-      console.log(queryParams);
+      // console.log(queryParams);
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
-      console.log(options);
+      // console.log(options);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -305,13 +301,12 @@ describe('OSS_013: Delete Object API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`, (done) => {
 
       options.qs.access_token = 'expired_access_token';
-      delete options.headers['X-Signature'];
+      // delete options.headers['X-Signature'];
 
       const regexp = /{.*}/;
       options.url = options.url.replace(regexp, `${domain_name}/${object_jpg}`);
       let queryParams = Object.assign({ domain: domain_name, key: object_jpg }, options.qs);
-      console.log(queryParams);
-
+      // console.log(queryParams);
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
@@ -335,32 +330,82 @@ describe('OSS_013: Delete Object API', () => {
   *****************************************************************/
   describe(`OSS_013_09: ${testDescription.validationFailed.domain_in_path}`, () => {
 
-    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
+    describe(`${testDescription.invalidDomain.begins_with_number}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
-      delete options.headers['X-Signature'];
+        const regexp = /{.*}/;
+        let invalid_domain_name = '111_invalid_domain_name'
+        options.url = options.url.replace(regexp, `${invalid_domain_name}/${object_jpg}`);
+        let queryParams = Object.assign({ domain: invalid_domain_name, key: object_jpg }, options.qs);
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
 
-      const regexp = /{.*}/;
-      let invalid_domain_name = '111_invalid_domain_name'
-      options.url = options.url.replace(regexp, `${invalid_domain_name}/${object_jpg}`);
-      let queryParams = Object.assign({ domain: invalid_domain_name, key: object_jpg }, options.qs);
-      console.log(queryParams);
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
 
-      options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+    describe(`${testDescription.invalidDomain.with_unacceptable_characters}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
-      request(options, (err, response, body) => {
-        if (err) done(err); // an error occurred
-        else {
-          expect(response.statusCode).to.equal(400);
-          let parsedBody = JSON.parse(body);
-          expect(parsedBody).to.have.all.keys(['code', 'message']);
-          expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
-          expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
+        const regexp = /{.*}/;
+        let invalid_domain_name = 'invalid_test_domain_*_name'
+        options.url = options.url.replace(regexp, `${invalid_domain_name}/${object_jpg}`);
+        let queryParams = Object.assign({ domain: invalid_domain_name, key: object_jpg }, options.qs);
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
 
-          done();
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
+
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
+    describe(`${testDescription.invalidDomain.over_128_characters}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
+
+        let invalid_domain_name = domain_name;
+
+        while (invalid_domain_name.length < 129) {
+          invalid_domain_name += ('_' + domain_name);
         }
-      }); // request
 
-    }); // it
+        const regexp = /{.*}/;
+        options.url = options.url.replace(regexp, `${invalid_domain_name}/${object_jpg}`);
+        let queryParams = Object.assign({ domain: invalid_domain_name, key: object_jpg }, options.qs);
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
+
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
   }); // describe
 
   /*****************************************************************
@@ -368,33 +413,87 @@ describe('OSS_013: Delete Object API', () => {
   *****************************************************************/
   describe(`OSS_013_10: ${testDescription.validationFailed.key}`, () => {
 
-    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`, (done) => {
+    describe(`${testDescription.invalidObject.begins_with_number}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`, (done) => {
 
-      // options.form.new_domain = '111_invalid_new_domain_name';
-      delete options.headers['X-Signature'];
+        const regexp = /{.*}/;
+        let invalid_key_name = '111_invalid_object_name.jpg'
+        options.url = options.url.replace(regexp, `${domain_name}/${invalid_key_name}`);
+        let queryParams = Object.assign({ domain: domain_name, key: invalid_key_name }, options.qs);
 
-      const regexp = /{.*}/;
-      let invalid_key_name = '111_invalid_object_name.jpg'
-      options.url = options.url.replace(regexp, `${domain_name}/${invalid_key_name}`);
-      let queryParams = Object.assign({ domain: domain_name, key: invalid_key_name }, options.qs);
-      console.log(queryParams)
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
 
-      options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.key.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.key.message);
 
-      request(options, (err, response, body) => {
-        if (err) done(err); // an error occurred
-        else {
-          expect(response.statusCode).to.equal(400);
-          let parsedBody = JSON.parse(body);
-          expect(parsedBody).to.have.all.keys(['code', 'message']);
-          expect(parsedBody.code).to.equal(ApiErrors.validationFailed.key.code);
-          expect(parsedBody.message).to.equal(ApiErrors.validationFailed.key.message);
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
 
-          done();
+    describe(`${testDescription.invalidObject.with_unacceptable_characters}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`, (done) => {
+
+        const regexp = /{.*}/;
+        let invalid_key_name = 'invalid_object_*_name.jpg'
+        options.url = options.url.replace(regexp, `${domain_name}/${invalid_key_name}`);
+        let queryParams = Object.assign({ domain: domain_name, key: invalid_key_name }, options.qs);
+
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.key.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.key.message);
+
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
+    describe(`${testDescription.invalidObject.over_128_characters}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`, (done) => {
+
+        const regexp = /{.*}/;
+        let invalid_key_name = 'invalid_object_name'
+
+        while (invalid_key_name.length < 129) {
+          invalid_key_name += ('_' + invalid_key_name);
         }
-      }); // request
+        invalid_key_name += '.jpg'
 
-    }); // it
+        options.url = options.url.replace(regexp, `${domain_name}/${invalid_key_name}`);
+        let queryParams = Object.assign({ domain: domain_name, key: invalid_key_name }, options.qs);
+
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.key.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.key.message);
+
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
   }); // describe
 
   /****************************************************************
@@ -422,14 +521,10 @@ describe('OSS_013: Delete Object API', () => {
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.domain)}`, (done) => {
 
-      // delete options.form.domain;
-      delete options.headers['X-Signature'];
       const regexp = /{.*}/;
       let invalid_domain = 'invalid_domain';
       options.url = options.url.replace(regexp, `${invalid_domain}/${object_jpg}`);
       let queryParams = Object.assign({ domain: invalid_domain, key: object_jpg }, options.qs);
-      console.log(queryParams);
-
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
@@ -610,10 +705,7 @@ describe('OSS_013: Delete Object API', () => {
       const regexp = /{.*}/;
       options.url = options.url.replace(regexp, `${domain_name}/${object_json}`);
       let queryParams = Object.assign({ domain: domain_name, key: object_json  }, options.qs);
-      // console.log(queryParams);
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
-      // console.log(options.headers['X-Signature']);
-      // done();
 
       let deleteObject = function () {
         return new Promise((resolve, reject) => {
@@ -638,15 +730,12 @@ describe('OSS_013: Delete Object API', () => {
               } else {
                 console.log(data);
                 expect(isEmpty(data)).to.equal(true);
-                // expect(data.id).to.equal(domain_id);
-                // expect(data.name).to.equal(new_domain_name);
                 resolve(data);
               }
             }) // testHealper
           }); // Promise
         }) //then
         .then(() => {
-          // console.log(data)
           return new Promise((resolve, reject) => {
             testHelper.getDomain(cloud_id, app_id, domain_name, (err, data) => {
               if (err) {
@@ -654,8 +743,6 @@ describe('OSS_013: Delete Object API', () => {
                 reject(err); // an error occurred
               } else {
                 console.log(data);
-                // expect(isEmpty(data)).to.equal(true);
-                // expect(data.id).to.equal(domain_id);
                 expect(data.file_usage).to.equal(domain_file_usage);
                 expect(data.json_usage).to.equal(domain_json_usage - object_json_usage);
                 resolve(data);
@@ -700,10 +787,7 @@ describe('OSS_013: Delete Object API', () => {
 
     before('Upload a jpg object item', function (done) {
       this.timeout(12000);
-      // testHelper.createObjectItem1(cloud_id, app_id, object_jpg, domain_id, object_jpg_id, 'image/jpg', (err, data) => {
-      //   if (err) return done(err);
-      //   done();
-      // }); // createDomainItem
+
       testHelper.uploadS3ObjectItem(cloud_id, app_id, object_jpg, domain_id, 'image/jpg', (err, data) => {
         if (err) return done(err);
         done();
@@ -784,10 +868,7 @@ describe('OSS_013: Delete Object API', () => {
       const regexp = /{.*}/;
       options.url = options.url.replace(regexp, `${domain_name}/${object_jpg}`);
       let queryParams = Object.assign({ domain: domain_name, key: object_jpg  }, options.qs);
-      // console.log(queryParams);
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
-      // console.log(options.headers['X-Signature']);
-      // done();
 
       let deleteObject = function () {
         return new Promise((resolve, reject) => {
@@ -812,8 +893,6 @@ describe('OSS_013: Delete Object API', () => {
               } else {
                 console.log(data);
                 expect(isEmpty(data)).to.equal(true);
-                // expect(data.id).to.equal(domain_id);
-                // expect(data.name).to.equal(new_domain_name);
                 resolve(data);
               }
             }) // testHealper
@@ -828,8 +907,6 @@ describe('OSS_013: Delete Object API', () => {
                 reject(err); // an error occurred
               } else {
                 console.log(data);
-                // expect(isEmpty(data)).to.equal(true);
-                // expect(data.id).to.equal(domain_id);
                 expect(data.file_usage).to.equal(domain_file_usage - object_jpg_usage);
                 expect(data.json_usage).to.equal(domain_json_usage);
                 resolve(data);
