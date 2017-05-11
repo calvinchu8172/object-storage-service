@@ -78,7 +78,6 @@ describe('OSS_003: Create Domain API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`, (done) => {
 
       delete options.form.certificate_serial;
-      // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -104,8 +103,6 @@ describe('OSS_003: Create Domain API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`, (done) => {
 
       options.form.certificate_serial = 'invalid_certificate_serial';
-      // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
-
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -180,8 +177,6 @@ describe('OSS_003: Create Domain API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`, (done) => {
 
       options.headers['X-Signature'] = 'invalid_signaure';
-      // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
-
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -207,7 +202,6 @@ describe('OSS_003: Create Domain API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`, (done) => {
 
       delete options.form.access_token;
-      delete options.headers['X-Signature'];
       options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
@@ -300,14 +294,7 @@ describe('OSS_003: Create Domain API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`, (done) => {
 
       options.form.access_token = 'expired_access_token';
-      delete options.headers['X-Signature'];
-
-      const regexp = /{.*}/;
-      options.url = options.url.replace(regexp, domain_name);
-      let queryParams = Object.assign({ domain: domain_name }, options.form);
-      console.log(queryParams);
-
-      options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+      options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -333,7 +320,7 @@ describe('OSS_003: Create Domain API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.domain)}`, (done) => {
 
       delete options.form.domain;
-      delete options.headers['X-Signature'];
+      // delete options.headers['X-Signature'];
       options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
@@ -355,28 +342,77 @@ describe('OSS_003: Create Domain API', () => {
   /*****************************************************************
   * 10. body 中必要參數 domain 不合法，回傳錯誤訊息。
   *****************************************************************/
-  describe(`OSS_013_10: ${testDescription.validationFailed.domain_in_path}`, () => {
+  describe(`OSS_013_10: ${testDescription.validationFailed.domain}`, () => {
 
-    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
+    describe(`${testDescription.invalidDomain.begins_with_number}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
-      options.form.domain = '111ecowork';
-      delete options.headers['X-Signature'];
-      options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
+        options.form.domain = '111_test_domain_name';
+        options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
-      request(options, (err, response, body) => {
-        if (err) done(err); // an error occurred
-        else {
-          expect(response.statusCode).to.equal(400);
-          let parsedBody = JSON.parse(body);
-          expect(parsedBody).to.have.all.keys(['code', 'message']);
-          expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
-          expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
 
-          done();
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
+    describe(`${testDescription.invalidDomain.begins_with_underscore}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
+
+        options.form.domain = 'invalid_test_domain_*_name';
+        options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
+
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
+
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
+    describe(`${testDescription.invalidDomain.over_128_characters}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
+
+        let invalid_domain_name = domain_name;
+
+        while (invalid_domain_name.length < 129) {
+          invalid_domain_name += ('_' + domain_name);
         }
-      }); // request
 
-    }); // it
+        options.form.domain = invalid_domain_name;
+        options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
+
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
+
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
   }); // describe
 
   /*****************************************************************

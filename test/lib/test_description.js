@@ -19,11 +19,17 @@ testDescription.validationFailed.certificate_serial = 'If the certificate_serial
 testDescription.validationFailed.signature = 'If the signature in request failed the verification.'
 testDescription.validationFailed.access_token = 'If the access_token param in request is invalid.'
 testDescription.validationFailed.domain_in_path = 'If the domain in path is invalid.'
+testDescription.validationFailed.domain = 'If the domain param is invalid.'
 testDescription.validationFailed.new_domain = 'If the new domain param is invalid.'
 testDescription.validationFailed.key = 'If the key param is invalid.'
 testDescription.validationFailed.new_key = 'If the new key in param is invalid.'
 testDescription.validationFailed.content_type = 'If the content_type param in request is invalid.'
 testDescription.validationFailed.content = 'If the content param in request is invalid.'
+
+testDescription.invalidDomain = {}
+testDescription.invalidDomain.begins_with_number = 'Invalid domain name begins with number.'
+testDescription.invalidDomain.begins_with_underscore = 'Invalid domain name with unacceptable characters.'
+testDescription.invalidDomain.over_128_characters = 'Invalid domain name over 128 characters.'
 
 testDescription.unauthorized = {}
 testDescription.unauthorized.access_token_invalid = 'If the access_token param in request is invalid.'
