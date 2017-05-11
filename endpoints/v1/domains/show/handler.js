@@ -62,7 +62,7 @@ module.exports.handler = (event, context, callback) => {
       return CommonSteps.verifyHeadersSignature(receivedParams, headers, result.public_key);
     })
     .then(() => {
-      let requiredParams = ['access_token'];
+      let requiredParams = ['access_token', 'domain'];
       return CommonSteps.checkRequiredParams(receivedParams, requiredParams);
     })
     .then(() => {
