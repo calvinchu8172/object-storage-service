@@ -179,9 +179,9 @@ describe('OSS_013: Delete Object API', () => {
   /*****************************************************************
   * 5. header 中必要參數 X-Signature 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  describe(`OSS_013_05: ${testDescription.missingRequiredParams.signature}`, () => {
+  describe(`OSS_013_05: ${testDescription.validationFailed.signature}`, () => {
 
-    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`, (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`, (done) => {
 
       options.headers['X-Signature'] = 'invalid_signaure';
 

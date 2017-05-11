@@ -20,6 +20,8 @@ const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 
 // ================ Lib/Modules =================
 const testHelper           = require('./lib/test_helper');
+const ApiErrors            = require('lib/api_errors.js');
+const testDescription      = require('./lib/test_description');
 
 
 // ================== AWS ===================
@@ -27,14 +29,14 @@ const AWS                  = require('aws-sdk');
 const lambda               = new AWS.Lambda({region: REGION});
 
 
-describe('Access Token Validator', () => {
+describe('OSS_002: Access Token Validator', () => {
 
   let options = {};
   let customs = {};
 
-  describe('Given an invalid access token', function() {
-    describe('if client requests with that token', function() {
-      it('should return HTTP 401: { "code": "401.0", "message": "Invalid access_token" }', function(done) {
+  describe(`OSS_002_1: ${testDescription.accessTokenValidator.invalidAccessToken}`, function() {
+    // describe('if client requests with that token', function() {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`, function(done) {
         options.access_token = "invalid_access_token";
         let params = {
           FunctionName: `${SERVICE}-${STAGE}-validateAccessToken`, /* required */
@@ -53,19 +55,20 @@ describe('Access Token Validator', () => {
             let body = JSON.parse(response.body);
 
             expect(response.statusCode).to.equal(401);
-            expect(body.code).to.equal('401.0');
-            expect(body.message).to.equal('Invalid access_token');
+            expect(body.code).to.equal(ApiErrors.unauthorized.access_token_invalid.code);
+            expect(body.message).to.equal(ApiErrors.unauthorized.access_token_invalid.message);
+
             done();
           }
         }); // lambda
 
       }); // it
-    }); // if client requests with that token
+    // }); // if client requests with that token
   }); // Given an invalid access token
 
 
-  describe('Given an expired access token', function() {
-    describe('if client requests with that token', function() {
+  describe(`OSS_002_2: ${testDescription.accessTokenValidator.expiredAccessToken}`, function() {
+    // describe('if client requests with that token', function() {
 
       before('Create Expired Token', function(done) {
         this.timeout(12000);
@@ -95,7 +98,7 @@ describe('Access Token Validator', () => {
         }); // registerDevice
       }); // before
 
-      it('should return HTTP 401: { "code": "401.1", "message": "Access Token Expired" }', function(done) {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`, function(done) {
         let params = {
           FunctionName: `${SERVICE}-${STAGE}-validateAccessToken`, /* required */
           InvocationType: "RequestResponse",
@@ -113,19 +116,19 @@ describe('Access Token Validator', () => {
             let body = JSON.parse(response.body);
 
             expect(response.statusCode).to.equal(401);
-            expect(body.code).to.equal('401.1');
-            expect(body.message).to.equal('Access Token Expired');
+            expect(body.code).to.equal(ApiErrors.unauthorized.access_token_expired.code);
+            expect(body.message).to.equal(ApiErrors.unauthorized.access_token_expired.message);
             done();
           }
         }); // lambda
 
       }); // it
-    }); // if client requests with that token
+    // }); // if client requests with that token
   }); // Given an expired access token
 
 
-  describe('Given an valid access token', function() {
-    describe('if client requests with that token', function() {
+  describe(`OSS_002_3: ${testDescription.accessTokenValidator.validAccessToken}`, function() {
+    // describe('if client requests with that token', function() {
 
       before('Create Valid Token', function(done) {
         console.log(`Create Valid Token...`);
@@ -153,7 +156,7 @@ describe('Access Token Validator', () => {
         }); // registerDevice
       }); // before
 
-      it('should return HTTP 200 and the response should include cloud_id and app_id.', function(done) {
+      it(`${testDescription.server_return} ${JSON.stringify(testDescription.OKWithCloudIDAndAPPID)}`, function(done) {
 
         let params = {
           FunctionName: `${SERVICE}-${STAGE}-validateAccessToken`, /* required */
@@ -180,7 +183,7 @@ describe('Access Token Validator', () => {
         }); // lambda
 
       }); // it
-    }); // if client requests with that token
+    // }); // if client requests with that token
   }); // Given an valid access token
 
 

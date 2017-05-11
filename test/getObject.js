@@ -30,6 +30,7 @@ const Utility              = require('lib/utility.js');
 const signatureGenerator   = require('lib/signature_generator.js')
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require('lib/api_errors.js');
+const testDescription      = require('./lib/test_description');
 
 
 // ================== AWS ===================
@@ -39,7 +40,7 @@ const lambda               = new AWS.Lambda({ region: REGION });
 
 
 
-describe('Get Object API', () => {
+describe('OSS_007: Get Object API', () => {
 
   let options = {};
   let customs = {};
@@ -71,9 +72,9 @@ describe('Get Object API', () => {
   /*****************************************************************
   * 1. query string 中必要參數 certificate_serial 未帶，回傳錯誤訊息。
   *****************************************************************/
-  describe('Without certificate_serial in the body', () => {
+  describe(`OSS_007_01: ${testDescription.missingRequiredParams.certificate_serial}`, () => {
 
-    it("Should return 'Missing Required Parameter: certificate_serial'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`, (done) => {
 
       delete options.qs.certificate_serial;
 
@@ -96,9 +97,9 @@ describe('Get Object API', () => {
   /*****************************************************************
   * 2. query string 中必要參數 certificate_serial 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  describe('Wrong certificate_serial in the body', () => {
+  describe(`OSS_007_02: ${testDescription.validationFailed.certificate_serial}`, () => {
 
-    it("Should return 'Invalid certificate_serial'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`, (done) => {
 
       options.qs.certificate_serial = 'invalid_certificate_serial';
 
@@ -119,11 +120,35 @@ describe('Get Object API', () => {
   }); // describe
 
   /*****************************************************************
-  * 3. header 中必要參數 X-Signature 未帶，回傳錯誤訊息。
+  * 3. header 中必要參數 X-API-Key 未帶，回傳錯誤訊息。
   *****************************************************************/
-  describe('Without X-Signature in the header', () => {
+  describe(`OSS_007_03: ${testDescription.missingRequiredParams.api_key}`, () => {
 
-    it("Should return 'Missing Required Header: X-Signature'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.forbidden.x_api_key)}`, (done) => {
+
+      delete options.headers['X-API-Key'];
+
+      request(options, (err, response, body) => {
+        if (err) done(err); // an error occurred
+        else {
+          expect(response.statusCode).to.equal(403);
+          let parsedBody = JSON.parse(body);
+          expect(parsedBody).to.have.all.keys(['message']);
+          expect(parsedBody.message).to.equal(ApiErrors.forbidden.x_api_key.message);
+
+          done();
+        }
+      }); // request
+
+    }); // it
+  }); // describe
+
+  /*****************************************************************
+  * 4. header 中必要參數 X-Signature 未帶，回傳錯誤訊息。
+  *****************************************************************/
+  describe(`OSS_007_04: ${testDescription.missingRequiredParams.signature}`, () => {
+
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`, (done) => {
 
       delete options.headers['X-Signature'];
 
@@ -144,11 +169,11 @@ describe('Get Object API', () => {
   }); // describe
 
   /*****************************************************************
-  * 4. header 中必要參數 X-Signature 帶錯，回傳錯誤訊息。
+  * 5. header 中必要參數 X-Signature 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  describe('Wrong X-Signature in the header', () => {
+  describe(`OSS_007_05: ${testDescription.validationFailed.signature}`, () => {
 
-    it("Should return 'Invalid Signature'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`, (done) => {
 
       options.headers['X-Signature'] = 'invalid_signaure';
       // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
@@ -171,11 +196,11 @@ describe('Get Object API', () => {
   }); // describe
 
   /*****************************************************************
-  * 5. query string 中必要參數 access_token 未帶，回傳錯誤訊息。
+  * 6. query string 中必要參數 access_token 未帶，回傳錯誤訊息。
   *****************************************************************/
-  describe('Without access_token in the body', () => {
+  describe(`OSS_007_06: ${testDescription.missingRequiredParams.access_token}`, () => {
 
-    it("Should return 'Missing Required Parameter: access_token'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`, (done) => {
 
       delete options.qs.access_token;
       delete options.headers['X-Signature'];
@@ -206,11 +231,11 @@ describe('Get Object API', () => {
   }); // describe
 
   /*****************************************************************
-  * 6. query string 中必要參數 access_token 帶錯，回傳錯誤訊息。
+  * 7. query string 中必要參數 access_token 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  describe('Wrong access_token in the body', () => {
+  describe(`OSS_007_07: ${testDescription.unauthorized.access_token_invalid}`, () => {
 
-    it("Should return 'Invalid access_token'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`, (done) => {
 
       options.qs.access_token = 'invalid_access_token';
 
@@ -241,9 +266,9 @@ describe('Get Object API', () => {
   }); // describe
 
   /****************************************************************
-  * 7. path 中必要參數 domain 帶錯，回傳錯誤訊息。
+  * 8. 找不到 domain。
   ****************************************************************/
-  describe('Wrong domain in the path', () => {
+  describe(`OSS_006_08: ${testDescription.notFound.domain}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -263,7 +288,7 @@ describe('Get Object API', () => {
       }); // deleteDomain
     }); // after
 
-    it("Should return 'Domain Not Found'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.domain)}`, (done) => {
 
       // delete options.form.domain;
       delete options.headers['X-Signature'];
@@ -292,12 +317,10 @@ describe('Get Object API', () => {
     }); // it
   }); // describe
 
-
-
   /*****************************************************************
-  * 8. path 中必要參數 object 帶錯，回傳錯誤訊息。
+  * 9. 找不到 object。
   *****************************************************************/
-  describe('Wrong Object in the path', () => {
+  describe(`OSS_007_09: ${testDescription.notFound.object}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -317,7 +340,7 @@ describe('Get Object API', () => {
       }); // deleteDomain
     }); // after
 
-    it("should return 'Object not found'", function (done) {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.object)}`, function (done) {
 
       const regexp = /{.*}/;
       // const domain = 'ecowork1';
@@ -358,9 +381,9 @@ describe('Get Object API', () => {
   }); // describe
 
   /*****************************************************************
-  * 8. Object jpeg 資料搜尋成功。
+  * 10. Object file 資料搜尋成功。
   *****************************************************************/
-  describe('Successfully get object item', () => {
+  describe(`OSS_007_10: ${testDescription.got.object.file}`, () => {
     var tmp;
     // var domain_id;
 
@@ -441,7 +464,7 @@ describe('Get Object API', () => {
     }); // after
 
 
-    it("should return 'OK'", function (done) {
+    it(`${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`, function (done) {
       this.timeout(12000);
 
       const regexp = /{.*}/;
@@ -482,7 +505,7 @@ describe('Get Object API', () => {
   /*****************************************************************
   * 9. Object json 資料搜尋成功。
   *****************************************************************/
-  describe('Successfully get object item', () => {
+  describe(`OSS_007_10: ${testDescription.got.object.json}`, () => {
     var tmp;
     // var domain_id;
 
@@ -537,7 +560,7 @@ describe('Get Object API', () => {
     }); // after
 
 
-    it("should return 'OK'", function (done) {
+    it(`${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`, function (done) {
       this.timeout(12000);
 
       const regexp = /{.*}/;

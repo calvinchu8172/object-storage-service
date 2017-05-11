@@ -18,6 +18,7 @@ const REGION               = process.env.SERVERLESS_REGION;
 const STAGE                = process.env.SERVERLESS_STAGE;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const X_API_KEY            = process.env.X_API_KEY;
+const CONTENT_TYPE         = process.env.CONTENT_TYPE;
 const serverlessYamlObject = YAML.load('serverless.yml');
 const PATH                 = serverlessYamlObject.functions.createDomain.events[0].http.path;
 const METHOD               = serverlessYamlObject.functions.createDomain.events[0].http.method;
@@ -30,6 +31,7 @@ const Utility              = require('lib/utility.js');
 const signatureGenerator   = require('lib/signature_generator.js');
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require('lib/api_errors.js');
+const testDescription      = require('./lib/test_description');
 
 
 // ================== AWS ===================
@@ -38,13 +40,13 @@ const docClient            = new AWS.DynamoDB.DocumentClient({ region: REGION })
 const lambda               = new AWS.Lambda({ region: REGION });
 
 
-describe('Create Domains API', () => {
+describe('OSS_003: Create Domain API', () => {
 
   let options = {};
   let customs = {};
   let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
-  let name = 'ecowork1'
+  let domain_name = 'test_domain_name'
   let domain_id = 'test_domain_id'
 
   beforeEach('Set Request Options', (done) => {
@@ -52,14 +54,14 @@ describe('Create Domains API', () => {
       method: METHOD,
       url: REQUEST_URL,
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': CONTENT_TYPE,
         'X-API-Key': X_API_KEY,
         'X-Signature': ''
       },
       form: {
         certificate_serial: '1002',
         access_token: '7eda6dd4de708b1886ed34f6c0460ffef2d9094e5052fb706ad7635cadb8ea8b',
-        domain: name
+        domain: domain_name
       }
     }; // options
 
@@ -71,9 +73,9 @@ describe('Create Domains API', () => {
   /*****************************************************************
   * 1. body 中必要參數 certificate_serial 未帶，回傳錯誤訊息。
   *****************************************************************/
-  describe('Without certificate_serial in the body', () => {
+  describe(`OSS_003_01: ${testDescription.missingRequiredParams.certificate_serial}`, () => {
 
-    it("Should return 'Missing Required Parameter: certificate_serial'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`, (done) => {
 
       delete options.form.certificate_serial;
       // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
@@ -97,9 +99,9 @@ describe('Create Domains API', () => {
   /*****************************************************************
   * 2. body 中必要參數 certificate_serial 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  describe('Wrong certificate_serial in the body', () => {
+  describe(`OSS_003_02: ${testDescription.validationFailed.certificate_serial}`, () => {
 
-    it("Should return 'Invalid certificate_serial'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`, (done) => {
 
       options.form.certificate_serial = 'invalid_certificate_serial';
       // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
@@ -122,11 +124,35 @@ describe('Create Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 3. header 中必要參數 X-Signature 未帶，回傳錯誤訊息。
+  * 3. header 中必要參數 X-API-Key 未帶，回傳錯誤訊息。
   *****************************************************************/
-  describe('Without X-Signature in the header', () => {
+  describe(`OSS_003_03: ${testDescription.missingRequiredParams.api_key}`, () => {
 
-    it("Should return 'Missing Required Header: X-Signature'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.forbidden.x_api_key)}`, (done) => {
+
+      delete options.headers['X-API-Key'];
+
+      request(options, (err, response, body) => {
+        if (err) done(err); // an error occurred
+        else {
+          expect(response.statusCode).to.equal(403);
+          let parsedBody = JSON.parse(body);
+          expect(parsedBody).to.have.all.keys(['message']);
+          expect(parsedBody.message).to.equal(ApiErrors.forbidden.x_api_key.message);
+
+          done();
+        }
+      }); // request
+
+    }); // it
+  }); // describe
+
+  /*****************************************************************
+  * 4. header 中必要參數 X-Signature 未帶，回傳錯誤訊息。
+  *****************************************************************/
+  describe(`OSS_003_04: ${testDescription.missingRequiredParams.signature}`, () => {
+
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`, (done) => {
 
       delete options.headers['X-Signature'];
 
@@ -147,11 +173,11 @@ describe('Create Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 4. header 中必要參數 X-Signature 帶錯，回傳錯誤訊息。
+  * 5. header 中必要參數 X-Signature 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  describe('Wrong X-Signature in the header', () => {
+  describe(`OSS_003_05: ${testDescription.validationFailed.signature}`, () => {
 
-    it("Should return 'Invalid Signature'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`, (done) => {
 
       options.headers['X-Signature'] = 'invalid_signaure';
       // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
@@ -174,11 +200,11 @@ describe('Create Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 5. body 中必要參數 access_token 未帶，回傳錯誤訊息。
+  * 6. body 中必要參數 access_token 未帶，回傳錯誤訊息。
   *****************************************************************/
-  describe('Without access_token in the body', () => {
+  describe(`OSS_003_06: ${testDescription.missingRequiredParams.access_token}`, () => {
 
-    it("Should return 'Missing Required Parameter: access_token'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`, (done) => {
 
       delete options.form.access_token;
       delete options.headers['X-Signature'];
@@ -201,20 +227,20 @@ describe('Create Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 6. body 中必要參數 access_token 帶錯，回傳錯誤訊息。
+  * 7. body 中必要參數 access_token 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  describe('Wrong access_token in the body', () => {
+  describe(`OSS_003_07: ${testDescription.unauthorized.access_token_invalid}`, () => {
 
     after('Clear Testing Data', function (done) {
       this.timeout(12000);
 
-      testHelper.deleteDomain(cloud_id, app_id, name, (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, domain_name, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain
     }); // after
 
-    it("Should return 'Invalid access_token'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`, (done) => {
 
       options.form.access_token = 'invalid_access_token';
       options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
@@ -237,11 +263,74 @@ describe('Create Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 7. body 中必要參數 domain 未帶，回傳錯誤訊息。
+  * 8. query string 中必要參數 access_token 過期，回傳錯誤訊息。
   *****************************************************************/
-  describe('Without domain in the body', () => {
+  describe(`OSS_003_08: ${testDescription.unauthorized.access_token_expired}`, () => {
 
-    it("Should return 'Missing Required Parameter: domain'", (done) => {
+    let customs = {};
+
+    before('Create Expired Token', function(done) {
+      this.timeout(12000);
+      console.log(`Create Expired Token...`);
+      options.access_token = "expired_access_token";
+      console.log(`options.access_token: ${options.access_token}`);
+      testHelper.createAccessToken(options.access_token, 0, (err, data) => {
+        if (err) {
+          done(err);
+        }
+        else {
+          customs.expired_token_id = data.insertId;
+          console.log(`data.insertId: ${data.insertId}`);
+          console.log(`customs.expired_token_id: ${customs.expired_token_id}`);
+          done();
+        }
+      }); // registerDevice
+    }); // before
+
+    after('Delete Expired Token', function(done) {
+      this.timeout(12000);
+      console.log(`Delete Expired Token...`);
+      console.log(`expired_token_id: ${customs.expired_token_id}`);
+      testHelper.deleteAccessToken(customs.expired_token_id, (err, data) => {
+        if (err) done(err);
+        else done();
+      }); // registerDevice
+    }); // before
+
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`, (done) => {
+
+      options.form.access_token = 'expired_access_token';
+      delete options.headers['X-Signature'];
+
+      const regexp = /{.*}/;
+      options.url = options.url.replace(regexp, domain_name);
+      let queryParams = Object.assign({ domain: domain_name }, options.form);
+      console.log(queryParams);
+
+      options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+
+      request(options, (err, response, body) => {
+        if (err) done(err); // an error occurred
+        else {
+          expect(response.statusCode).to.equal(401);
+          let parsedBody = JSON.parse(body);
+          expect(parsedBody).to.have.all.keys(['code', 'message']);
+          expect(parsedBody.code).to.equal(ApiErrors.unauthorized.access_token_expired.code);
+          expect(parsedBody.message).to.equal(ApiErrors.unauthorized.access_token_expired.message);
+
+          done();
+        }
+      }); // request
+
+    }); // it
+  }); // describe
+
+  /*****************************************************************
+  * 9. body 中必要參數 domain 未帶，回傳錯誤訊息。
+  *****************************************************************/
+  describe(`OSS_003_09: ${testDescription.missingRequiredParams.domain}`, () => {
+
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.domain)}`, (done) => {
 
       delete options.form.domain;
       delete options.headers['X-Signature'];
@@ -264,11 +353,11 @@ describe('Create Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 8. body 中必要參數 domain 不合法，回傳錯誤訊息。
+  * 10. body 中必要參數 domain 不合法，回傳錯誤訊息。
   *****************************************************************/
-  describe('Invalid domain in the body', () => {
+  describe(`OSS_013_10: ${testDescription.validationFailed.domain_in_path}`, () => {
 
-    it("Should return 'Invalid domain'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
       options.form.domain = '111ecowork';
       delete options.headers['X-Signature'];
@@ -291,14 +380,14 @@ describe('Create Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 9. 如果 DDB 內已有一筆資料，則無法建立相同的資料，回傳錯誤訊息。
+  * 11. 如果 DDB 內已有一筆資料，則無法建立相同的資料，回傳錯誤訊息。
   *****************************************************************/
-  describe('Create domain item fail if has the same id', () => {
+  describe(`OSS_003_11: ${testDescription.alreadyExists.domain}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, name, domain_id, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
@@ -313,7 +402,7 @@ describe('Create Domains API', () => {
       }); // deleteDomain
     }); // after
 
-    it("Should return 'Domain Already Exists'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain_duplicated)}`, (done) => {
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -333,17 +422,17 @@ describe('Create Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 10. 如果 DDB 內已有兩筆資料，則無法在建立資料，回傳錯誤訊息。
+  * 12. 如果 DDB 內已有兩筆資料，則無法在建立資料，回傳錯誤訊息。
   *****************************************************************/
-  describe('Create domain item fail if there are 2 data already', () => {
+  describe(`OSS_003_12: ${testDescription.alreadyExists.domain_limit}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
       customs.domain_id_1 = uuidV4();
       customs.domain_id_2 = uuidV4();
-      testHelper.createDomainItem(cloud_id, app_id, name + '1', customs.domain_id_1, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain_name + '1', customs.domain_id_1, (err, data) => {
         if (err) return done(err);
-        testHelper.createDomainItem(cloud_id, app_id, name + '2', customs.domain_id_2, (err, data) => {
+        testHelper.createDomainItem(cloud_id, app_id, domain_name + '2', customs.domain_id_2, (err, data) => {
           if (err) return done(err);
           done();
         }); // createDomainItem
@@ -362,7 +451,7 @@ describe('Create Domains API', () => {
       }); // deleteDomain
     }); // after
 
-    it("Should return 'Over domains limit'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain_limit)}`, (done) => {
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -383,9 +472,9 @@ describe('Create Domains API', () => {
 
 
   /*****************************************************************
-  * 11. Domain 資料建立成功。
+  * 13. Domain 資料建立成功。
   *****************************************************************/
-  describe('Successfully create domain item', () => {
+  describe(`OSS_003_13: ${testDescription.created.domain}`, () => {
 
     after('Clear Testing Data', function (done) {
       this.timeout(12000);
@@ -396,7 +485,7 @@ describe('Create Domains API', () => {
       }); // deleteDomain
     }); // after
 
-    it("should return 'OK'", function (done) {
+    it(`${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`, function (done) {
 
       options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
@@ -434,7 +523,7 @@ describe('Create Domains API', () => {
               ]);
               customs.domain_id = domain.id;
               expect(domain['cloud_id-app_id']).to.equal(`${cloud_id}-${app_id}`);
-              expect(domain.name).to.equal(name);
+              expect(domain.name).to.equal(domain_name);
               resolve();
             }); // getDomain
           }); // Promise

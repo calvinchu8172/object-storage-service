@@ -41,7 +41,7 @@ const lambda               = new AWS.Lambda({ region: REGION });
 
 
 
-describe('OSS_010: Update Domain API', () => {
+describe('OSS_012: Delete Domain API', () => {
 
   let options = {};
   let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
@@ -357,44 +357,10 @@ describe('OSS_010: Update Domain API', () => {
     }); // it
   }); // describe
 
-  /*****************************************************************
-  * 10. body 中必要參數 new domain 不合法，回傳錯誤訊息。
-  *****************************************************************/
-  // describe(`OSS_010_10: ${testDescription.validationFailed.new_domain}`, () => {
-
-  //   it("Should return 'Invalid new domain'", (done) => {
-
-  //     options.form.new_domain = '111_invalid_new_domain_name';
-  //     delete options.headers['X-Signature'];
-
-  //     const regexp = /{.*}/;
-  //     options.url = options.url.replace(regexp, domain_name);
-  //     let queryParams = Object.assign({ domain: domain_name }, options.form);
-
-  //     console.log(queryParams)
-
-  //     options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
-
-  //     request(options, (err, response, body) => {
-  //       if (err) done(err); // an error occurred
-  //       else {
-  //         expect(response.statusCode).to.equal(400);
-  //         let parsedBody = JSON.parse(body);
-  //         expect(parsedBody).to.have.all.keys(['code', 'message']);
-  //         expect(parsedBody.code).to.equal(ApiErrors.validationFailed.new_domain.code);
-  //         expect(parsedBody.message).to.equal(ApiErrors.validationFailed.new_domain.message);
-
-  //         done();
-  //       }
-  //     }); // request
-
-  //   }); // it
-  // }); // describe
-
   /****************************************************************
-  * 11. 找不到 Doamin。
+  * 10. 找不到 Doamin。
   ****************************************************************/
-  describe(`OSS_012_11: ${testDescription.notFound.domain}`, () => {
+  describe(`OSS_012_10: ${testDescription.notFound.domain}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -443,9 +409,9 @@ describe('OSS_010: Update Domain API', () => {
   }); // describe
 
   /*****************************************************************
-  * 12. Delete Domain 成功。
+  * 11. Delete Domain 成功。
   *****************************************************************/
-  describe(`OSS_012_12: ${testDescription.delete.domain}`, () => {
+  describe(`OSS_012_11: ${testDescription.delete.domain}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);

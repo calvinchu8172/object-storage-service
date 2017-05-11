@@ -30,6 +30,7 @@ const Utility              = require('lib/utility.js');
 const signatureGenerator   = require('lib/signature_generator.js')
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require( 'lib/api_errors.js' );
+const testDescription      = require('./lib/test_description');
 
 
 // ================== AWS ===================
@@ -39,7 +40,7 @@ const lambda               = new AWS.Lambda({region: REGION});
 
 
 
-describe('S3 Handler', () => {
+describe('OSS_005: S3 Event Handler', () => {
 
   let options = {};
   let customs = {};
@@ -53,7 +54,7 @@ describe('S3 Handler', () => {
   /*****************************************************************
   * 9. Object json 資料搜尋成功。
   *****************************************************************/
-  describe('Successfully get object item', () => {
+  describe(`OSS_005_01: ${testDescription.s3Handler}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -111,7 +112,7 @@ describe('S3 Handler', () => {
     after('Clear Testing Object1 Data', function (done) {
       this.timeout(12000);
       console.log('delete objec1 item');
-      
+
       testHelper.deleteObject(cloud_id, app_id, customs.object_id_1, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
@@ -157,7 +158,7 @@ describe('S3 Handler', () => {
     }); // after
 
 
-    it("should return 'OK'", function(done) {
+    it(`${testDescription.server_return} ${testDescription.OKWithDomainFileUsageEqualAllOjectUsage}`, function(done) {
       this.timeout(30000);
 
       var before_upload_domain_usage;

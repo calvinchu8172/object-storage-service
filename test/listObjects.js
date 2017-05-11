@@ -490,7 +490,7 @@ describe('OSS_009: List Objects API', () => {
   /*****************************************************************
   * 9. List Object All 成功。
   *****************************************************************/
-  describe(`OSS_009_11: ${testDescription.Found.list_object_by_all}`, () => {
+  describe(`OSS_009_11: ${testDescription.found.list_object_by_all}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -588,7 +588,7 @@ describe('OSS_009: List Objects API', () => {
   /*****************************************************************
   * 10. List Object by key 成功，而且當 query string 內同時有 key 與 begins_with 時，會以 key 為優先。
   *****************************************************************/
-  describe(`OSS_009_12: ${testDescription.Found.list_object_by_key}`, () => {
+  describe(`OSS_009_12: ${testDescription.found.list_object_by_key}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -687,7 +687,7 @@ describe('OSS_009: List Objects API', () => {
   /*****************************************************************
   * 11. List Object by begins_with 成功。
   *****************************************************************/
-  describe(`OSS_009_13: ${testDescription.Found.list_object_by_begins_with}`, () => {
+  describe(`OSS_009_13: ${testDescription.found.list_object_by_begins_with}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);

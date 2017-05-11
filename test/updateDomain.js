@@ -446,7 +446,7 @@ describe('OSS_010: Update Domain API', () => {
   /*****************************************************************
   * 12. Update Domain 失敗，因為已存在一個欲更改的 new_domain_name。
   *****************************************************************/
-  describe(`OSS_010_12: ${testDescription.Updated.fail.new_domain_exists}`, () => {
+  describe(`OSS_010_12: ${testDescription.updated.fail.new_domain_exists}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -514,7 +514,7 @@ describe('OSS_010: Update Domain API', () => {
   /*****************************************************************
   * 13. Update Domain 成功。
   *****************************************************************/
-  describe(`OSS_010_13: ${testDescription.Updated.domain}`, () => {
+  describe(`OSS_010_13: ${testDescription.updated.domain}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);

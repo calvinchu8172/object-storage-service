@@ -29,6 +29,7 @@ const Utility              = require('lib/utility.js');
 const signatureGenerator   = require('lib/signature_generator.js')
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require( 'lib/api_errors.js' );
+const testDescription      = require('./lib/test_description');
 
 
 // ================== AWS ===================
@@ -38,7 +39,7 @@ const lambda               = new AWS.Lambda({region: REGION});
 
 
 
-describe('List Domains API', () => {
+describe('OSS_008: List Domains API', () => {
 
   let options = {};
   let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
@@ -82,9 +83,9 @@ describe('List Domains API', () => {
   /*****************************************************************
   * 1. query string 中必要參數 certificate_serial 未帶，回傳錯誤訊息。
   *****************************************************************/
-  describe('Without certificate_serial in the body', () => {
+  describe(`OSS_008_01: ${testDescription.missingRequiredParams.certificate_serial}`, () => {
 
-    it("Should return 'Missing Required Parameter: certificate_serial'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`, (done) => {
 
       delete options.qs.certificate_serial;
       // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
@@ -108,9 +109,9 @@ describe('List Domains API', () => {
   /*****************************************************************
   * 2. query string 中必要參數 certificate_serial 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  describe('Wrong certificate_serial in the body', () => {
+  describe(`OSS_008_02: ${testDescription.validationFailed.certificate_serial}`, () => {
 
-    it("Should return 'Invalid certificate_serial'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`, (done) => {
 
       options.qs.certificate_serial = 'invalid_certificate_serial';
       // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
@@ -133,9 +134,33 @@ describe('List Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 3. header 中必要參數 X-Signature 未帶，回傳錯誤訊息。
+  * 3. header 中必要參數 X-API-Key 未帶，回傳錯誤訊息。
   *****************************************************************/
-  describe('Without X-Signature in the header', () => {
+  describe(`OSS_008_03: ${testDescription.missingRequiredParams.api_key}`, () => {
+
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.forbidden.x_api_key)}`, (done) => {
+
+      delete options.headers['X-API-Key'];
+
+      request(options, (err, response, body) => {
+        if (err) done(err); // an error occurred
+        else {
+          expect(response.statusCode).to.equal(403);
+          let parsedBody = JSON.parse(body);
+          expect(parsedBody).to.have.all.keys(['message']);
+          expect(parsedBody.message).to.equal(ApiErrors.forbidden.x_api_key.message);
+
+          done();
+        }
+      }); // request
+
+    }); // it
+  }); // describe
+
+  /*****************************************************************
+  * 4. header 中必要參數 X-Signature 未帶，回傳錯誤訊息。
+  *****************************************************************/
+  describe(`OSS_008_04: ${testDescription.missingRequiredParams.signature}`, () => {
 
     it("Should return 'Missing Required Header: X-Signature'", (done) => {
 
@@ -158,15 +183,14 @@ describe('List Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 4. header 中必要參數 X-Signature 帶錯，回傳錯誤訊息。
+  * 5. header 中必要參數 X-Signature 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  describe('Wrong X-Signature in the header', () => {
+  describe(`OSS_008_05: ${testDescription.validationFailed.signature}`, () => {
 
-    it("Should return 'Invalid Signature'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`, (done) => {
 
       options.headers['X-Signature'] = 'invalid_signaure';
       // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
-
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -185,25 +209,16 @@ describe('List Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 5. query string 中必要參數 access_token 未帶，回傳錯誤訊息。
+  * 6. query string 中必要參數 access_token 未帶，回傳錯誤訊息。
   *****************************************************************/
-  describe('Without access_token in the body', () => {
+  describe(`OSS_008_06: ${testDescription.missingRequiredParams.access_token}`, () => {
 
-    it("Should return 'Missing Required Parameter: access_token'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`, (done) => {
 
       delete options.qs.access_token;
       delete options.headers['X-Signature'];
 
-      // const regexp = /{.*}/;
-      // const domain = 'ecowork1';
-      // options.url = options.url.replace(regexp, domain);
-      // let queryParams = Object.assign({ domain }, options.qs);
-      // console.log(queryParams);
-
-      // options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
       options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
-
-      // console.log(options);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -275,9 +290,9 @@ describe('List Domains API', () => {
   /*****************************************************************
   * 7. query string 中必要參數 access_token 帶錯，回傳錯誤訊息。
   *****************************************************************/
-  describe('Wrong access_token in the body', () => {
+  describe(`OSS_008_07: ${testDescription.unauthorized.access_token_invalid}`, () => {
 
-    it("Should return 'Invalid access_token'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`, (done) => {
 
       options.qs.access_token = 'invalid_access_token';
 
@@ -301,9 +316,9 @@ describe('List Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 7. query string 中必要參數 access_token 過期，回傳錯誤訊息。
+  * 8. query string 中必要參數 access_token 過期，回傳錯誤訊息。
   *****************************************************************/
-  describe('Wrong access_token in the body', () => {
+  describe(`OSS_008_08: ${testDescription.unauthorized.access_token_expired}`, () => {
 
     let customs = {};
 
@@ -335,7 +350,7 @@ describe('List Domains API', () => {
       }); // registerDevice
     }); // before
 
-    it("Should return 'Access Token Expired'", (done) => {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`, (done) => {
 
       options.qs.access_token = 'expired_access_token';
 
@@ -359,11 +374,11 @@ describe('List Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 8. 找不到 Domain。
+  * 9. 找不到 Domain。
   *****************************************************************/
-  describe('Successfully get domain item', () => {
+  describe(`OSS_008_09: ${testDescription.notFound.domain}`, () => {
 
-    it("should return 'OK'", function(done) {
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.domain)}`, function(done) {
       this.timeout(12000);
 
       options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
@@ -394,9 +409,9 @@ describe('List Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 8. Domain 資料建立成功。
+  * 10. 成功搜尋到 Domain list。
   *****************************************************************/
-  describe('Successfully get domain item', () => {
+  describe(`OSS_008_10: ${testDescription.list.domain}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -434,7 +449,7 @@ describe('List Domains API', () => {
       }); // deleteDomain
     }); // after
 
-    it("should return 'OK'", function(done) {
+    it(`${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`, function(done) {
       this.timeout(12000);
 
       options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
