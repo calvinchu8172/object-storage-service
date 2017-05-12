@@ -342,7 +342,7 @@ describe('OSS_003: Create Domain API', () => {
   /*****************************************************************
   * 10. body 中必要參數 domain 不合法，回傳錯誤訊息。
   *****************************************************************/
-  describe(`OSS_013_10: ${testDescription.validationFailed.domain}`, () => {
+  describe(`OSS_003_10: ${testDescription.validationFailed.domain}`, () => {
 
     describe(`${testDescription.invalidDomain.begins_with_number}`, () => {
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
