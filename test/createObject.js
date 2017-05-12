@@ -228,23 +228,74 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_07
   describe(`OSS_004_07: ${testDescription.validationFailed.key}`, function () {
-    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`, function (done) {
 
-      options.form['key'] = "123abc";
-      options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
-      request(options, (err, response, body) => {
-        if (err) done(err); // an error occurred
-        else {
-          console.log(response.body);
-          expect(response.statusCode).to.equal(ApiErrors.validationFailed.key.httpStatus);
-          let parsedBody = JSON.parse(body);
-          expect(parsedBody).to.have.all.keys(['code', 'message']);
-          expect(parsedBody.code).to.equal(ApiErrors.validationFailed.key.code);
-          expect(parsedBody.message).to.equal(ApiErrors.validationFailed.key.message);
-          done();
+    describe(`${testDescription.invalidObject.begins_with_number}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`, function (done) {
+
+        options.form['key'] = "123abc";
+        options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            console.log(response.body);
+            expect(response.statusCode).to.equal(ApiErrors.validationFailed.key.httpStatus);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.key.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.key.message);
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
+    describe(`${testDescription.invalidObject.with_unacceptable_characters}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`, function (done) {
+
+        options.form['key'] = "abc*";
+        options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            console.log(response.body);
+            expect(response.statusCode).to.equal(ApiErrors.validationFailed.key.httpStatus);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.key.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.key.message);
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
+    describe(`${testDescription.invalidObject.over_128_characters}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`, function (done) {
+
+        let invalid_key_name = 'invalid_object_name'
+
+        while (invalid_key_name.length < 129) {
+          invalid_key_name += ('_' + invalid_key_name);
         }
-      }); // request
-    }); // it
+        invalid_key_name += '.jpg'
+
+        options.form['key'] = invalid_key_name;
+        options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            console.log(response.body);
+            expect(response.statusCode).to.equal(ApiErrors.validationFailed.key.httpStatus);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.key.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.key.message);
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
   }); // If the key param in request is invalid
 
 
