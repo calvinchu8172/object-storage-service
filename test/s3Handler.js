@@ -13,15 +13,15 @@ const expect               = mochaPlugin.chai.expect;
 
 
 // ================ ENVs ========================
-const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
+// const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const PROJECT_NAME           = process.env.SERVERLESS_PROJECT;
 const REGION                 = process.env.SERVERLESS_REGION;
 const STAGE                  = process.env.SERVERLESS_STAGE;
-const serverlessYamlObject   = YAML.load('serverless.yml');
-const PATH                   = serverlessYamlObject.functions.getObject.events[0].http.path;
-const METHOD                 = serverlessYamlObject.functions.getObject.events[0].http.method;
-const REQUEST_URL            = `${API_GATEWAY_INVOKE_URL}/${PATH}`;
-const PRIVATE_KEY_NAME       = 'object';
+// const serverlessYamlObject   = YAML.load('serverless.yml');
+// const PATH                   = serverlessYamlObject.functions.getObject.events[0].http.path;
+// const METHOD                 = serverlessYamlObject.functions.getObject.events[0].http.method;
+// const REQUEST_URL            = `${API_GATEWAY_INVOKE_URL}/${PATH}`;
+// const PRIVATE_KEY_NAME       = 'object';
 
 
 
@@ -42,24 +42,26 @@ const lambda               = new AWS.Lambda({region: REGION});
 
 describe('OSS_005: S3 Event Handler', () => {
 
-  let options = {};
-  let customs = {};
+  // let options = {};
+  // let customs = {};
   let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
-  let domain = 'ecowork1'
+  let domain_name = 'test_domain_name'
   let domain_id = 'test_domain_id'
   let object1 = 'test1_mocha.png'
+  let object_id1 = 'test_object_id1'
   let object2 = 'test2_mocha.jpg'
+  let object_id2 = 'test_object_id2'
 
   /*****************************************************************
-  * 9. Object json 資料搜尋成功。
+  * 1. S3 Handler 修改 Domain file_usage 與 Object usage 成功。
   *****************************************************************/
   describe(`OSS_005_01: ${testDescription.s3Handler}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
       console.log('create domain item');
-      testHelper.createDomainItem(cloud_id, app_id, domain, domain_id, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -72,9 +74,9 @@ describe('OSS_005: S3 Event Handler', () => {
     before('Create an object1 item', function (done) {
       this.timeout(12000);
       console.log('create object item');
-      var object_id_1 = uuidV4();
-      customs.object_id_1 = object_id_1;
-      testHelper.createObjectItem1(cloud_id, app_id, object1, domain_id, object_id_1, 'image/png', (err, data) => {
+      // var object_id1 = uuidV4();
+      // customs.object_id1 = object_id1;
+      testHelper.createObjectItem1(cloud_id, app_id, object1, domain_id, object_id1, 'image/png', (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -87,9 +89,9 @@ describe('OSS_005: S3 Event Handler', () => {
     before('Create an object2 item', function (done) {
       this.timeout(12000);
       console.log('create object item');
-      var object_id_2 = uuidV4();
-      customs.object_id_2 = object_id_2;
-      testHelper.createObjectItem1(cloud_id, app_id, object2, domain_id, object_id_2, 'image/jpg', (err, data) => {
+      // var object_id2 = uuidV4();
+      // customs.object_id2 = object_id2;
+      testHelper.createObjectItem1(cloud_id, app_id, object2, domain_id, object_id2, 'image/jpg', (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -113,7 +115,7 @@ describe('OSS_005: S3 Event Handler', () => {
       this.timeout(12000);
       console.log('delete objec1 item');
 
-      testHelper.deleteObject(cloud_id, app_id, customs.object_id_1, domain_id, (err, data) => {
+      testHelper.deleteObject(cloud_id, app_id, object_id1, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteObject
@@ -123,7 +125,7 @@ describe('OSS_005: S3 Event Handler', () => {
       this.timeout(12000);
       console.log('delete object2 item');
 
-      testHelper.deleteObject(cloud_id, app_id, customs.object_id_2, domain_id, (err, data) => {
+      testHelper.deleteObject(cloud_id, app_id, object_id2, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteObject
@@ -170,7 +172,7 @@ describe('OSS_005: S3 Event Handler', () => {
 
       let getDomain = function () {
         return new Promise((resolve, reject) => {
-          testHelper.getDomain(cloud_id, app_id, domain, (err, data) => {
+          testHelper.getDomain(cloud_id, app_id, domain_name, (err, data) => {
             if (err) {
               console.log(err)
               reject(err); // an error occurred
@@ -281,7 +283,7 @@ describe('OSS_005: S3 Event Handler', () => {
       .then((data) => {
         console.log(data)
         return new Promise((resolve, reject) => {
-          testHelper.getDomain(cloud_id, app_id, domain, (err, data) => {
+          testHelper.getDomain(cloud_id, app_id, domain_name, (err, data) => {
             if (err) {
               console.log(err)
               reject(err); // an error occurred

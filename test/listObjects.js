@@ -48,9 +48,9 @@ describe('OSS_009: List Objects API', () => {
   let domain_name = 'test_domain_name'
   let domain_id = 'test_domain_id'
   let object1 = 'test1_mocha.json'
-  let object_id1 = 'test_object_id_1'
+  let object_id1 = 'test_object_id1'
   let object2 = 'test2_mocha.jpg'
-  let object_id2 = 'test_object_id_2'
+  let object_id2 = 'test_object_id2'
   let prefix = 'test2'
 
   console.log(METHOD);
