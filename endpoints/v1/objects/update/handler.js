@@ -76,10 +76,13 @@ module.exports.handler = (event, context, callback) => {
       customs.domain_name = result.domain_name;
       console.log(`customs.domain_id: ${customs.domain_id}`);
       console.log(`customs.domain_name: ${customs.domain_name}`);
-      return CommonSteps.writeAccessLog(event, receivedParams, customs.domain_id, customs.user_info);
+      return queryObjectItem(customs.domain_id, receivedParams.key, receivedParams.new_key);
     })
-    .then(() => {
-      let objectItem = {
+    .then((oldItem) => {
+      return CommonSteps.writeAccessObjectLog(event, receivedParams, customs.domain_id, customs.user_info, oldItem);
+    })
+    .then((oldItem) => {
+      let newItem = {
         domain_id: customs.domain_id,
         key: receivedParams.key,
         id: object_id,
@@ -90,9 +93,69 @@ module.exports.handler = (event, context, callback) => {
         created_at: timestamp,
         updated_at: timestamp
       };
-      return UpdateObjectItem(objectItem, customs.app_id)
+      return UpdateObjectItem(oldItem, newItem, customs.app_id);
+    })
+    .then((diffItem) => {
+      return UpdateObjectDomain(diffItem.oldItem, diffItem.newItem);
     })
 }
+
+
+/**
+* @function queryObjectItem
+* @param  {type} objectItem {description}
+* @param  {type} app_id     {description}
+* @return {type} {description}
+*/
+var queryObjectItem = function (domain_id, key, new_key, app_id) {
+  return new Promise((resolve, reject) => {
+    // 1. 查詢指定的 key 是否存在，若不存在在返回 "指定的 key 不存在"
+    // 2. 查詢 new_key 是否已存在，若存在則不予更名
+    var key_list = [key];
+    if (new_key) {
+      key_list.push(new_key);
+    }
+    var payload = {
+      TableName: `${STAGE}-${SERVICE}-${app_id}`,
+      KeyConditions: {
+        'domain_id': {
+          ComparisonOperator: 'EQ',
+          AttributeValueList: [domain_id]
+        }
+      },
+      QueryFilter: {
+        'key': {
+          ComparisonOperator: 'IN',
+          AttributeValueList: key_list
+        }
+      }
+    }; //params
+    ddb.query(payload, function (err, data) {
+      console.log(`data: ${JSON.stringify(data, null, 2)}`);
+      if (err) {
+        console.log(err);
+        reject(ApiErrors.unexceptedError);
+      }
+      else if (data.Items && data.Items.length > 0) {
+        var foundObj = _.find(data.Items, function (i) { return i.key == key; });
+        if (foundObj) {
+          var duplicatedObj = _.find(data.Items, function (i) { return i.key == new_key; });
+          if (duplicatedObj) {
+            reject(ApiErrors.validationFailed.key_duplicated);
+          } else {
+            resolve(foundObj);
+          }
+        }
+      }
+
+      // 1. if data.Item.length == 0
+      // 2. if !foundObj
+      reject(ApiErrors.notFound.object);
+
+    });
+  });
+}
+
 
 
 /**
@@ -101,22 +164,23 @@ module.exports.handler = (event, context, callback) => {
 * @param  {type} app_id     {description}
 * @return {type} {description}
 */
-var updateObjectItem = function (objectItem, app_id) {
+var updateObjectItem = function (oldItem, newItem, app_id) {
   console.log('============== createDomainItem ==============');
-  console.log(`objectItem: ${JSON.stringify(objectItem, null, 2)}`);
+  console.log(`newItem: ${JSON.stringify(newItem, null, 2)}`);
 
   return new Promise((resolve, reject) => {
     let usage = 0;
-    if (objectItem.content_type !== 'application/json') {
-      delete objectItem.content;
-    } else {
-      usage = Buffer.byteLength(JSON.stringify(objectItem.content), 'utf8');
-      objectItem.usage = usage;
+    if (newItem.content_type !== 'application/json') {
+      delete newItem.content;
+
+    } else { // application/json
+      usage = Buffer.byteLength(JSON.stringify(newItem.content), 'utf8');
+      newItem.usage = usage;
     }
 
     var payload = {
       TableName: `${STAGE}-${SERVICE}-${app_id}`,
-      Item: objectItem,
+      Item: newItem,
       ConditionExpression: 'attribute_exists(#hkey)',
       ExpressionAttributeNames: {
         '#hkey': 'domain_id'
@@ -126,22 +190,112 @@ var updateObjectItem = function (objectItem, app_id) {
     ddb.put(payload, function (err, data) {
       if (err) {
         console.error(`err: ${err}`);
-        if (err.code == 'ConditionalCheckFailedException') {
-          reject(ApiErrors.validationFailed.key_duplicated);
-        }
-        else {
-          reject(ApiErrors.unexceptedError);
-        }
+        reject(ApiErrors.unexceptedError);
       }
       else {
         console.log(`data: ${JSON.stringify(data)}`);
-        let result = {
-          usage: usage,
-          path: objectItem.path
+        let diffItem = {
+          oldItem: oldItem,
+          newItem: newItem
         }
-        resolve(result);
+        resolve(diffItem);
       }
     });
   });
 }
 
+/**
+* @function UpdateObjectDomain
+* @param  {type} oldItem {description}
+* @param  {type} newItem {description}
+* @return {type} {description}
+*/
+var UpdateObjectDomain = function (oldItem, newItem) {
+  return new Promise((resolve, reject) => {
+    let domain_id = oldItem.domain_id;
+    let trans_type = getObjectTrasitionType(oldItem, newItem);
+    updateDomainItem(customs.cloud_id, customs.app_id, domain_id, trans_type, old_usage, new_usage, (err, data) => {
+      if(err) reject(err);
+      else {
+        console.log(`data: ${JSON.stringify(data, null, 2)}`);
+        resolve(data);
+      }
+    });
+  });
+}
+
+
+/**
+* @function getObjectTrasitionType
+* @param  {type} oldItem {description}
+* @param  {type} newItem {description}
+* @return {type} {description}
+*/
+function getObjectTrasitionType(oldItem, newItem) {
+  let transitionType = "";
+  transitionType = (oldItem.content_type === 'application/json') ? (transitionType + "json") : (transitionType + "file");
+  transitionType += "_to_";
+  transitionType = (newItem.content_type === 'application/json') ? (transitionType + "json") : (transitionType + "file");
+  return transitionType;
+}
+
+
+/**
+* @function updateDomainItem
+* @param  {type} cloud_id  {description}
+* @param  {type} app_id    {description}
+* @param  {type} domain_id {description}
+* @param  {type} transType {description}
+* @param  {type} old_item  {description}
+* @param  {type} new_item  {description}
+* @param  {type} callback  {description}
+* @return {type} {description}
+*/
+function updateDomainItem(cloud_id, app_id, domain_id, transType, old_usage, new_usage, callback) {
+
+  var expression = "set #updated_at = :updated_at";
+  if (transType == 'json_to_json') {
+    expression += `, json_usage = json_usage - ${old_usage} + ${new_usage}`;
+  }
+  else if (transType == 'json_to_file') {
+    expression += `, json_usage = json_usage - ${old_usage}`;
+    // file_usage 在上傳檔案時更新
+  }
+  else if (transType == 'file_to_json') {
+    expression += `, file_usage = file_usage - ${old_usage}`;
+    expression += `, json_usage = json_usage + ${new_usage}`;
+  }
+
+  console.log(`expression: ${expression}`);
+
+  var payload = {
+    TableName: `${STAGE}-${SERVICE}-domains`,
+    Key: {
+      "cloud_id-app_id": `${cloud_id}-${app_id}`,
+      "id": domain_id
+    },
+    UpdateExpression: expression,
+    ConditionExpression: '#id = :domain_id',
+    ExpressionAttributeNames: {
+      "#file_usage": "file_usage",
+      "#id": "id",
+      "#updated_at": "updated_at"
+    },
+    ExpressionAttributeValues: {
+      ":domain_id": domain_id,
+      ":updated_at": updated_at
+    },
+    ReturnValues: "UPDATED_NEW"
+  };
+
+  ddb.update(payload, function (err, data) {
+    if (err) {
+      console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
+      reject(err);
+    } else {
+      console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
+      resolve(data);
+    }
+  }); //ddb
+
+}
