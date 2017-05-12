@@ -19,6 +19,7 @@ const s3 = new AWS.S3({ region: REGION });
 // ================ Modules =====================
 const uuidV4 = require('uuid/v4');
 const empty = require('is-empty');
+const _ = require('lodash');
 
 // ================ Lib/Modules =================
 const ParamsFetcher = require('lib/params_fetcher.js');
@@ -28,6 +29,7 @@ const ApiErrors = require('lib/api_errors.js');
 
 module.exports.handler = (event, context, callback) => {
 
+  console.log(`event: ${JSON.stringify(event, null, 2)}`);
   let receivedParams = event.body;
   let headers = event.headers;
   let path = event.path;
@@ -76,28 +78,56 @@ module.exports.handler = (event, context, callback) => {
       customs.domain_name = result.domain_name;
       console.log(`customs.domain_id: ${customs.domain_id}`);
       console.log(`customs.domain_name: ${customs.domain_name}`);
-      return queryObjectItem(customs.domain_id, receivedParams.key, receivedParams.new_key);
+      return queryObjectItem(customs.domain_id, receivedParams.key, receivedParams.new_key, customs.app_id);
     })
     .then((oldItem) => {
       return CommonSteps.writeAccessObjectLog(event, receivedParams, customs.domain_id, customs.user_info, oldItem);
     })
     .then((oldItem) => {
+      let timestamp = Utility.getTimestamp();
+      let key = receivedParams.new_key ? receivedParams.new_key : receivedParams.key;
       let newItem = {
         domain_id: customs.domain_id,
-        key: receivedParams.key,
-        id: object_id,
+        key: key,
+        id: oldItem.id,
         content_type: receivedParams.content_type,
         content: receivedParams.content,
-        domain_path: domain_path,
-        path: path,
+        domain_path: oldItem.domain_path,
+        path: `${oldItem.domain_path}/${key}`,
         created_at: timestamp,
         updated_at: timestamp
       };
-      return UpdateObjectItem(oldItem, newItem, customs.app_id);
+      return updateObjectItem(oldItem, newItem, customs.app_id);
     })
     .then((diffItem) => {
-      return UpdateObjectDomain(diffItem.oldItem, diffItem.newItem);
+      return updateDomain(customs.cloud_id, customs.app_id, diffItem.oldItem, diffItem.newItem);
     })
+    .then((newItemPath) => {
+      if (!isJsonTypeObject) {
+        return generatePresignedURL(newItemPath, receivedParams.content_type);
+      } else {
+        return Promise.resolve();
+      }
+    })
+    .then((signed_url) => {
+      if (isJsonTypeObject) {
+        callback();
+      } else {
+        let response = {};
+        response['data'] = {};
+        response['data']['upload_url'] = signed_url;
+        callback(null, JSON.stringify(response));
+      }
+    })
+    .catch((err) => {
+      if (empty(err.httpStatus) || empty(err.code) || empty(err.message)) {
+        console.error(err);
+        err = ApiErrors.unexceptedError;
+      }
+      err = JSON.stringify(err);
+      console.error(err);
+      callback(err);
+    });
 }
 
 
@@ -108,6 +138,7 @@ module.exports.handler = (event, context, callback) => {
 * @return {type} {description}
 */
 var queryObjectItem = function (domain_id, key, new_key, app_id) {
+  console.log('============== queryObjectItem ==============');
   return new Promise((resolve, reject) => {
     // 1. 查詢指定的 key 是否存在，若不存在在返回 "指定的 key 不存在"
     // 2. 查詢 new_key 是否已存在，若存在則不予更名
@@ -130,6 +161,8 @@ var queryObjectItem = function (domain_id, key, new_key, app_id) {
         }
       }
     }; //params
+    console.log(`payload: ${JSON.stringify(payload, null, 2)}`);
+
     ddb.query(payload, function (err, data) {
       console.log(`data: ${JSON.stringify(data, null, 2)}`);
       if (err) {
@@ -165,7 +198,7 @@ var queryObjectItem = function (domain_id, key, new_key, app_id) {
 * @return {type} {description}
 */
 var updateObjectItem = function (oldItem, newItem, app_id) {
-  console.log('============== createDomainItem ==============');
+  console.log('============== updateObjectItem ==============');
   console.log(`newItem: ${JSON.stringify(newItem, null, 2)}`);
 
   return new Promise((resolve, reject) => {
@@ -210,15 +243,16 @@ var updateObjectItem = function (oldItem, newItem, app_id) {
 * @param  {type} newItem {description}
 * @return {type} {description}
 */
-var UpdateObjectDomain = function (oldItem, newItem) {
+var updateDomain = function (cloud_id, app_id, oldItem, newItem) {
+  console.log('============== updateDomain ==============');
   return new Promise((resolve, reject) => {
     let domain_id = oldItem.domain_id;
     let trans_type = getObjectTrasitionType(oldItem, newItem);
-    updateDomainItem(customs.cloud_id, customs.app_id, domain_id, trans_type, old_usage, new_usage, (err, data) => {
-      if(err) reject(err);
+    updateDomainItem(cloud_id, app_id, domain_id, trans_type, oldItem.usage, newItem.usage, (err, data) => {
+      if (err) reject(err);
       else {
         console.log(`data: ${JSON.stringify(data, null, 2)}`);
-        resolve(data);
+        resolve(newItem.path);
       }
     });
   });
@@ -232,6 +266,7 @@ var UpdateObjectDomain = function (oldItem, newItem) {
 * @return {type} {description}
 */
 function getObjectTrasitionType(oldItem, newItem) {
+  console.log('============== getObjectTrasitionType ==============');
   let transitionType = "";
   transitionType = (oldItem.content_type === 'application/json') ? (transitionType + "json") : (transitionType + "file");
   transitionType += "_to_";
@@ -252,18 +287,38 @@ function getObjectTrasitionType(oldItem, newItem) {
 * @return {type} {description}
 */
 function updateDomainItem(cloud_id, app_id, domain_id, transType, old_usage, new_usage, callback) {
+  console.log('============== updateDomainItem ==============');
+  let expressionAttrNames = {
+    "#id": "id",
+    "#updated_at": "updated_at"
+  };
+  let expressionAttrValues = {
+    ":domain_id": domain_id,
+    ":updated_at": Utility.getTimestamp()
+  };
+
+  console.log(`old_usage: ${old_usage}`);
+  console.log(`new_usage: ${new_usage}`);
 
   var expression = "set #updated_at = :updated_at";
-  if (transType == 'json_to_json') {
-    expression += `, json_usage = json_usage - ${old_usage} + ${new_usage}`;
+  if (transType === 'json_to_json') {
+    expression += `, #json_usage = #json_usage + :usage`;
+    expressionAttrNames["#json_usage"] = "json_usage";
+    expressionAttrValues[":usage"] = (new_usage - old_usage);
   }
-  else if (transType == 'json_to_file') {
-    expression += `, json_usage = json_usage - ${old_usage}`;
+  else if (transType === 'json_to_file') {
+    expression += `, #json_usage = #json_usage - :old_usage`;
+    expressionAttrNames["#json_usage"] = "json_usage";
+    expressionAttrValues[":old_usage"] = old_usage;
     // file_usage 在上傳檔案時更新
   }
-  else if (transType == 'file_to_json') {
-    expression += `, file_usage = file_usage - ${old_usage}`;
-    expression += `, json_usage = json_usage + ${new_usage}`;
+  else if (transType === 'file_to_json') {
+    expression += `, #file_usage = #file_usage - :old_usage`;
+    expression += `, #json_usage = #json_usage + :new_usage`;
+    expressionAttrNames["#file_usage"] = "file_usage";
+    expressionAttrNames["#json_usage"] = "json_usage";
+    expressionAttrValues[":old_usage"] = old_usage;
+    expressionAttrValues[":new_usage"] = new_usage;
   }
 
   console.log(`expression: ${expression}`);
@@ -276,26 +331,59 @@ function updateDomainItem(cloud_id, app_id, domain_id, transType, old_usage, new
     },
     UpdateExpression: expression,
     ConditionExpression: '#id = :domain_id',
-    ExpressionAttributeNames: {
-      "#file_usage": "file_usage",
-      "#id": "id",
-      "#updated_at": "updated_at"
-    },
-    ExpressionAttributeValues: {
-      ":domain_id": domain_id,
-      ":updated_at": updated_at
-    },
-    ReturnValues: "UPDATED_NEW"
+    ExpressionAttributeNames: expressionAttrNames,
+    ExpressionAttributeValues: expressionAttrValues,
+    ReturnValues: "ALL_NEW"
   };
-
+  console.log(`payload: ${JSON.stringify(payload, null, 2)}`);
   ddb.update(payload, function (err, data) {
     if (err) {
       console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
-      reject(err);
+      callback(err);
     } else {
+      // {
+      //   "Attributes": {
+      //     "app_id": "886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d",
+      //     "updated_at": 1494588067,
+      //     "created_at": 1493360611,
+      //     "updated_by": "54.88.85.209",
+      //     "json_usage": 0,
+      //     "created_by": "54.88.85.209",
+      //     "cloud_id-app_id": "zLanZi_liQQ_N_xGLr5g8mw-886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d",
+      //     "id": "33c0c9d8-caad-49fb-8014-b236bb182f97-aaa",
+      //     "name": "domain_test1_222",
+      //     "file_usage": 37186
+      //   }
+      // }
       console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
-      resolve(data);
+      callback(null, data['Attributes']);
     }
   }); //ddb
 
+}
+
+
+/**
+* @function generatePresignedURL
+* @param  {type} path {description}
+* @return {type} {description}
+*/
+var generatePresignedURL = function (path, content_type) {
+  console.log('============== generatePresignedURL ==============');
+  console.log(`S3_BUCKET: ${S3_BUCKET}`);
+  console.log(`path: ${path}`);
+  return new Promise((resolve, reject) => {
+    var params = {
+      Bucket: S3_BUCKET,
+      Key: path,
+      Expires: 3600, // 1 hour
+      ContentType: content_type
+    };
+    console.log(`params: ${JSON.stringify(params, null, 2)}`);
+    var url = s3.getSignedUrl('putObject', params, function (err, url) {
+      if(err) reject(err);
+      console.log('The URL is', url);
+      resolve(url);
+    });
+  });
 }
