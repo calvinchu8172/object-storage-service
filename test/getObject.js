@@ -46,9 +46,12 @@ describe('OSS_007: Get Object API', () => {
   let customs = {};
   let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
-  let domain = 'ecowork1'
+  let domain_name = 'test_domain_name'
   let domain_id = 'test_domain_id'
-  let object = 'test_mocha.jpg'
+  let object_json = 'test1_mocha.json'
+  let object_json_id = 'test_object_json_id'
+  let object_jpg = 'test2_mocha.jpg'
+  let object_jpg_id = 'test_object_jpg_id'
 
   console.log(METHOD);
   console.log(REQUEST_URL);
@@ -176,8 +179,6 @@ describe('OSS_007: Get Object API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`, (done) => {
 
       options.headers['X-Signature'] = 'invalid_signaure';
-      // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
-
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -203,15 +204,10 @@ describe('OSS_007: Get Object API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`, (done) => {
 
       delete options.qs.access_token;
-      delete options.headers['X-Signature'];
 
       const regexp = /{.*}/;
-      // const domain = 'ecowork1';
-      // const object = 'test_mocha.jpg';
-      options.url = options.url.replace(regexp, `${domain}/${object}`);
-      let queryParams = Object.assign({ domain, object }, options.qs);
-      console.log(queryParams);
-
+      options.url = options.url.replace(regexp, `${domain_name}/${object_jpg}`);
+      let queryParams = Object.assign({ domain: domain_name, object: object_jpg }, options.qs);
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
@@ -239,15 +235,10 @@ describe('OSS_007: Get Object API', () => {
 
       options.qs.access_token = 'invalid_access_token';
 
-      delete options.headers['X-Signature'];
       const regexp = /{.*}/;
-      // const domain = 'ecowork1';
-      // const object = 'test_mocha.jpg';
-      options.url = options.url.replace(regexp, `${domain}/${object}`);
-      let queryParams = Object.assign({ domain, object }, options.qs);
-      console.log(queryParams);
+      options.url = options.url.replace(regexp, `${domain_name}/${object_jpg}`);
+      let queryParams = Object.assign({ domain: domain_name, object: object_jpg }, options.qs);
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
-      console.log(options);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -265,15 +256,246 @@ describe('OSS_007: Get Object API', () => {
     }); // it
   }); // describe
 
+  /*****************************************************************
+  * 8. query string 中必要參數 access_token 過期，回傳錯誤訊息。
+  *****************************************************************/
+  describe(`OSS_007_08: ${testDescription.unauthorized.access_token_expired}`, () => {
+
+    let customs = {};
+
+    before('Create Expired Token', function(done) {
+      this.timeout(12000);
+      console.log(`Create Expired Token...`);
+      options.access_token = "expired_access_token";
+      console.log(`options.access_token: ${options.access_token}`);
+      testHelper.createAccessToken(options.access_token, 0, (err, data) => {
+        if (err) {
+          done(err);
+        }
+        else {
+          customs.expired_token_id = data.insertId;
+          console.log(`data.insertId: ${data.insertId}`);
+          console.log(`customs.expired_token_id: ${customs.expired_token_id}`);
+          done();
+        }
+      }); // registerDevice
+    }); // before
+
+    after('Delete Expired Token', function(done) {
+      this.timeout(12000);
+      console.log(`Delete Expired Token...`);
+      console.log(`expired_token_id: ${customs.expired_token_id}`);
+      testHelper.deleteAccessToken(customs.expired_token_id, (err, data) => {
+        if (err) done(err);
+        else done();
+      }); // registerDevice
+    }); // before
+
+    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`, (done) => {
+
+      options.qs.access_token = 'expired_access_token';
+
+      const regexp = /{.*}/;
+      options.url = options.url.replace(regexp, `${domain_name}/${object_jpg}`);
+      let queryParams = Object.assign({ domain: domain_name, object: object_jpg }, options.qs);
+      options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+
+      request(options, (err, response, body) => {
+        if (err) done(err); // an error occurred
+        else {
+          expect(response.statusCode).to.equal(401);
+          let parsedBody = JSON.parse(body);
+          expect(parsedBody).to.have.all.keys(['code', 'message']);
+          expect(parsedBody.code).to.equal(ApiErrors.unauthorized.access_token_expired.code);
+          expect(parsedBody.message).to.equal(ApiErrors.unauthorized.access_token_expired.message);
+
+          done();
+        }
+      }); // request
+
+    }); // it
+  }); // describe
+
+  /*****************************************************************
+  * 9. path 中必要參數 domain 不合法，回傳錯誤訊息。
+  *****************************************************************/
+  describe(`OSS_007_09: ${testDescription.validationFailed.domain_in_path}`, () => {
+
+    describe(`${testDescription.invalidDomain.begins_with_number}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
+
+        const regexp = /{.*}/;
+        let invalid_domain_name = '111_invalid_domain_name'
+        options.url = options.url.replace(regexp, `${invalid_domain_name}/${object_jpg}`);
+        let queryParams = Object.assign({ domain: invalid_domain_name, key: object_jpg }, options.qs);
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
+    describe(`${testDescription.invalidDomain.with_unacceptable_characters}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
+
+        const regexp = /{.*}/;
+        let invalid_domain_name = 'invalid_test_domain_*_name'
+        options.url = options.url.replace(regexp, `${invalid_domain_name}/${object_jpg}`);
+        let queryParams = Object.assign({ domain: invalid_domain_name, key: object_jpg }, options.qs);
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
+
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
+    describe(`${testDescription.invalidDomain.over_128_characters}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
+
+        let invalid_domain_name = domain_name;
+
+        while (invalid_domain_name.length < 129) {
+          invalid_domain_name += ('_' + domain_name);
+        }
+
+        const regexp = /{.*}/;
+        options.url = options.url.replace(regexp, `${invalid_domain_name}/${object_jpg}`);
+        let queryParams = Object.assign({ domain: invalid_domain_name, key: object_jpg }, options.qs);
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.domain.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.domain.message);
+
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
+  }); // describe
+
+  /*****************************************************************
+  * 10. path 中必要參數 key 不合法，回傳錯誤訊息。
+  *****************************************************************/
+  describe(`OSS_007_10: ${testDescription.validationFailed.key}`, () => {
+
+    describe(`${testDescription.invalidObject.begins_with_number}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`, (done) => {
+
+        const regexp = /{.*}/;
+        let invalid_key_name = '111_invalid_object_name.jpg'
+        options.url = options.url.replace(regexp, `${domain_name}/${invalid_key_name}`);
+        let queryParams = Object.assign({ domain: domain_name, key: invalid_key_name }, options.qs);
+
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.key.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.key.message);
+
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
+    describe(`${testDescription.invalidObject.with_unacceptable_characters}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`, (done) => {
+
+        const regexp = /{.*}/;
+        let invalid_key_name = 'invalid_object_*_name.jpg'
+        options.url = options.url.replace(regexp, `${domain_name}/${invalid_key_name}`);
+        let queryParams = Object.assign({ domain: domain_name, key: invalid_key_name }, options.qs);
+
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.key.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.key.message);
+
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
+    describe(`${testDescription.invalidObject.over_128_characters}`, () => {
+      it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`, (done) => {
+
+        const regexp = /{.*}/;
+        let invalid_key_name = 'invalid_object_name'
+
+        while (invalid_key_name.length < 129) {
+          invalid_key_name += ('_' + invalid_key_name);
+        }
+        invalid_key_name += '.jpg'
+
+        options.url = options.url.replace(regexp, `${domain_name}/${invalid_key_name}`);
+        let queryParams = Object.assign({ domain: domain_name, key: invalid_key_name }, options.qs);
+
+        options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
+
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            expect(response.statusCode).to.equal(400);
+            let parsedBody = JSON.parse(body);
+            expect(parsedBody).to.have.all.keys(['code', 'message']);
+            expect(parsedBody.code).to.equal(ApiErrors.validationFailed.key.code);
+            expect(parsedBody.message).to.equal(ApiErrors.validationFailed.key.message);
+
+            done();
+          }
+        }); // request
+      }); // it
+    }); // describe
+
+  }); // describe
+
   /****************************************************************
-  * 8. 找不到 domain。
+  * 11. 找不到 domain。
   ****************************************************************/
-  describe(`OSS_006_08: ${testDescription.notFound.domain}`, () => {
+  describe(`OSS_007_11: ${testDescription.notFound.domain}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, domain, domain_id, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
@@ -290,15 +512,10 @@ describe('OSS_007: Get Object API', () => {
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.domain)}`, (done) => {
 
-      // delete options.form.domain;
-      delete options.headers['X-Signature'];
       const regexp = /{.*}/;
-      const domain = 'invalid_domain';
-      // const object = 'test_mocha.jpg';
-      options.url = options.url.replace(regexp, `${domain}/${object}`);
-      let queryParams = Object.assign({ domain, object }, options.qs);
-      console.log(queryParams);
-
+      const invalid_domain_name = 'invalid_domain';
+      options.url = options.url.replace(regexp, `${invalid_domain_name}/${object_jpg}`);
+      let queryParams = Object.assign({ domain: invalid_domain_name, object: object_jpg }, options.qs);
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
@@ -318,14 +535,14 @@ describe('OSS_007: Get Object API', () => {
   }); // describe
 
   /*****************************************************************
-  * 9. 找不到 object。
+  * 12. 找不到 object。
   *****************************************************************/
-  describe(`OSS_007_09: ${testDescription.notFound.object}`, () => {
+  describe(`OSS_007_12: ${testDescription.notFound.object}`, () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, domain, domain_id, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
@@ -343,15 +560,10 @@ describe('OSS_007: Get Object API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.object)}`, function (done) {
 
       const regexp = /{.*}/;
-      // const domain = 'ecowork1';
-      const object = 'invalid_object.jpg';
-      options.url = options.url.replace(regexp, `${domain}/${object}`);
-      // options.qs.domain = 'ecowork1';
-      let queryParams = Object.assign({ domain, object }, options.qs);
-      console.log(queryParams);
+      const invalid_object_name = 'invalid_object.jpg';
+      options.url = options.url.replace(regexp, `${domain_name}/${invalid_object_name}`);
+      let queryParams = Object.assign({ domain: domain_name, object: invalid_object_name }, options.qs);
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
-      console.log(options.headers['X-Signature']);
-      // done();
 
       let getDomain = function () {
         return new Promise((resolve, reject) => {
@@ -381,20 +593,19 @@ describe('OSS_007: Get Object API', () => {
   }); // describe
 
   /*****************************************************************
-  * 10. Object file 資料搜尋成功。
+  * 13. Object file 資料搜尋成功。
   *****************************************************************/
-  describe(`OSS_007_10: ${testDescription.got.object.file}`, () => {
-    var tmp;
-    // var domain_id;
+  describe(`OSS_007_13: ${testDescription.got.object.file}`, () => {
+    // var tmp;
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
       console.log('create domain item');
-      testHelper.createDomainItem(cloud_id, app_id, domain, domain_id, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
         if (err) {
           return done(err);
         } else {
-          tmp = data;
+          // tmp = data;
           done();
         }
       }); // createDomainItem
@@ -403,10 +614,7 @@ describe('OSS_007: Get Object API', () => {
     before('Create an object item', function (done) {
       this.timeout(12000);
       console.log('create object item');
-      console.log(domain_id);
-      var object_id = '6396f119-98a4-459a-b86a-df258a44c918';
-      customs.object_id = object_id;
-      testHelper.createObjectItem1(cloud_id, app_id, object, domain_id, object_id, 'image/jpg', (err, data) => {
+      testHelper.createObjectItem1(cloud_id, app_id, object_jpg, domain_id, object_jpg_id, 'image/jpg', (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -420,7 +628,7 @@ describe('OSS_007: Get Object API', () => {
       this.timeout(12000);
       console.log('upload object item to s3');
 
-      testHelper.uploadS3ObjectItem(cloud_id, app_id, object, domain_id, 'image/jpg', (err, data) => {
+      testHelper.uploadS3ObjectItem(cloud_id, app_id, object_jpg, domain_id, 'image/jpg', (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -443,7 +651,7 @@ describe('OSS_007: Get Object API', () => {
     after('Clear Testing Object Data', function (done) {
       this.timeout(12000);
       console.log('delete object item');
-      testHelper.deleteObject(cloud_id, app_id, customs.object_id, domain_id, (err, data) => {
+      testHelper.deleteObject(cloud_id, app_id, object_jpg_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteObject
@@ -453,7 +661,7 @@ describe('OSS_007: Get Object API', () => {
       this.timeout(12000);
       console.log('delete S3 object item');
 
-      testHelper.deleteS3ObjectItem(cloud_id, app_id, object, domain_id, 'image/jpg', (err, data) => {
+      testHelper.deleteS3ObjectItem(cloud_id, app_id, object_jpg, domain_id, 'image/jpg', (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -468,15 +676,9 @@ describe('OSS_007: Get Object API', () => {
       this.timeout(12000);
 
       const regexp = /{.*}/;
-      // const domain = 'ecowork1';
-      // const object = 'test_mocha.jpg';
-      options.url = options.url.replace(regexp, `${domain}/${object}`);
-      // options.qs.domain = 'ecowork1';
-      let queryParams = Object.assign({ domain, object }, options.qs);
-      console.log(queryParams);
+      options.url = options.url.replace(regexp, `${domain_name}/${object_jpg}`);
+      let queryParams = Object.assign({ domain: domain_name, object: object_jpg }, options.qs);
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
-      console.log(options.headers['X-Signature']);
-      // done();
 
       let getObject = function () {
         return new Promise((resolve, reject) => {
@@ -503,16 +705,15 @@ describe('OSS_007: Get Object API', () => {
 
 
   /*****************************************************************
-  * 9. Object json 資料搜尋成功。
+  * 14. Object json 資料搜尋成功。
   *****************************************************************/
-  describe(`OSS_007_10: ${testDescription.got.object.json}`, () => {
+  describe(`OSS_007_14: ${testDescription.got.object.json}`, () => {
     var tmp;
     // var domain_id;
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
-      console.log('create domain item');
-      testHelper.createDomainItem(cloud_id, app_id, domain, domain_id, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -524,12 +725,7 @@ describe('OSS_007: Get Object API', () => {
 
     before('Create a object item', function (done) {
       this.timeout(12000);
-      console.log('create object item');
-      console.log(domain_id);
-      object = 'test_mocha.json';
-      var object_id = '6396f119-98a4-459a-b86a-df258a44c918';
-      customs.object_id = object_id;
-      testHelper.createObjectItem1(cloud_id, app_id, object, domain_id, object_id, 'application/json', (err, data) => {
+      testHelper.createObjectItem1(cloud_id, app_id, object_json, domain_id, object_json_id, 'application/json', (err, data) => {
         if (err) {
           return done(err);
         } else {
@@ -541,7 +737,6 @@ describe('OSS_007: Get Object API', () => {
 
     after('Clear Testing Domain Data', function (done) {
       this.timeout(12000);
-      console.log('delete domain item');
       testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
@@ -550,10 +745,7 @@ describe('OSS_007: Get Object API', () => {
 
     after('Clear Testing Object Data', function (done) {
       this.timeout(12000);
-      console.log('delete object item');
-      // done();
-
-      testHelper.deleteObject(cloud_id, app_id, customs.object_id, domain_id, (err, data) => {
+      testHelper.deleteObject(cloud_id, app_id, object_json_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteObject
@@ -564,15 +756,9 @@ describe('OSS_007: Get Object API', () => {
       this.timeout(12000);
 
       const regexp = /{.*}/;
-      // const domain = 'ecowork1';
-      // const object = 'test_mocha.jpg';
-      options.url = options.url.replace(regexp, `${domain}/${object}`);
-      // options.qs.domain = 'ecowork1';
-      let queryParams = Object.assign({ domain, object }, options.qs);
-      console.log(queryParams);
+      options.url = options.url.replace(regexp, `${domain_name}/${object_json}`);
+      let queryParams = Object.assign({ domain: domain_name, object: object_json }, options.qs);
       options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
-      console.log(options.headers['X-Signature']);
-      // done();
 
       let getObject = function () {
         return new Promise((resolve, reject) => {
@@ -580,13 +766,11 @@ describe('OSS_007: Get Object API', () => {
             if (err) reject(err); // an error occurred
             else {
               console.log(body);
-              // console.log(response);
-              // expect(response.statusCode).to.equal(200);
+              expect(response.statusCode).to.equal(200);
               let parsedBody = JSON.parse(body);
               console.log(parsedBody);
-              // console.log(body);
+              // 因為在 testHelper.createObjectItem 內是填入 { "message" : "OK" }
               expect(parsedBody).to.have.all.keys(['message']);
-              // expect(parsedBody.code).to.equal(ApiErrors.notFound.object.code);
               expect(parsedBody.message).to.equal('OK');
               resolve();
             }
