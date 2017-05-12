@@ -31,6 +31,11 @@ testDescription.invalidDomain.begins_with_number = 'Invalid domain name begins w
 testDescription.invalidDomain.with_unacceptable_characters = 'Invalid domain name with unacceptable characters.'
 testDescription.invalidDomain.over_128_characters = 'Invalid domain name over 128 characters.'
 
+testDescription.invalidNewDomain = {}
+testDescription.invalidNewDomain.begins_with_number = 'Invalid new domain name begins with number.'
+testDescription.invalidNewDomain.with_unacceptable_characters = 'Invalid new domain name with unacceptable characters.'
+testDescription.invalidNewDomain.over_128_characters = 'Invalid new domain name over 128 characters.'
+
 testDescription.invalidObject = {}
 testDescription.invalidObject.begins_with_number = 'Invalid object name begins with number.'
 testDescription.invalidObject.with_unacceptable_characters = 'Invalid object name with unacceptable characters.'
