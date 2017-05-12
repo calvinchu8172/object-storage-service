@@ -44,7 +44,7 @@ describe('OSS_008: List Domains API', () => {
   let options = {};
   let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
-  let name = 'ecowork1'
+  let domain_name = 'test_domain_name'
   let domain_id = 'test_domain_id'
 
   console.log(METHOD);
@@ -56,7 +56,6 @@ describe('OSS_008: List Domains API', () => {
       method: METHOD,
       url: REQUEST_URL,
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
         'X-API-Key': X_API_KEY,
         'X-Signature': ''
       },
@@ -65,17 +64,6 @@ describe('OSS_008: List Domains API', () => {
         access_token: '7eda6dd4de708b1886ed34f6c0460ffef2d9094e5052fb706ad7635cadb8ea8b'
       }
     }; // options
-
-    // let customs = {};
-
-    // console.log("***********before");
-    // console.log(options);
-    // options.qs.domain = 'ecowork1';
-    // console.log("***********after");
-    // console.log(options);
-
-    // options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
-    // console.log(options.headers['X-Signature']);
 
     done();
   }); // beforeEach
@@ -88,7 +76,6 @@ describe('OSS_008: List Domains API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`, (done) => {
 
       delete options.qs.certificate_serial;
-      // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -114,8 +101,6 @@ describe('OSS_008: List Domains API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`, (done) => {
 
       options.qs.certificate_serial = 'invalid_certificate_serial';
-      // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
-
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -190,7 +175,6 @@ describe('OSS_008: List Domains API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`, (done) => {
 
       options.headers['X-Signature'] = 'invalid_signaure';
-      // options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
@@ -216,8 +200,6 @@ describe('OSS_008: List Domains API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`, (done) => {
 
       delete options.qs.access_token;
-      delete options.headers['X-Signature'];
-
       options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
@@ -236,57 +218,6 @@ describe('OSS_008: List Domains API', () => {
     }); // it
   }); // describe
 
-  /****************************************************************
-  * 6. path 中必要參數 domain 帶錯，回傳錯誤訊息。
-  ****************************************************************/
-  // describe('Wrong domain in the path', () => {
-
-  //   before('Create a domain item', function (done) {
-  //     this.timeout(12000);
-
-  //     testHelper.createDomainItem(cloud_id, app_id, name, domain_id, (err, data) => {
-  //       if (err) return done(err);
-  //       done();
-  //     }); // createDomainItem
-  //   }); // before
-
-  //   after('Clear Testing Data', function (done) {
-  //     this.timeout(12000);
-
-  //     testHelper.deleteDomain(cloud_id, app_id, name, (err, data) => {
-  //       if (err) return done(err);
-  //       return done();
-  //     }); // deleteDomain
-  //   }); // after
-
-  //   it("Should return 'Domain Not Found'", (done) => {
-
-  //     // delete options.form.domain;
-  //     delete options.headers['X-Signature'];
-  //     const regexp = /{.*}/;
-  //     const domain = 'invalid_domain';
-  //     options.url = options.url.replace(regexp, domain);
-  //     let queryParams = Object.assign({ domain }, options.qs);
-  //     console.log(queryParams);
-
-  //     options.headers['X-Signature'] = signatureGenerator.generate(queryParams, options.headers, PRIVATE_KEY_NAME);
-
-  //     request(options, (err, response, body) => {
-  //       if (err) done(err); // an error occurred
-  //       else {
-  //         expect(response.statusCode).to.equal(404);
-  //         let parsedBody = JSON.parse(body);
-  //         expect(parsedBody).to.have.all.keys(['code', 'message']);
-  //         expect(parsedBody.code).to.equal(ApiErrors.notFound.domain.code);
-  //         expect(parsedBody.message).to.equal(ApiErrors.notFound.domain.message);
-
-  //         done();
-  //       }
-  //     }); // request
-
-  //   }); // it
-  // }); // describe
-
   /*****************************************************************
   * 7. query string 中必要參數 access_token 帶錯，回傳錯誤訊息。
   *****************************************************************/
@@ -295,8 +226,6 @@ describe('OSS_008: List Domains API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`, (done) => {
 
       options.qs.access_token = 'invalid_access_token';
-
-      delete options.headers['X-Signature'];
       options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
@@ -353,8 +282,6 @@ describe('OSS_008: List Domains API', () => {
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`, (done) => {
 
       options.qs.access_token = 'expired_access_token';
-
-      delete options.headers['X-Signature'];
       options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
@@ -383,7 +310,7 @@ describe('OSS_008: List Domains API', () => {
 
       options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
 
-      let getDomain = function () {
+      let listDomain = function () {
         return new Promise((resolve, reject) => {
           request(options, (err, response, body) => {
             if (err) reject(err); // an error occurred
@@ -399,12 +326,12 @@ describe('OSS_008: List Domains API', () => {
         }); // Promise
       };
 
-      getDomain()
-      .then(() => done())
-      .catch((err) => {
-        console.log("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
-        done(err);
-      });
+      listDomain()
+        .then(() => done())
+        .catch((err) => {
+          console.log("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
+          done(err);
+        });
     }); // it
   }); // describe
 
@@ -416,22 +343,22 @@ describe('OSS_008: List Domains API', () => {
     before('Create a domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, name, domain_id, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
     }); // before
 
-    before('Create a domain item', function (done) {
+    before('Create another domain item', function (done) {
       this.timeout(12000);
 
-      testHelper.createDomainItem(cloud_id, app_id, `${name}_1`, `${domain_id}_1`, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, `${domain_name}_1`, `${domain_id}_1`, (err, data) => {
         if (err) return done(err);
         done();
       }); // createDomainItem
     }); // before
 
-    after('Clear Testing Data', function (done) {
+    after('Delete the domain item', function (done) {
       this.timeout(12000);
 
       testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
@@ -440,7 +367,7 @@ describe('OSS_008: List Domains API', () => {
       }); // deleteDomain
     }); // after
 
-    after('Clear Testing Data', function (done) {
+    after('Delete another domain item', function (done) {
       this.timeout(12000);
 
       testHelper.deleteDomain(cloud_id, app_id, `${domain_id}_1`, (err, data) => {
@@ -454,7 +381,7 @@ describe('OSS_008: List Domains API', () => {
 
       options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
 
-      let getDomain = function () {
+      let listDomain = function () {
         return new Promise((resolve, reject) => {
           request(options, (err, response, body) => {
             if (err) reject(err); // an error occurred
@@ -469,12 +396,12 @@ describe('OSS_008: List Domains API', () => {
         }); // Promise
       };
 
-      getDomain()
-      .then(() => done())
-      .catch((err) => {
-        console.log("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
-        done(err);
-      });
+      listDomain()
+        .then(() => done())
+        .catch((err) => {
+          console.log("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
+          done(err);
+        });
     }); // it
   }); // describe
 

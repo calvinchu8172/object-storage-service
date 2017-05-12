@@ -492,7 +492,7 @@ describe('OSS_007: Get Object API', () => {
   ****************************************************************/
   describe(`OSS_007_11: ${testDescription.notFound.domain}`, () => {
 
-    before('Create a domain item', function (done) {
+    before('Create a domain item.', function (done) {
       this.timeout(12000);
 
       testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
@@ -501,7 +501,7 @@ describe('OSS_007: Get Object API', () => {
       }); // createDomainItem
     }); // before
 
-    after('Clear Testing Data', function (done) {
+    after('Delete the domain item.', function (done) {
       this.timeout(12000);
 
       testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
@@ -539,7 +539,7 @@ describe('OSS_007: Get Object API', () => {
   *****************************************************************/
   describe(`OSS_007_12: ${testDescription.notFound.object}`, () => {
 
-    before('Create a domain item', function (done) {
+    before('Create a domain item.', function (done) {
       this.timeout(12000);
 
       testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
@@ -548,7 +548,7 @@ describe('OSS_007: Get Object API', () => {
       }); // createDomainItem
     }); // before
 
-    after('Clear Testing Data', function (done) {
+    after('Delete the domain item.', function (done) {
       this.timeout(12000);
 
       testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
@@ -596,16 +596,14 @@ describe('OSS_007: Get Object API', () => {
   * 13. Object file 資料搜尋成功。
   *****************************************************************/
   describe(`OSS_007_13: ${testDescription.got.object.file}`, () => {
-    // var tmp;
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
-      console.log('create domain item');
+
       testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
         if (err) {
           return done(err);
         } else {
-          // tmp = data;
           done();
         }
       }); // createDomainItem
@@ -613,7 +611,7 @@ describe('OSS_007: Get Object API', () => {
 
     before('Create an object item', function (done) {
       this.timeout(12000);
-      console.log('create object item');
+
       testHelper.createObjectItem1(cloud_id, app_id, object_jpg, domain_id, object_jpg_id, 'image/jpg', (err, data) => {
         if (err) {
           return done(err);
@@ -624,9 +622,8 @@ describe('OSS_007: Get Object API', () => {
       }); // createObjectItem
     }); // before
 
-    before('Upload an object to s3', function (done) {
+    before('Upload an object file to S3.', function (done) {
       this.timeout(12000);
-      console.log('upload object item to s3');
 
       testHelper.uploadS3ObjectItem(cloud_id, app_id, object_jpg, domain_id, 'image/jpg', (err, data) => {
         if (err) {
@@ -638,28 +635,26 @@ describe('OSS_007: Get Object API', () => {
       }); // createS3ObjectItem
     }); // before
 
-    after('Clear Testing Domain Data', function (done) {
+    after('Delete the domain item.', function (done) {
       this.timeout(12000);
-      console.log('delete domain item');
-      // done();
+
       testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain
     }); // after
 
-    after('Clear Testing Object Data', function (done) {
+    after('Delete the object item.', function (done) {
       this.timeout(12000);
-      console.log('delete object item');
+
       testHelper.deleteObject(cloud_id, app_id, object_jpg_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteObject
     }); // after
 
-    after('Clear Testing S3 Object Data', function (done) {
+    after('Delete the uploaded object item in S3.', function (done) {
       this.timeout(12000);
-      console.log('delete S3 object item');
 
       testHelper.deleteS3ObjectItem(cloud_id, app_id, object_jpg, domain_id, 'image/jpg', (err, data) => {
         if (err) {
@@ -708,43 +703,43 @@ describe('OSS_007: Get Object API', () => {
   * 14. Object json 資料搜尋成功。
   *****************************************************************/
   describe(`OSS_007_14: ${testDescription.got.object.json}`, () => {
-    var tmp;
-    // var domain_id;
 
-    before('Create a domain item', function (done) {
+    before('Create a domain item.', function (done) {
       this.timeout(12000);
+
       testHelper.createDomainItem(cloud_id, app_id, domain_name, domain_id, (err, data) => {
         if (err) {
           return done(err);
         } else {
-          tmp = data;
           done();
         }
       }); // createDomainItem
     }); // before
 
-    before('Create a object item', function (done) {
+    before('Create an object item.', function (done) {
       this.timeout(12000);
+
       testHelper.createObjectItem1(cloud_id, app_id, object_json, domain_id, object_json_id, 'application/json', (err, data) => {
         if (err) {
           return done(err);
         } else {
-          console.log(data);
           done();
         }
       }); // createObjectItem
     }); // before
 
-    after('Clear Testing Domain Data', function (done) {
+    after('Delete the domain item.', function (done) {
       this.timeout(12000);
+
       testHelper.deleteDomain(cloud_id, app_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();
       }); // deleteDomain
     }); // after
 
-    after('Clear Testing Object Data', function (done) {
+    after('Delete the object item.', function (done) {
       this.timeout(12000);
+
       testHelper.deleteObject(cloud_id, app_id, object_json_id, domain_id, (err, data) => {
         if (err) return done(err);
         return done();

@@ -42,13 +42,10 @@ module.exports.handler = (event, context, callback) => {
   console.log(`source_ip: ${source_ip}`);
   console.log(`certificate_serial: ${certificate_serial}`);
 
-  console.log("**************************1");
   console.log(receivedParams);
   receivedParams.domain = domain;
   console.log(`receivedParams: ${JSON.stringify(receivedParams, null, 2)}`);
   console.log(`headers: ${headers}`);
-  console.log("**************************2");
-  console.log(headers);
   let customs = {};
 
   CommonSteps.checkCertificateSerial(certificate_serial)
@@ -62,7 +59,7 @@ module.exports.handler = (event, context, callback) => {
       return CommonSteps.verifyHeadersSignature(receivedParams, headers, result.public_key);
     })
     .then(() => {
-      let requiredParams = ['access_token'];
+      let requiredParams = ['access_token', 'domain'];
       return CommonSteps.checkRequiredParams(receivedParams, requiredParams);
     })
     .then(() => {
