@@ -440,6 +440,8 @@ describe('OSS_003: Create Domain API', () => {
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain_duplicated)}`, (done) => {
 
+      options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
+
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
         else {
@@ -488,6 +490,8 @@ describe('OSS_003: Create Domain API', () => {
     }); // after
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain_limit)}`, (done) => {
+
+      options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
 
       request(options, (err, response, body) => {
         if (err) done(err); // an error occurred
