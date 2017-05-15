@@ -19,6 +19,7 @@ const STAGE                = process.env.SERVERLESS_STAGE;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const X_API_KEY            = process.env.X_API_KEY;
 const CONTENT_TYPE         = process.env.CONTENT_TYPE;
+const CSV_FILE             = process.env.CSV_FILE;
 const serverlessYamlObject = YAML.load('serverless.yml');
 const PATH                 = serverlessYamlObject.functions.createDomain.events[0].http.path;
 const METHOD               = serverlessYamlObject.functions.createDomain.events[0].http.method;
@@ -32,6 +33,7 @@ const signatureGenerator   = require('lib/signature_generator.js');
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require('lib/api_errors.js');
 const testDescription      = require('./lib/test_description');
+const csvWriter            = require('./lib/csv_writer');
 
 
 // ================== AWS ===================
@@ -49,6 +51,11 @@ describe('OSS_003: Create Domain API', () => {
   let domain_name = 'test_domain_name'
   let domain_id = 'test_domain_id'
 
+  before('Create a csv file and write first row.', function (done) {
+    csvWriter.title_first_write('OSS_003: Create Domain API');
+    done();
+  }); // before
+
   beforeEach('Set Request Options', (done) => {
     options = {
       method: METHOD,
@@ -65,8 +72,8 @@ describe('OSS_003: Create Domain API', () => {
       }
     }; // options
 
-    options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
-
+    // writer = yaCsv.createCsvStreamWriter(fs.createWriteStream('./mochawesome-reports/test-plan.csv'));
+    // writer.writeRecord(['OSS_003', 'Create Domain API']);
     done();
   }); // beforeEach
 
@@ -74,6 +81,11 @@ describe('OSS_003: Create Domain API', () => {
   * 1. body 中必要參數 certificate_serial 未帶，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_003_01: ${testDescription.missingRequiredParams.certificate_serial}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_003_01: ${testDescription.missingRequiredParams.certificate_serial}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`, (done) => {
 
@@ -100,6 +112,11 @@ describe('OSS_003: Create Domain API', () => {
   *****************************************************************/
   describe(`OSS_003_02: ${testDescription.validationFailed.certificate_serial}`, () => {
 
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_003_02: ${testDescription.validationFailed.certificate_serial}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`, (done) => {
 
       options.form.certificate_serial = 'invalid_certificate_serial';
@@ -125,6 +142,11 @@ describe('OSS_003: Create Domain API', () => {
   *****************************************************************/
   describe(`OSS_003_03: ${testDescription.missingRequiredParams.api_key}`, () => {
 
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_003_03: ${testDescription.missingRequiredParams.api_key}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.forbidden.x_api_key)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.forbidden.x_api_key)}`, (done) => {
 
       delete options.headers['X-API-Key'];
@@ -148,6 +170,11 @@ describe('OSS_003: Create Domain API', () => {
   * 4. header 中必要參數 X-Signature 未帶，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_003_04: ${testDescription.missingRequiredParams.signature}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_003_04: ${testDescription.missingRequiredParams.signature}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`, (done) => {
 
@@ -174,6 +201,11 @@ describe('OSS_003: Create Domain API', () => {
   *****************************************************************/
   describe(`OSS_003_05: ${testDescription.validationFailed.signature}`, () => {
 
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_003_05: ${testDescription.validationFailed.signature}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`, (done) => {
 
       options.headers['X-Signature'] = 'invalid_signaure';
@@ -198,6 +230,11 @@ describe('OSS_003: Create Domain API', () => {
   * 6. body 中必要參數 access_token 未帶，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_003_06: ${testDescription.missingRequiredParams.access_token}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_003_06: ${testDescription.missingRequiredParams.access_token}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`, (done) => {
 
@@ -224,6 +261,11 @@ describe('OSS_003: Create Domain API', () => {
   * 7. body 中必要參數 access_token 帶錯，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_003_07: ${testDescription.unauthorized.access_token_invalid}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_003_07: ${testDescription.unauthorized.access_token_invalid}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`);
+      done();
+    }); // before
 
     after('Clear Testing Data', function (done) {
       this.timeout(12000);
@@ -262,6 +304,11 @@ describe('OSS_003: Create Domain API', () => {
   describe(`OSS_003_08: ${testDescription.unauthorized.access_token_expired}`, () => {
 
     let customs = {};
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_003_08: ${testDescription.unauthorized.access_token_expired}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`);
+      done();
+    }); // before
 
     before('Create Expired Token', function(done) {
       this.timeout(12000);
@@ -317,6 +364,11 @@ describe('OSS_003: Create Domain API', () => {
   *****************************************************************/
   describe(`OSS_003_09: ${testDescription.missingRequiredParams.domain}`, () => {
 
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_003_09: ${testDescription.missingRequiredParams.domain}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.domain)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.domain)}`, (done) => {
 
       delete options.form.domain;
@@ -345,6 +397,12 @@ describe('OSS_003: Create Domain API', () => {
   describe(`OSS_003_10: ${testDescription.validationFailed.domain}`, () => {
 
     describe(`${testDescription.invalidDomain.begins_with_number}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_003_10_1: ${testDescription.validationFailed.domain}\n${testDescription.invalidDomain.begins_with_number}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
         options.form.domain = '111_test_domain_name';
@@ -366,6 +424,12 @@ describe('OSS_003: Create Domain API', () => {
     }); // describe
 
     describe(`${testDescription.invalidDomain.with_unacceptable_characters}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_003_10_2: ${testDescription.validationFailed.domain}\n${testDescription.invalidDomain.with_unacceptable_characters}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
         options.form.domain = 'invalid_test_domain_*_name';
@@ -387,6 +451,12 @@ describe('OSS_003: Create Domain API', () => {
     }); // describe
 
     describe(`${testDescription.invalidDomain.over_128_characters}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_003_10_3: ${testDescription.validationFailed.domain}\n${testDescription.invalidDomain.over_128_characters}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
         let invalid_domain_name = domain_name;
@@ -419,6 +489,11 @@ describe('OSS_003: Create Domain API', () => {
   * 11. 如果 DDB 內已有一筆資料，則無法建立相同的資料，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_003_11: ${testDescription.alreadyExists.domain}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_003_11: ${testDescription.alreadyExists.domain}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain_duplicated)}`);
+      done();
+    }); // before
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -463,6 +538,11 @@ describe('OSS_003: Create Domain API', () => {
   * 12. 如果 DDB 內已有兩筆資料，則無法在建立資料，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_003_12: ${testDescription.alreadyExists.domain_limit}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_003_12: ${testDescription.alreadyExists.domain_limit}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain_limit)}`);
+      done();
+    }); // before
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -515,6 +595,11 @@ describe('OSS_003: Create Domain API', () => {
   * 13. Domain 資料建立成功。
   *****************************************************************/
   describe(`OSS_003_13: ${testDescription.created.domain}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_003_13: ${testDescription.created.domain}\n${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`);
+      done();
+    }); // before
 
     after('Clear Testing Data', function (done) {
       this.timeout(12000);

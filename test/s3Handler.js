@@ -17,6 +17,7 @@ const expect               = mochaPlugin.chai.expect;
 const PROJECT_NAME           = process.env.SERVERLESS_PROJECT;
 const REGION                 = process.env.SERVERLESS_REGION;
 const STAGE                  = process.env.SERVERLESS_STAGE;
+const CSV_FILE               = process.env.CSV_FILE;
 // const serverlessYamlObject   = YAML.load('serverless.yml');
 // const PATH                   = serverlessYamlObject.functions.getObject.events[0].http.path;
 // const METHOD                 = serverlessYamlObject.functions.getObject.events[0].http.method;
@@ -31,6 +32,7 @@ const signatureGenerator   = require('lib/signature_generator.js')
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require( 'lib/api_errors.js' );
 const testDescription      = require('./lib/test_description');
+const csvWriter            = require('./lib/csv_writer');
 
 
 // ================== AWS ===================
@@ -53,10 +55,20 @@ describe('OSS_005: S3 Event Handler', () => {
   let object2 = 'test2_mocha.jpg'
   let object_id2 = 'test_object_id2'
 
+  before('Write in csv.', function (done) {
+    csvWriter.title_write('OSS_005: S3 Event Handler');
+    done();
+  }); // before
+
   /*****************************************************************
   * 1. S3 Handler 修改 Domain file_usage 與 Object usage 成功。
   *****************************************************************/
   describe(`OSS_005_01: ${testDescription.s3Handler}`, () => {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_005_01: ${testDescription.s3Handler}\n${testDescription.server_return} ${testDescription.OKWithDomainFileUsageEqualAllOjectUsage}`);
+      done();
+    }); // before
 
     before('Create a domain item', function (done) {
       this.timeout(12000);

@@ -18,6 +18,7 @@ const STAGE                = process.env.SERVERLESS_STAGE;
 const PROJECT_NAME         = process.env.SERVERLESS_PROJECT;
 const X_API_KEY            = process.env.X_API_KEY;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
+const CSV_FILE             = process.env.CSV_FILE;
 const serverlessYamlObject = YAML.load('serverless.yml');
 const PATH                 = serverlessYamlObject.functions.listObjects.events[0].http.path;
 const METHOD               = serverlessYamlObject.functions.listObjects.events[0].http.method;
@@ -31,6 +32,7 @@ const signatureGenerator   = require('lib/signature_generator.js')
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require( 'lib/api_errors.js' );
 const testDescription      = require('./lib/test_description');
+const csvWriter            = require('./lib/csv_writer');
 
 
 // ================== AWS ===================
@@ -57,6 +59,11 @@ describe('OSS_009: List Objects API', () => {
   console.log(REQUEST_URL);
   console.log(STAGE);
 
+  before('Write in csv.', function (done) {
+    csvWriter.title_write('OSS_009: List Objects API');
+    done();
+  }); // before
+
   beforeEach('Set Request Options', (done) => {
     options = {
       method: METHOD,
@@ -77,6 +84,11 @@ describe('OSS_009: List Objects API', () => {
   * 1. query string 中必要參數 certificate_serial 未帶，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_009_01: ${testDescription.missingRequiredParams.certificate_serial}`, () => {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_009_01: ${testDescription.missingRequiredParams.certificate_serial}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`, (done) => {
 
@@ -103,6 +115,11 @@ describe('OSS_009: List Objects API', () => {
   *****************************************************************/
   describe(`OSS_009_02: ${testDescription.validationFailed.certificate_serial}`, () => {
 
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_009_02: ${testDescription.validationFailed.certificate_serial}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`, (done) => {
 
       options.qs.certificate_serial = 'invalid_certificate_serial';
@@ -128,6 +145,11 @@ describe('OSS_009: List Objects API', () => {
   *****************************************************************/
   describe(`OSS_009_03: ${testDescription.missingRequiredParams.api_key}`, () => {
 
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_009_03: ${testDescription.missingRequiredParams.api_key}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.forbidden.x_api_key)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.forbidden.x_api_key)}`, (done) => {
 
       delete options.headers['X-API-Key'];
@@ -151,6 +173,11 @@ describe('OSS_009: List Objects API', () => {
   * 4. header 中必要參數 X-Signature 未帶，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_009_04: ${testDescription.missingRequiredParams.signature}`, () => {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_009_04: ${testDescription.missingRequiredParams.signature}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`, (done) => {
 
@@ -177,6 +204,11 @@ describe('OSS_009: List Objects API', () => {
   *****************************************************************/
   describe(`OSS_009_05: ${testDescription.validationFailed.signature}`, () => {
 
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_009_05: ${testDescription.validationFailed.signature}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`, (done) => {
 
       options.headers['X-Signature'] = 'invalid_signaure';
@@ -201,6 +233,11 @@ describe('OSS_009: List Objects API', () => {
   * 6. query string 中必要參數 access_token 未帶，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_009_06: ${testDescription.missingRequiredParams.access_token}`, () => {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_009_06: ${testDescription.missingRequiredParams.access_token}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`, (done) => {
 
@@ -231,6 +268,11 @@ describe('OSS_009: List Objects API', () => {
   * 7. query string 中必要參數 access_token 帶錯，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_009_07: ${testDescription.unauthorized.access_token_invalid}`, () => {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_009_07: ${testDescription.unauthorized.access_token_invalid}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`, (done) => {
 
@@ -263,6 +305,11 @@ describe('OSS_009: List Objects API', () => {
   describe(`OSS_009_08: ${testDescription.unauthorized.access_token_expired}`, () => {
 
     let customs = {};
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_009_08: ${testDescription.unauthorized.access_token_expired}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`);
+      done();
+    }); // before
 
     before('Create Expired Token', function(done) {
       this.timeout(12000);
@@ -323,6 +370,12 @@ describe('OSS_009: List Objects API', () => {
   describe(`OSS_009_09: ${testDescription.validationFailed.domain_in_path}`, () => {
 
     describe(`${testDescription.invalidDomain.begins_with_number}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_009_09_1: ${testDescription.validationFailed.domain_in_path}\n${testDescription.invalidDomain.begins_with_number}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
         const regexp = /{.*}/;
@@ -346,6 +399,12 @@ describe('OSS_009: List Objects API', () => {
     }); // describe
 
     describe(`${testDescription.invalidDomain.with_unacceptable_characters}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_009_09_2: ${testDescription.validationFailed.domain_in_path}\n${testDescription.invalidDomain.with_unacceptable_characters}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
         const regexp = /{.*}/;
@@ -370,6 +429,12 @@ describe('OSS_009: List Objects API', () => {
     }); // describe
 
     describe(`${testDescription.invalidDomain.over_128_characters}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_009_09_3: ${testDescription.validationFailed.domain_in_path}\n${testDescription.invalidDomain.over_128_characters}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
         let invalid_domain_name = domain_name;
@@ -404,6 +469,11 @@ describe('OSS_009: List Objects API', () => {
   * 10. 找不到 Domain。
   *****************************************************************/
   describe(`OSS_009_10: ${testDescription.notFound.domain}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_009_10: ${testDescription.notFound.domain}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.domain)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.domain)}`, function(done) {
       this.timeout(12000);
@@ -442,6 +512,11 @@ describe('OSS_009: List Objects API', () => {
   * 11. 找不到 Object。
   *****************************************************************/
   describe(`OSS_009_11: ${testDescription.notFound.object}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_009_11: ${testDescription.notFound.object}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.object)}`);
+      done();
+    }); // before
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -499,6 +574,11 @@ describe('OSS_009: List Objects API', () => {
   * 12. List Object by All 成功，沒帶 begins_with 或 key，就會 list by all。
   *****************************************************************/
   describe(`OSS_009_12: ${testDescription.found.list_object_by_all}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_009_12: ${testDescription.found.list_object_by_all}\n${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`);
+      done();
+    }); // before
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -594,6 +674,11 @@ describe('OSS_009: List Objects API', () => {
   * 13. List Object by key 成功，而且當 query string 內同時有 key 與 begins_with 時，會以 key 為優先。
   *****************************************************************/
   describe(`OSS_009_13: ${testDescription.found.list_object_by_key}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_009_12: ${testDescription.found.list_object_by_key}\n${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`);
+      done();
+    }); // before
 
     before('Create a domain item.', function (done) {
       this.timeout(12000);
@@ -692,6 +777,11 @@ describe('OSS_009: List Objects API', () => {
   * 14. List Object by begins_with 成功。
   *****************************************************************/
   describe(`OSS_009_14: ${testDescription.found.list_object_by_begins_with}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_009_12: ${testDescription.found.list_object_by_begins_with}\n${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`);
+      done();
+    }); // before
 
     before('Create a domain item', function (done) {
       this.timeout(12000);

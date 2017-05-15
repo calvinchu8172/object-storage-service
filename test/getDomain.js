@@ -18,6 +18,7 @@ const STAGE                = process.env.SERVERLESS_STAGE;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const PROJECT_NAME         = process.env.SERVERLESS_PROJECT;
 const X_API_KEY            = process.env.X_API_KEY;
+const CSV_FILE             = process.env.CSV_FILE;
 const serverlessYamlObject = YAML.load('serverless.yml');
 const PATH                 = serverlessYamlObject.functions.getDomain.events[0].http.path;
 const METHOD               = serverlessYamlObject.functions.getDomain.events[0].http.method;
@@ -31,6 +32,7 @@ const signatureGenerator   = require('lib/signature_generator.js')
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require('lib/api_errors.js');
 const testDescription      = require('./lib/test_description');
+const csvWriter            = require('./lib/csv_writer');
 
 
 // ================== AWS ===================
@@ -40,7 +42,7 @@ const lambda               = new AWS.Lambda({ region: REGION });
 
 
 
-describe('OSS_06: Get Domain API', () => {
+describe('OSS_006: Get Domain API', () => {
 
   let options = {};
   let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
@@ -50,6 +52,11 @@ describe('OSS_06: Get Domain API', () => {
 
   console.log(METHOD);
   console.log(REQUEST_URL);
+
+  before('Write in csv.', function (done) {
+    csvWriter.title_write('OSS_006: Get Domain API');
+    done();
+  }); // before
 
   beforeEach('Set Request Options', (done) => {
     options = {
@@ -71,6 +78,11 @@ describe('OSS_06: Get Domain API', () => {
   * 1. query string 中必要參數 certificate_serial 未帶，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_006_01: ${testDescription.missingRequiredParams.certificate_serial}`, () => {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_006_01: ${testDescription.missingRequiredParams.certificate_serial}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`, (done) => {
 
@@ -97,6 +109,11 @@ describe('OSS_06: Get Domain API', () => {
   *****************************************************************/
   describe(`OSS_006_02: ${testDescription.validationFailed.certificate_serial}`, () => {
 
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_006_02: ${testDescription.validationFailed.certificate_serial}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`, (done) => {
 
       options.qs.certificate_serial = 'invalid_certificate_serial';
@@ -122,6 +139,11 @@ describe('OSS_06: Get Domain API', () => {
   *****************************************************************/
   describe(`OSS_006_03: ${testDescription.missingRequiredParams.api_key}`, () => {
 
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_006_03: ${testDescription.missingRequiredParams.api_key}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.forbidden.x_api_key)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.forbidden.x_api_key)}`, (done) => {
 
       delete options.headers['X-API-Key'];
@@ -145,6 +167,11 @@ describe('OSS_06: Get Domain API', () => {
   * 4. header 中必要參數 X-Signature 未帶，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_006_04: ${testDescription.missingRequiredParams.signature}`, () => {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_006_04: ${testDescription.missingRequiredParams.signature}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`, (done) => {
 
@@ -171,6 +198,11 @@ describe('OSS_06: Get Domain API', () => {
   *****************************************************************/
   describe(`OSS_006_05: ${testDescription.validationFailed.signature}`, () => {
 
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_006_05: ${testDescription.validationFailed.signature}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`, (done) => {
 
       options.headers['X-Signature'] = 'invalid_signaure';
@@ -195,6 +227,11 @@ describe('OSS_06: Get Domain API', () => {
   * 6. query string 中必要參數 access_token 未帶，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_006_06: ${testDescription.missingRequiredParams.access_token}`, () => {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_006_06: ${testDescription.missingRequiredParams.access_token}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`, (done) => {
 
@@ -225,6 +262,11 @@ describe('OSS_06: Get Domain API', () => {
   * 7. query string 中必要參數 access_token 帶錯，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_006_07: ${testDescription.unauthorized.access_token_invalid}`, () => {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_006_07: ${testDescription.unauthorized.access_token_invalid}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`, (done) => {
 
@@ -257,6 +299,11 @@ describe('OSS_06: Get Domain API', () => {
   describe(`OSS_006_08: ${testDescription.unauthorized.access_token_expired}`, () => {
 
     let customs = {};
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_006_08: ${testDescription.unauthorized.access_token_expired}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`);
+      done();
+    }); // before
 
     before('Create Expired Token', function(done) {
       this.timeout(12000);
@@ -318,6 +365,12 @@ describe('OSS_06: Get Domain API', () => {
   describe(`OSS_006_09: ${testDescription.validationFailed.domain_in_path}`, () => {
 
     describe(`${testDescription.invalidDomain.begins_with_number}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_006_09_1: ${testDescription.validationFailed.domain_in_path}\n${testDescription.invalidDomain.begins_with_number}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
         const regexp = /{.*}/;
@@ -342,6 +395,12 @@ describe('OSS_06: Get Domain API', () => {
     }); // describe
 
     describe(`${testDescription.invalidDomain.with_unacceptable_characters}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_006_09_2: ${testDescription.validationFailed.domain_in_path}\n${testDescription.invalidDomain.with_unacceptable_characters}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
         const regexp = /{.*}/;
@@ -366,6 +425,12 @@ describe('OSS_06: Get Domain API', () => {
     }); // describe
 
     describe(`${testDescription.invalidDomain.over_128_characters}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_010_09_3: ${testDescription.validationFailed.domain_in_path}\n${testDescription.invalidDomain.over_128_characters}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
         let invalid_domain_name = domain_name;
@@ -400,6 +465,11 @@ describe('OSS_06: Get Domain API', () => {
   * 7. 找不到 domain。
   ****************************************************************/
   describe(`OSS_006_10: ${testDescription.notFound.domain}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_006_10: ${testDescription.notFound.domain}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.domain)}`);
+      done();
+    }); // before
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -447,6 +517,11 @@ describe('OSS_06: Get Domain API', () => {
   * 8. 成功找到 Domain 。
   *****************************************************************/
   describe(`OSS_006_11: ${testDescription.got.domain}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_006_11: ${testDescription.got.domain}\n${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`);
+      done();
+    }); // before
 
     before('Create a domain item', function (done) {
       this.timeout(12000);

@@ -11,3 +11,4 @@ subnet_id_3: subnet-480d8911
 x_api_key: wBJ57vwNfd55Hjvb1lF5H2CGrSZDe6MW9kCRxAxV
 content_type: application/x-www-form-urlencoded
 sqs_url: https://sqs.us-east-1.amazonaws.com/212868998188/object-storage-service-test-jobs
+csv_file: ./mochawesome-reports/test-plan.csv

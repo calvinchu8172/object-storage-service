@@ -18,6 +18,7 @@ const STAGE                = process.env.SERVERLESS_STAGE;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const PROJECT_NAME         = process.env.SERVERLESS_PROJECT;
 const X_API_KEY            = process.env.X_API_KEY;
+const CSV_FILE             = process.env.CSV_FILE;
 const serverlessYamlObject = YAML.load('serverless.yml');
 const PATH                 = serverlessYamlObject.functions.deleteDomain.events[0].http.path;
 const METHOD               = serverlessYamlObject.functions.deleteDomain.events[0].http.method;
@@ -32,6 +33,7 @@ const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require('lib/api_errors.js');
 const testDescription      = require('./lib/test_description');
 const isEmpty              = require('is-empty');
+const csvWriter            = require('./lib/csv_writer');
 
 
 // ================== AWS ===================
@@ -54,6 +56,11 @@ describe('OSS_012: Delete Domain API', () => {
   console.log(METHOD);
   console.log(REQUEST_URL);
 
+  before('Write in csv.', function (done) {
+    csvWriter.title_write('OSS_012: Delete Domain API');
+    done();
+  }); // before
+
   beforeEach('Set Request Options', (done) => {
     options = {
       method: METHOD,
@@ -74,6 +81,11 @@ describe('OSS_012: Delete Domain API', () => {
   * 1. query string 中必要參數 certificate_serial 未帶，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_012_01: ${testDescription.missingRequiredParams.certificate_serial}`, () => {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_012_01: ${testDescription.missingRequiredParams.certificate_serial}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`, (done) => {
 
@@ -100,6 +112,11 @@ describe('OSS_012: Delete Domain API', () => {
   *****************************************************************/
   describe(`OSS_012_02: ${testDescription.validationFailed.certificate_serial}`, () => {
 
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_012_02: ${testDescription.validationFailed.certificate_serial}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`, (done) => {
 
       options.qs.certificate_serial = 'invalid_certificate_serial';
@@ -125,6 +142,11 @@ describe('OSS_012: Delete Domain API', () => {
   *****************************************************************/
   describe(`OSS_012_03: ${testDescription.missingRequiredParams.api_key}`, () => {
 
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_012_03: ${testDescription.missingRequiredParams.api_key}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.forbidden.x_api_key)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.forbidden.x_api_key)}`, (done) => {
 
       delete options.headers['X-API-Key'];
@@ -148,6 +170,11 @@ describe('OSS_012: Delete Domain API', () => {
   * 4. header 中必要參數 X-Signature 未帶，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_012_04: ${testDescription.missingRequiredParams.signature}`, () => {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_012_04: ${testDescription.missingRequiredParams.signature}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`, (done) => {
 
@@ -174,6 +201,11 @@ describe('OSS_012: Delete Domain API', () => {
   *****************************************************************/
   describe(`OSS_012_05: ${testDescription.missingRequiredParams.signature}`, () => {
 
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_012_05: ${testDescription.validationFailed.signature}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`, (done) => {
 
       options.headers['X-Signature'] = 'invalid_signaure';
@@ -198,6 +230,11 @@ describe('OSS_012: Delete Domain API', () => {
   * 6. query string 中必要參數 access_token 未帶，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_012_06: ${testDescription.missingRequiredParams.access_token}`, () => {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_012_06: ${testDescription.missingRequiredParams.access_token}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`, (done) => {
 
@@ -228,6 +265,11 @@ describe('OSS_012: Delete Domain API', () => {
   * 7. query string 中必要參數 access_token 帶錯，回傳錯誤訊息。
   *****************************************************************/
   describe(`OSS_012_07: ${testDescription.unauthorized.access_token_invalid}`, () => {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_012_07: ${testDescription.unauthorized.access_token_invalid}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`);
+      done();
+    }); // before
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`, (done) => {
 
@@ -260,6 +302,11 @@ describe('OSS_012: Delete Domain API', () => {
   describe(`OSS_012_08: ${testDescription.unauthorized.access_token_expired}`, () => {
 
     let customs = {};
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_012_08: ${testDescription.unauthorized.access_token_expired}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`);
+      done();
+    }); // before
 
     before('Create Expired Token', function(done) {
       this.timeout(12000);
@@ -320,6 +367,12 @@ describe('OSS_012: Delete Domain API', () => {
   describe(`OSS_012_09: ${testDescription.validationFailed.domain_in_path}`, () => {
 
     describe(`${testDescription.invalidDomain.begins_with_number}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_012_09_1: ${testDescription.validationFailed.domain_in_path}\n${testDescription.invalidDomain.begins_with_number}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
         const regexp = /{.*}/;
@@ -344,6 +397,12 @@ describe('OSS_012: Delete Domain API', () => {
     }); // describe
 
     describe(`${testDescription.invalidDomain.with_unacceptable_characters}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_012_09_2: ${testDescription.validationFailed.domain_in_path}\n${testDescription.invalidDomain.with_unacceptable_characters}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
         const regexp = /{.*}/;
@@ -368,6 +427,12 @@ describe('OSS_012: Delete Domain API', () => {
     }); // describe
 
     describe(`${testDescription.invalidDomain.over_128_characters}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_012_09_3: ${testDescription.validationFailed.domain_in_path}\n${testDescription.invalidDomain.over_128_characters}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.domain)}`, (done) => {
 
         let invalid_domain_name = domain_name;
@@ -402,6 +467,11 @@ describe('OSS_012: Delete Domain API', () => {
   * 10. 找不到 Doamin。
   ****************************************************************/
   describe(`OSS_012_10: ${testDescription.notFound.domain}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_012_10: ${testDescription.notFound.domain}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.domain)}`);
+      done();
+    }); // before
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
@@ -449,6 +519,11 @@ describe('OSS_012: Delete Domain API', () => {
   * 11. Delete Domain 成功。
   *****************************************************************/
   describe(`OSS_012_11: ${testDescription.delete.domain}`, () => {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_012_11: ${testDescription.delete.domain}\n${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`);
+      done();
+    }); // before
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
