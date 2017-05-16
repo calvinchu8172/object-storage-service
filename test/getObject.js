@@ -19,6 +19,10 @@ const PROJECT_NAME         = process.env.SERVERLESS_PROJECT;
 const X_API_KEY            = process.env.X_API_KEY;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const CSV_FILE             = process.env.CSV_FILE;
+const TEST_CLOUD_ID        = process.env.TEST_CLOUD_ID;
+const TEST_APP_ID          = process.env.TEST_APP_ID;
+const TEST_ACCESS_TOKEN    = process.env.TEST_ACCESS_TOKEN;
+const CERTIFICATE_SERIAL   = process.env.CERTIFICATE_SERIAL;
 const serverlessYamlObject = YAML.load('serverless.yml');
 const PATH                 = serverlessYamlObject.functions.getObject.events[0].http.path;
 const METHOD               = serverlessYamlObject.functions.getObject.events[0].http.method;
@@ -46,8 +50,8 @@ describe('OSS_007: Get Object API', () => {
 
   let options = {};
   let customs = {};
-  let cloud_id = 'zLanZi_liQQ_N_xGLr5g8mw'
-  let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
+  let cloud_id = TEST_CLOUD_ID
+  let app_id = TEST_APP_ID
   let domain_name = 'test_domain_name'
   let domain_id = 'test_domain_id'
   let object_json = 'test1_mocha.json'
@@ -72,8 +76,8 @@ describe('OSS_007: Get Object API', () => {
         'X-Signature': ''
       },
       qs: {
-        certificate_serial: '1002',
-        access_token: '7eda6dd4de708b1886ed34f6c0460ffef2d9094e5052fb706ad7635cadb8ea8b'
+        certificate_serial: CERTIFICATE_SERIAL,
+        access_token: TEST_ACCESS_TOKEN
       }
     }; // options
     done();
