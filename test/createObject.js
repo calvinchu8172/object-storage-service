@@ -18,6 +18,12 @@ const REGION               = process.env.SERVERLESS_REGION;
 const STAGE                = process.env.SERVERLESS_STAGE;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const X_API_KEY            = process.env.X_API_KEY;
+const CONTENT_TYPE         = process.env.CONTENT_TYPE;
+const CSV_FILE             = process.env.CSV_FILE;
+const TEST_CLOUD_ID        = process.env.TEST_CLOUD_ID;
+const TEST_APP_ID          = process.env.TEST_APP_ID;
+const TEST_ACCESS_TOKEN    = process.env.TEST_ACCESS_TOKEN;
+const CERTIFICATE_SERIAL   = process.env.CERTIFICATE_SERIAL;
 const PRIVATE_KEY_NAME     = "object";
 const PATH                 = serverlessYamlObject.functions.createObject.events[0].http.path;
 const METHOD               = serverlessYamlObject.functions.createObject.events[0].http.method;
@@ -29,6 +35,7 @@ const testHelper           = require('./lib/test_helper');
 const signatureGenerator   = require('lib/signature_generator.js')
 const ApiErrors            = require('lib/api_errors.js');
 const testDescription      = require('./lib/test_description');
+const csvWriter            = require('./lib/csv_writer');
 
 
 // ================== AWS ===================
@@ -40,10 +47,15 @@ describe('OSS_004: Create Object API', () => {
 
   let options = {};
   let customs = {
-    cloud_id: "zLanZi_liQQ_N_xGLr5g8mw",
-    app_id: "886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d",
+    cloud_id: TEST_CLOUD_ID,
+    app_id: TEST_APP_ID,
     domain_name: "test_domain"
   };
+
+  before('Write in csv.', function (done) {
+    csvWriter.title_write('OSS_004: Create Object API');
+    done();
+  }); // before
 
   beforeEach('Set Request Options', (done) => {
     console.log('Set Request Options....');
@@ -51,13 +63,13 @@ describe('OSS_004: Create Object API', () => {
       method: METHOD,
       url: REQUEST_URL,
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': CONTENT_TYPE,
         'X-API-Key': X_API_KEY,
         'X-Signature': ''
       },
       form: {
-        certificate_serial: '1002',
-        access_token: '7eda6dd4de708b1886ed34f6c0460ffef2d9094e5052fb706ad7635cadb8ea8b',
+        certificate_serial: CERTIFICATE_SERIAL,
+        access_token: TEST_ACCESS_TOKEN,
         domain: "test_domain",
         key: "test_key",
         content_type: "image/png",
@@ -97,6 +109,12 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_01
   describe(`OSS_004_01: ${testDescription.missingRequiredParams.api_key}`, function () {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_004_01: ${testDescription.missingRequiredParams.api_key}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.forbidden.x_api_key)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.forbidden.x_api_key)}`, function (done) {
 
       delete options.headers['X-API-Key'];
@@ -115,6 +133,12 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_02
   describe(`OSS_004_02: ${testDescription.missingRequiredParams.signature}`, function () {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_004_02: ${testDescription.missingRequiredParams.signature}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.signature)}`, function (done) {
 
       delete options.headers['X-Signature'];
@@ -137,6 +161,12 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_03
   describe(`OSS_004_03: ${testDescription.missingRequiredParams.certificate_serial}`, function () {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_004_03: ${testDescription.missingRequiredParams.certificate_serial}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.certificate_serial)}`, function (done) {
 
       delete options.form['certificate_serial'];
@@ -161,6 +191,12 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_04
   describe(`OSS_004_04: ${testDescription.validationFailed.certificate_serial}`, function () {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_004_04: ${testDescription.validationFailed.certificate_serial}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.certificate_serial)}`, function (done) {
 
       options.form['certificate_serial'] = "invalid_certificate_serial";
@@ -184,6 +220,12 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_05
   describe(`OSS_004_05: ${testDescription.validationFailed.signature}`, function () {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_004_05: ${testDescription.validationFailed.signature}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.signature)}`, function (done) {
 
       options.headers['X-Signature'] = "invalid_signature";
@@ -206,6 +248,12 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_06
   describe(`OSS_004_06: ${testDescription.missingRequiredParams.access_token}`, function () {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_004_06: ${testDescription.missingRequiredParams.access_token}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.access_token)}`, function (done) {
 
       delete options.form['access_token'];
@@ -230,6 +278,12 @@ describe('OSS_004: Create Object API', () => {
   describe(`OSS_004_07: ${testDescription.validationFailed.key}`, function () {
 
     describe(`${testDescription.invalidObject.begins_with_number}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_004_07_1: ${testDescription.validationFailed.key}\n${testDescription.invalidObject.begins_with_number}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`, function (done) {
 
         options.form['key'] = "123abc";
@@ -250,6 +304,12 @@ describe('OSS_004: Create Object API', () => {
     }); // describe
 
     describe(`${testDescription.invalidObject.with_unacceptable_characters}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_004_07_2: ${testDescription.validationFailed.key}\n${testDescription.invalidObject.with_unacceptable_characters}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`, function (done) {
 
         options.form['key'] = "abc*";
@@ -270,6 +330,12 @@ describe('OSS_004: Create Object API', () => {
     }); // describe
 
     describe(`${testDescription.invalidObject.over_128_characters}`, () => {
+
+      before('Write in csv', function (done) {
+        csvWriter.write(`OSS_004_07_3: ${testDescription.validationFailed.key}\n${testDescription.invalidObject.over_128_characters}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key)}`, function (done) {
 
         let invalid_key_name = 'invalid_object_name'
@@ -301,6 +367,12 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_08
   describe(`OSS_004_08: ${testDescription.missingRequiredParams.content_type}`, function () {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_004_08: ${testDescription.missingRequiredParams.content_type}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.content_type)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.content_type)}`, function (done) {
 
       delete options.form['content_type'];
@@ -323,6 +395,12 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_09
   describe(`OSS_004_09: ${testDescription.validationFailed.content_type}`, function () {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_004_09: ${testDescription.validationFailed.content_type}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.content_type)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.content_type)}`, function (done) {
 
       options.form['content_type'] = "invalid_content_type";
@@ -345,6 +423,12 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_10
   describe(`OSS_004_10: ${testDescription.missingRequiredParams.content}`, function () {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_004_10: ${testDescription.missingRequiredParams.content}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.content)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.missingRequiredParams.content)}`, function (done) {
 
       options.form['content_type'] = 'application/json';
@@ -368,6 +452,12 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_11
   describe(`OSS_004_11: ${testDescription.validationFailed.content}`, function () {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_004_11: ${testDescription.validationFailed.content}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.content)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.content)}`, function (done) {
 
       options.form['content_type'] = 'application/json';
@@ -391,6 +481,12 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_12
   describe(`OSS_004_12: ${testDescription.unauthorized.access_token_invalid}`, function () {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_004_12: ${testDescription.unauthorized.access_token_invalid}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`, function (done) {
 
       options.form['access_token'] = 'invalid_access_token';
@@ -414,6 +510,11 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_13
   describe(`OSS_004_13: ${testDescription.unauthorized.access_token_expired}`, function () {
+
+    before('Write in csv.', function (done) {
+      csvWriter.write(`OSS_004_13: ${testDescription.unauthorized.access_token_expired}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`);
+      done();
+    }); // before
 
     before('Create Expired Token', function (done) {
       this.timeout(12000);
@@ -472,6 +573,12 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_14
   describe(`OSS_004_14: ${testDescription.notFound.domain}`, function () {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_004_14: ${testDescription.notFound.domain}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.domain)}`);
+      done();
+    }); // before
+
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.domain)}`, function (done) {
 
       options.form['domain'] = 'unavailable_domain';
@@ -494,6 +601,11 @@ describe('OSS_004: Create Object API', () => {
 
   // OSS_004_15
   describe(`OSS_004_15: ${testDescription.alreadyExists.key}`, function () {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_004_15: ${testDescription.alreadyExists.key}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key_duplicated)}`);
+      done();
+    }); // before
 
     before('Create Duplicated Object Item', function (done) {
       console.log(`Create Duplicated Object Item...`);
@@ -535,7 +647,12 @@ describe('OSS_004: Create Object API', () => {
 
 
   // OSS_004_16
-  describe(`OSS_004_15: ${testDescription.created.object.json}`, function () {
+  describe(`OSS_004_16: ${testDescription.created.object.json}`, function () {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_004_16: ${testDescription.created.object.json}\n${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`);
+      done();
+    }); // before
 
     after('Delete Duplicated Object Item', function (done) {
       console.log(`Delete Duplicated Object Item...`);
@@ -569,7 +686,12 @@ describe('OSS_004: Create Object API', () => {
 
 
   // OSS_004_17
-  describe(`OSS_004_15: ${testDescription.created.object.file}`, function () {
+  describe(`OSS_004_17: ${testDescription.created.object.file}`, function () {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_004_17: ${testDescription.created.object.file}\n${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`);
+      done();
+    }); // before
 
     after('Delete Duplicated Object Item', function (done) {
       console.log(`Delete Duplicated Object Item...`);

@@ -16,12 +16,14 @@ const SERVICE              = process.env.SERVERLESS_PROJECT;
 const REGION               = process.env.SERVERLESS_REGION;
 const STAGE                = process.env.SERVERLESS_STAGE;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
+const CSV_FILE             = process.env.CSV_FILE;
 
 
 // ================ Lib/Modules =================
 const testHelper           = require('./lib/test_helper');
 const ApiErrors            = require('lib/api_errors.js');
 const testDescription      = require('./lib/test_description');
+const csvWriter            = require('./lib/csv_writer');
 
 
 // ================== AWS ===================
@@ -34,8 +36,19 @@ describe('OSS_002: Access Token Validator', () => {
   let options = {};
   let customs = {};
 
+  before('Write in csv.', function (done) {
+    csvWriter.title_write('OSS_002: Access Token Validator');
+    done();
+  }); // before
+
   describe(`OSS_002_1: ${testDescription.accessTokenValidator.invalidAccessToken}`, function() {
     // describe('if client requests with that token', function() {
+
+      before('Write in csv.', function (done) {
+        csvWriter.write(`OSS_002_01: ${testDescription.accessTokenValidator.invalidAccessToken}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`);
+        done();
+      }); // before
+
       it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_invalid)}`, function(done) {
         options.access_token = "invalid_access_token";
         let params = {
@@ -69,6 +82,11 @@ describe('OSS_002: Access Token Validator', () => {
 
   describe(`OSS_002_2: ${testDescription.accessTokenValidator.expiredAccessToken}`, function() {
     // describe('if client requests with that token', function() {
+
+      before('Write in csv.', function (done) {
+        csvWriter.write(`OSS_002_02: ${testDescription.accessTokenValidator.expiredAccessToken}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`);
+        done();
+      }); // before
 
       before('Create Expired Token', function(done) {
         this.timeout(12000);
@@ -129,6 +147,11 @@ describe('OSS_002: Access Token Validator', () => {
 
   describe(`OSS_002_3: ${testDescription.accessTokenValidator.validAccessToken}`, function() {
     // describe('if client requests with that token', function() {
+
+      before('Write in csv.', function (done) {
+        csvWriter.write(`OSS_002_03: ${testDescription.accessTokenValidator.validAccessToken}\n${testDescription.server_return} ${testDescription.server_return} ${JSON.stringify(testDescription.OKWithCloudIDAndAPPID)}`);
+        done();
+      }); // before
 
       before('Create Valid Token', function(done) {
         console.log(`Create Valid Token...`);

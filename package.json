@@ -25,7 +25,8 @@
     "yamljs": "^0.2.8",
     "mysql": "latest",
     "mime-types": "latest",
-    "sleep": "latest"
+    "sleep": "latest",
+    "ya-csv": "latest"
   },
   "devDependencies": {
     "chai": "^3.5.0",
