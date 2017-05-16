@@ -69,19 +69,9 @@ function requestUserInfo(access_token) {
 function parseUserInfo(response) {
   return new Promise((resolve, reject) => {
     console.log("====================parseUserInfo=======================")
-
-    let result;
-
     console.log(JSON.stringify(response, null, 2));
     let body = response.body;
     let headers = response.headers;
-    // console.log("********************")
-    // console.log(body)
-    // console.log(typeof body)
-    // console.log(JSON.parse(body))
-    // console.log(typeof JSON.parse(body))
-    // console.log(JSON.parse(body).code)
-    // console.log(JSON.parse(body).message)
     console.log(`typeof response.statusCode: ${typeof response.statusCode}`);
     console.log(`response.statusCode: ${response.statusCode}`);
     if (response.statusCode == 200) {
@@ -125,6 +115,8 @@ function parseUserInfo(response) {
       //     }
       //   } // if (matches[1] == 'invalid_token') { ... }
       // } // if (headers['www-authenticate']) { ... }
+
+      let result;
 
       if ( JSON.parse(body).code == apiErrors.unauthorized.access_token_invalid.code ) { // Invalid access_token 401.0
         result = {
