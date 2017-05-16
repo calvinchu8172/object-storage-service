@@ -23,5 +23,3 @@ mocha:
       - mochawesome-reports/
   only:
     - develop
-    - feature/20170510-1-modify-test
-    - feature/20170516-1-modify-access-token-validator
