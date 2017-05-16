@@ -50,6 +50,8 @@ describe('OSS_003: Create Domain API', () => {
   let app_id = '886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d'
   let domain_name = 'test_domain_name'
   let domain_id = 'test_domain_id'
+  let domain_id1 = 'test_domain_id1'
+  let domain_id2 = 'test_domain_id2'
 
   before('Create a csv file and write first row.', function (done) {
     csvWriter.title_first_write('OSS_003: Create Domain API');
@@ -546,11 +548,9 @@ describe('OSS_003: Create Domain API', () => {
 
     before('Create a domain item', function (done) {
       this.timeout(12000);
-      customs.domain_id_1 = uuidV4();
-      customs.domain_id_2 = uuidV4();
-      testHelper.createDomainItem(cloud_id, app_id, domain_name + '1', customs.domain_id_1, (err, data) => {
+      testHelper.createDomainItem(cloud_id, app_id, domain_name + '1', domain_id1, (err, data) => {
         if (err) return done(err);
-        testHelper.createDomainItem(cloud_id, app_id, domain_name + '2', customs.domain_id_2, (err, data) => {
+        testHelper.createDomainItem(cloud_id, app_id, domain_name + '2', domain_id2, (err, data) => {
           if (err) return done(err);
           done();
         }); // createDomainItem
@@ -560,9 +560,9 @@ describe('OSS_003: Create Domain API', () => {
     after('Clear Testing Data', function (done) {
       this.timeout(12000);
 
-      testHelper.deleteDomain(cloud_id, app_id, customs.domain_id_1, (err, data) => {
+      testHelper.deleteDomain(cloud_id, app_id, domain_id1, (err, data) => {
         if (err) return done(err);
-        testHelper.deleteDomain(cloud_id, app_id, customs.domain_id_2, (err, data) => {
+        testHelper.deleteDomain(cloud_id, app_id, domain_id2, (err, data) => {
           if (err) return done(err);
           return done();
         }); // deleteDomain
