@@ -68,6 +68,7 @@ function requestUserInfo(access_token) {
 */
 function parseUserInfo(response) {
   return new Promise((resolve, reject) => {
+    console.log("====================parseUserInfo=======================")
     console.log(JSON.stringify(response, null, 2));
     let body = response.body;
     let headers = response.headers;
@@ -84,37 +85,64 @@ function parseUserInfo(response) {
       });
     } else if (response.statusCode == 401) {
 
-      if (headers['www-authenticate']) {
-        let msg = headers['www-authenticate'];
-        let matches = msg.match(/Bearer realm="([^"]*)", error="([^"]*)", error_description="([^"]*)"/);
-        console.log(`matches: ${JSON.stringify(matches)}`);
-        
-        if (matches[2] == 'invalid_token') {
-          // Bearer realm="Doorkeeper", error="invalid_token", error_description="The access token expired"
-          if (matches[3].indexOf("access token") >= 0 && matches[3].indexOf("expired") >= 0) {
-            console.log(`access token expired ...`);
-            console.log(`body: ${JSON.stringify(apiErrors.unauthorized.access_token_expired)}`);
+      // if (headers['www-authenticate']) {
+      //   let msg = headers['www-authenticate'];
+      //   let matches = msg.match(/Bearer realm="([^"]*)", error="([^"]*)", error_description="([^"]*)"/);
+      //   console.log(`matches: ${JSON.stringify(matches)}`);
 
-            resolve({
-              statusCode: 401,
-              body: JSON.stringify(apiErrors.unauthorized.access_token_expired),
-              headers: {
-                'Content-Type': 'application/json',
-              }
-            });
-          } else {
-            console.log(`body: ${JSON.stringify(apiErrors.unauthorized.access_token_invalid)}`);
-            resolve({
-              statusCode: 401,
-              body: JSON.stringify(apiErrors.unauthorized.access_token_invalid),
-              headers: {
-                'Content-Type': 'application/json',
-              }
-            });
+      //   if (matches[2] == 'invalid_token') {
+      //     // Bearer realm="Doorkeeper", error="invalid_token", error_description="The access token expired"
+      //     if (matches[3].indexOf("access token") >= 0 && matches[3].indexOf("expired") >= 0) {
+      //       console.log(`access token expired ...`);
+      //       console.log(`body: ${JSON.stringify(apiErrors.unauthorized.access_token_expired)}`);
+
+      //       resolve({
+      //         statusCode: 401,
+      //         body: JSON.stringify(apiErrors.unauthorized.access_token_expired),
+      //         headers: {
+      //           'Content-Type': 'application/json',
+      //         }
+      //       });
+      //     } else {
+      //       console.log(`body: ${JSON.stringify(apiErrors.unauthorized.access_token_invalid)}`);
+      //       resolve({
+      //         statusCode: 401,
+      //         body: JSON.stringify(apiErrors.unauthorized.access_token_invalid),
+      //         headers: {
+      //           'Content-Type': 'application/json',
+      //         }
+      //       });
+      //     }
+      //   } // if (matches[1] == 'invalid_token') { ... }
+      // } // if (headers['www-authenticate']) { ... }
+
+      let result;
+
+      if ( JSON.parse(body).code == apiErrors.unauthorized.access_token_invalid.code ) { // Invalid access_token 401.0
+        result = {
+          statusCode: 401,
+          body: JSON.stringify(apiErrors.unauthorized.access_token_invalid),
+          headers: {
+            'Content-Type': 'application/json',
           }
-        } // if (matches[1] == 'invalid_token') { ... }
-      } // if (headers['www-authenticate']) { ... } 
-    }
+        }
+        console.log(result)
+        resolve(result);
+
+      } else if ( JSON.parse(body).code == apiErrors.unauthorized.access_token_expired.code ) { // Access Token Expired 401.1
+        result = {
+          statusCode: 401,
+          body: JSON.stringify(apiErrors.unauthorized.access_token_expired),
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+        console.log(result)
+        resolve(result);
+
+      }
+
+    } // else if (response.statusCode == 401)
 
     reject();
 
