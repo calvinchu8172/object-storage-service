@@ -610,7 +610,13 @@ describe('OSS_004: Create Object API', () => {
     before('Create Duplicated Object Item', function (done) {
       console.log(`Create Duplicated Object Item...`);
       customs.object_id = uuidV4();
-      testHelper.createObjectItem(customs.domain_id, customs.object_id, options.form.key, customs.app_id, (err, data) => {
+      let object_item = {
+        domain_id: customs.domain_id,
+        id: customs.object_id,
+        key: options.form.key,
+        usage: 0
+      }
+      testHelper.createObjectItem(object_item, customs.app_id, (err, data) => {
         if (err) return done(err);
         else {
           console.log(`data: ${JSON.stringify(data)}`);
