@@ -81,6 +81,7 @@ module.exports.handler = (event, context, callback) => {
       return queryObjectItem(customs.domain_id, receivedParams.key, receivedParams.new_key, customs.app_id);
     })
     .then((oldItem) => {
+      console.log(`oldItem: ${JSON.stringify(oldItem, null, 2)}`);
       return CommonSteps.writeAccessObjectLog(event, receivedParams, customs.domain_id, customs.user_info, oldItem);
     })
     .then((oldItem) => {
@@ -100,13 +101,21 @@ module.exports.handler = (event, context, callback) => {
       return updateObjectItem(oldItem, newItem, customs.app_id);
     })
     .then((diffItem) => {
+      console.log(`diffItem: ${JSON.stringify(diffItem, null, 2)}`);
+      if (receivedParams.new_key && diffItem.oldItem.content_type !== 'application/json' && !isJsonTypeObject) {
+        return renameObject(diffItem);
+      } else {
+        return Promise.resolve(diffItem);
+      }
+    })
+    .then((diffItem) => {
       return updateDomain(customs.cloud_id, customs.app_id, diffItem.oldItem, diffItem.newItem);
     })
     .then((newItemPath) => {
-      if (!isJsonTypeObject) {
-        return generatePresignedURL(newItemPath, receivedParams.content_type);
-      } else {
+      if (isJsonTypeObject) {
         return Promise.resolve();
+      } else {
+        return generatePresignedURL(newItemPath, receivedParams.content_type);
       }
     })
     .then((signed_url) => {
@@ -204,12 +213,15 @@ var updateObjectItem = function (oldItem, newItem, app_id) {
   return new Promise((resolve, reject) => {
     let usage = 0;
     if (newItem.content_type !== 'application/json') {
-      delete newItem.content;
-
+      // 假如 file type 修改為 file type，則不修改 usage
+      if (oldItem.content_type !== 'application/json') {
+        usage = oldItem.usage;
+      }
+      if (newItem.content) delete newItem.content;
     } else { // application/json
       usage = Buffer.byteLength(JSON.stringify(newItem.content), 'utf8');
-      newItem.usage = usage;
     }
+    newItem.usage = usage;
 
     var payload = {
       TableName: `${STAGE}-${SERVICE}-${app_id}`,
@@ -220,6 +232,7 @@ var updateObjectItem = function (oldItem, newItem, app_id) {
       },
       ReturnConsumedCapacity: 'TOTAL'
     };
+    console.log(`payload: ${JSON.stringify(payload, null, 2)}`);
     ddb.put(payload, function (err, data) {
       if (err) {
         console.error(`err: ${err}`);
@@ -341,25 +354,10 @@ function updateDomainItem(cloud_id, app_id, domain_id, transType, old_usage, new
       console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
       callback(err);
     } else {
-      // {
-      //   "Attributes": {
-      //     "app_id": "886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d",
-      //     "updated_at": 1494588067,
-      //     "created_at": 1493360611,
-      //     "updated_by": "54.88.85.209",
-      //     "json_usage": 0,
-      //     "created_by": "54.88.85.209",
-      //     "cloud_id-app_id": "zLanZi_liQQ_N_xGLr5g8mw-886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d",
-      //     "id": "33c0c9d8-caad-49fb-8014-b236bb182f97-aaa",
-      //     "name": "domain_test1_222",
-      //     "file_usage": 37186
-      //   }
-      // }
       console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
       callback(null, data['Attributes']);
     }
   }); //ddb
-
 }
 
 
@@ -381,9 +379,54 @@ var generatePresignedURL = function (path, content_type) {
     };
     console.log(`params: ${JSON.stringify(params, null, 2)}`);
     var url = s3.getSignedUrl('putObject', params, function (err, url) {
-      if(err) reject(err);
+      if (err) reject(err);
       console.log('The URL is', url);
       resolve(url);
     });
   });
 }
+
+/**
+* @function renameObject
+* @param  {type} old_key {description}
+* @param  {type} new_key {description}
+* @return {type} {description}
+*/
+var renameObject = function (diffItem) {
+  console.log('============== renameObject ==============');
+  return new Promise((resolve, reject) => {
+    let old_key = diffItem.oldItem.path;
+    let new_key = diffItem.newItem.path;
+    console.log(`old_key: ${old_key}`);
+    console.log(`new_key: ${new_key}`);
+    var params = {
+      Bucket: S3_BUCKET,
+      CopySource: `${S3_BUCKET}/${old_key}`,
+      Key: new_key
+    }
+    console.log(`params: ${JSON.stringify(params, null, 2)}`);
+    s3.copyObject(params, (err, data) => {
+      if (err) {
+        console.log(err, err.stack); // an error occurred
+        if (err.code === 'NoSuchKey') {
+          resolve(diffItem);
+        } else {
+          reject(err);
+        }
+      }
+      else {
+        console.log(data); // successful response
+        s3.deleteObject({ Bucket: S3_BUCKET, Key: old_key }, (err, data) => {
+          if (err) {
+            console.log(err, err.stack); // an error occurred
+            reject(err);
+          }
+          else {
+            resolve(diffItem);
+          }
+        }); // s3.deleteObject(...) 
+      }
+    });
+  });
+}
+

@@ -407,16 +407,17 @@ var deleteObject = function (cloud_id, app_id, object_id, domain_id, callback) {
 * @param  {type} callback  {description}
 * @return {type} {description}
 */
-var createObjectItem = function (domain_id, object_id, key, app_id, callback) {
-  let objectItem = {
-    domain_id: domain_id,
-    id: object_id,
-    key: key
-  };
-  console.log(`objectItem: ${JSON.stringify(objectItem, null, 2)}`);
+var createObjectItem = function (object_item, app_id, callback) {
+  // let objectItem = {
+  //   domain_id: domain_id,
+  //   id: object_id,
+  //   key: key,
+  //   usage: 4
+  // };
+  console.log(`objectItem: ${JSON.stringify(object_item, null, 2)}`);
   var payload = {
     TableName: `${STAGE}-${SERVICE}-${app_id}`,
-    Item: objectItem,
+    Item: object_item,
     ConditionExpression: 'attribute_not_exists(#hkey)',
     ExpressionAttributeNames: {
       '#hkey': 'domain_id'
