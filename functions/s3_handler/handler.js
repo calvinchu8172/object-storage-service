@@ -23,8 +23,6 @@ module.exports.handler = ( event, context, callback ) => {
 
   const s3_record = event.Records;
 
-  
-
   CommonSteps.parseS3Record(s3_record)
     .then((promises) => {
       return CommonSteps.updateObjectUsage(promises);
