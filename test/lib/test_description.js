@@ -83,6 +83,7 @@ testDescription.updated.domain = 'Successfully updated domain item.';
 testDescription.updated.object = {};
 testDescription.updated.object.jsonToJson = 'Successfully updated json object item to json object item.';
 testDescription.updated.object.jsonToFile = 'Successfully updated json object item to file object item.';
+testDescription.updated.object.fileToJson = 'Successfully updated file object item to json object item.';
 testDescription.updated.object.fileToFile = 'Successfully updated file object item to file object item.';
 
 testDescription.updated.fail = {};

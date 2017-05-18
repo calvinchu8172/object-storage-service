@@ -256,7 +256,60 @@ var updateDomainJsonUsage = function ( cloud_id, app_id, domain_id, json_usage, 
     }
   });
 
-} // updateDomain
+} // updateDomainJsonUsage
+
+
+/**
+* @function updateDomainFileUsage
+* @param  {type} cloud_id   {description}
+* @param  {type} app_id     {description}
+* @param  {type} domain_id  {description}
+* @param  {type} file_usage {description}
+* @param  {type} callback   {description}
+* @return {type} {description}
+*/
+var updateDomainFileUsage = function ( cloud_id, app_id, domain_id, file_usage, callback ) {
+  console.log('============== test_helper.updateDomainFileUsage ==============');
+
+  var timestamp = Utility.getTimestamp()
+
+  var payload = {
+    TableName: `${STAGE}-${SERVICE}-domains`,
+    Key:{
+      "cloud_id-app_id": `${cloud_id}-${app_id}`,
+      "id": domain_id
+    },
+    Expected: { // optional (map of attribute name to ExpectedAttributeValue)
+      "cloud_id-app_id": {
+        Exists: true,
+        Value: `${cloud_id}-${app_id}`
+      },
+    },
+    AttributeUpdates: { // The attributes to update (map of attribute name to AttributeValueUpdate)
+      "file_usage": {
+        Action: 'PUT',
+        Value: file_usage
+      },
+      "updated_at": {
+        Action: 'PUT',
+        Value: timestamp
+      }
+    },
+    ReturnConsumedCapacity: 'TOTAL'
+  };
+  console.log(`payload: ${JSON.stringify(payload, null, 2)}`);
+  docClient.update(payload, function(err, data) {
+    if (err) {
+      console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
+      callback(err);
+    } else {
+      console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
+      console.log(data);
+      callback(null, data);
+    }
+  });
+
+} // updateDomainFileUsage
 
 
 
@@ -544,6 +597,7 @@ module.exports = {
   createDomainItem,
   createObjectItem1,
   updateDomainJsonUsage,
+  updateDomainFileUsage,
   uploadS3ObjectItem,
   deleteS3ObjectItem,
   deleteDomain,
