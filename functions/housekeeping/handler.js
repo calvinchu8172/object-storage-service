@@ -25,7 +25,6 @@ const ApiErrors       = require('lib/api_errors.js');
 const ddb             = new AWS.DynamoDB.DocumentClient({ region: REGION });
 
 module.exports.handler = ( event, context, callback ) => {
-  console.log("*********************************************");
   // console.log(`event: ${JSON.stringify(event, null, 2)}`);
 
   let customs = {};
@@ -61,6 +60,7 @@ module.exports.handler = ( event, context, callback ) => {
     })
     .catch((err) => {
       if (err == ApiErrors.notFound.sqs ) {
+        console.log(JSON.stringify(ApiErrors.notFound.sqs, null, 2));
         // callback(null, JSON.stringify(ApiErrors.notFound.sqs));
         callback(null, ApiErrors.notFound.sqs);
       } else {
@@ -88,12 +88,12 @@ var getObjectItem = function (app_id, domain_id) {
     }; //payload
 
     ddb.query(payload, function (err, data) {
-      console.log(`data: ${JSON.stringify(data, null, 2)}`);
       if (err) {
         console.log(err);
         reject(ApiErrors.unexceptedError);
       }
       else {
+        console.log(`data: ${JSON.stringify(data, null, 2)}`);
         resolve(data);
       }
     }); // ddb
@@ -105,8 +105,7 @@ var deleteObjectItems = function (app_id, data) {
   console.log(data.Items);
   let promises = data.Items.map((item, index, array) => {
     return new Promise((resolve, reject) => {
-      console.log(item);
-
+      // console.log(item);
       var payload = {
         TableName: `${STAGE}-${SERVICE}-${app_id}`,
         Key: {
@@ -120,7 +119,7 @@ var deleteObjectItems = function (app_id, data) {
           console.log(err);
           reject(ApiErrors.unexceptedError);
         } else {
-          console.log(data);
+          console.log(`data: ${JSON.stringify(data, null, 2)}`);
           resolve(item.domain_path);
         }
       }); // delete
@@ -145,7 +144,7 @@ var deleteDomainS3Folder = function (cloud_id, app_id, domain_id) {
         console.log(err);
         reject(ApiErrors.unexceptedError);
       } else {
-        console.log(data);
+        console.log(`data: ${JSON.stringify(data, null, 2)}`);
         resolve(data);
       }
     }); // fsImpl
