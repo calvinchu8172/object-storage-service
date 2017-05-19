@@ -109,6 +109,13 @@ module.exports.handler = (event, context, callback) => {
       }
     })
     .then((diffItem) => {
+      if (diffItem.oldItem.content_type !== 'application/json' && isJsonTypeObject) {
+        return deleteObjectFile(diffItem);
+      } else {
+        return Promise.resolve(diffItem);
+      }
+    })
+    .then((diffItem) => {
       return updateDomain(customs.cloud_id, customs.app_id, diffItem.oldItem, diffItem.newItem);
     })
     .then((newItemPath) => {
@@ -427,6 +434,27 @@ var renameObject = function (diffItem) {
         }); // s3.deleteObject(...) 
       }
     });
+  });
+}
+
+/**
+* @function deleteObjectFile
+* @param  {type} diffItem {description}
+* @return {type} {description}
+*/
+var deleteObjectFile = function (diffItem) {
+  console.log('============== deleteObjectFile ==============');
+  return new Promise((resolve, reject) => {
+    let old_key = diffItem.oldItem.path;
+    s3.deleteObject({ Bucket: S3_BUCKET, Key: old_key }, (err, data) => {
+      if (err) {
+        console.log(err, err.stack); // an error occurred
+        reject(err);
+      }
+      else {
+        resolve(diffItem);
+      }
+    }); // s3.deleteObject(...) 
   });
 }
 

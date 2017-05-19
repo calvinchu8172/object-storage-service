@@ -9,6 +9,7 @@ const request = require('request');
 const uuidV4 = require('uuid/v4');
 const fs = require('fs');
 const async = require('async');
+const sleep = require('sleep');
 const expect = mochaPlugin.chai.expect;
 const YAML = require('yamljs');
 const serverlessYamlObject = YAML.load('serverless.yml');
@@ -20,6 +21,11 @@ const REGION = process.env.SERVERLESS_REGION;
 const STAGE = process.env.SERVERLESS_STAGE;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const X_API_KEY = process.env.X_API_KEY;
+const CONTENT_TYPE = process.env.CONTENT_TYPE;
+const CERTIFICATE_SERIAL = process.env.CERTIFICATE_SERIAL;
+const TEST_ACCESS_TOKEN = process.env.TEST_ACCESS_TOKEN;
+const TEST_CLOUD_ID = process.env.TEST_CLOUD_ID;
+const TEST_APP_ID = process.env.TEST_APP_ID;
 const PRIVATE_KEY_NAME = "object";
 const PATH = serverlessYamlObject.functions.updateObject.events[0].http.path;
 const METHOD = serverlessYamlObject.functions.updateObject.events[0].http.method;
@@ -42,8 +48,8 @@ describe('OSS_011: Update Object API', () => {
 
   let options = {};
   let customs = {
-    cloud_id: "zLanZi_liQQ_N_xGLr5g8mw",
-    app_id: "886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d",
+    cloud_id: TEST_CLOUD_ID,
+    app_id: TEST_APP_ID,
     domain_name: "test_domain",
     key: "test_key",
     new_key: "test_new_key"
@@ -61,13 +67,13 @@ describe('OSS_011: Update Object API', () => {
       method: METHOD,
       url: REQUEST_URL,
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': CONTENT_TYPE,
         'X-API-Key': X_API_KEY,
         'X-Signature': ''
       },
       form: {
-        certificate_serial: '1002',
-        access_token: '7eda6dd4de708b1886ed34f6c0460ffef2d9094e5052fb706ad7635cadb8ea8b',
+        certificate_serial: CERTIFICATE_SERIAL,
+        access_token: TEST_ACCESS_TOKEN,
         content_type: "image/png"
       },
       setFormAndPath: function (json) {
@@ -818,7 +824,8 @@ describe('OSS_011: Update Object API', () => {
       console.log(`Create Target Object Item...`);
       customs.target_object_id = uuidV4();
       customs.content = '{\"key1\": \"value1\", \"key2\": \"value2\"}';
-      customs.old_item_usage = 100;
+      customs.old_item_usage = Buffer.byteLength(customs.content, 'utf8');
+      console.log(`customs.old_item_usage: ${customs.old_item_usage}`);
       let object_item = {
         domain_id: customs.domain_id,
         id: customs.target_object_id,
@@ -1006,6 +1013,7 @@ describe('OSS_011: Update Object API', () => {
       customs.target_object_id = uuidV4();
       const stats = fs.statSync("test/tmp/test_mocha.png");
       customs.old_item_usage = stats.size;
+      customs.content_type = 'image/png';
       let object_item = {
         domain_id: customs.domain_id,
         id: customs.target_object_id,
@@ -1013,7 +1021,7 @@ describe('OSS_011: Update Object API', () => {
         usage: customs.old_item_usage,
         domain_path: `${customs.cloud_id}/${customs.app_id}/${customs.domain_id}`,
         path: `${customs.cloud_id}/${customs.app_id}/${customs.domain_id}/${customs.file_key}`,
-        content_type: 'image/png'
+        content_type: customs.content_type
       }
       testHelper.createObjectItem(object_item, customs.app_id, (err, data) => {
         if (err) return done(err);
@@ -1024,13 +1032,31 @@ describe('OSS_011: Update Object API', () => {
       }); // createObjectItem
     }); // before
 
-    before('Update Domain Usage', function (done) {
-      console.log(`customs.old_item_usage: ${customs.old_item_usage}`);
-      testHelper.updateDomainFileUsage(customs.cloud_id, customs.app_id, customs.domain_id, customs.old_item_usage, (err, result) => {
+    before('Upload Object File', function (done) {
+      testHelper.uploadS3ObjectItem(customs.cloud_id, customs.app_id, customs.file_key, customs.domain_id, customs.content_type, (err, result) => {
         if (err) return done(err);
         done();
       });
+      // testHelper.updateDomainFileUsage(customs.cloud_id, customs.app_id, customs.domain_id, customs.old_item_usage, (err, result) => {
+      //   if (err) return done(err);
+      //   done();
+      // });
     });
+
+    before('Sleep for a while', function (done) {
+      this.timeout(6000);
+      // 因在 gitlab-ci 跑測試時，上一步 upload file 至 s3 觸發 s3Handler Lamda 後還沒更新完 domain 與 Object，下一步過快取得的 usage 會導致測試錯誤，所以等待兩秒
+      sleep.sleep(2);
+      done();
+    }); // before
+    
+    // before('Update Domain Usage', function (done) {
+    //   console.log(`customs.old_item_usage: ${customs.old_item_usage}`);
+    //   testHelper.updateDomainFileUsage(customs.cloud_id, customs.app_id, customs.domain_id, customs.old_item_usage, (err, result) => {
+    //     if (err) return done(err);
+    //     done();
+    //   });
+    // });
 
     before('Get Domain Original Usage', function (done) {
       testHelper.getDomain(customs.cloud_id, customs.app_id, customs.domain_name, (err, domainItem) => {
@@ -1086,6 +1112,7 @@ describe('OSS_011: Update Object API', () => {
           return getDomainItem(customs.cloud_id, customs.app_id, customs.domain_name);
         })
         .then((domainItem) => {
+          console.log(`domainItem: ${JSON.stringify(domainItem, null, 2)}`);
           let expected_values = {
             file_usage: (customs.original_domain_file_usage - customs.old_item_usage),
             json_usage: (customs.original_domain_json_usage + customs.new_item_usage)
@@ -1270,7 +1297,7 @@ let assertItem = (item, properties, expected_values) => {
       expect(item).to.contain.all.keys(properties);
     }
     async.eachOfSeries(expected_values, (v, k, cb) => {
-      console.log(`item[k]: ${item[k]}, v: ${v}`);
+      console.log(`item[k]: ${item[k]}, k: ${k}, v: ${v}`);
       expect(item[k]).to.equal(v);
       cb();
     }, (err) => {
