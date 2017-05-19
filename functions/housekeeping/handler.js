@@ -40,7 +40,7 @@ module.exports.handler = ( event, context, callback ) => {
     })
     .then((data) => {
       customs.objects = data.Items
-      console.log(customs)
+      // console.log(customs)
       if (isEmpty(customs.objects) == false) {
         return deleteObjectItems(customs.app_id, data);
       }
@@ -51,7 +51,7 @@ module.exports.handler = ( event, context, callback ) => {
         // return deleteDomainS3Folder(customs.cloud_id, customs.app_id, customs.domain_id, promises);
       }
     })
-    .then((promises) => {
+    .then(() => {
       return CommonSteps.deleteSQSMessage(customs.receipt_handle);
     })
     .then((data) => { // successful response
@@ -119,7 +119,6 @@ var deleteObjectItems = function (app_id, data) {
           console.log(err);
           reject(ApiErrors.unexceptedError);
         } else {
-          console.log(`data: ${JSON.stringify(data, null, 2)}`);
           resolve(item.domain_path);
         }
       }); // delete
@@ -139,13 +138,12 @@ var deleteDomainS3Folder = function (cloud_id, app_id, domain_id) {
     var domain_path = `${cloud_id}/${app_id}/${domain_id}`
     console.log(domain_path);
 
-    fsImpl.rmdirp( domain_path, function(err, data) {
+    fsImpl.rmdirp( domain_path, function(err) {
       if (err) {
         console.log(err);
         reject(ApiErrors.unexceptedError);
       } else {
-        console.log(`data: ${JSON.stringify(data, null, 2)}`);
-        resolve(data);
+        resolve();
       }
     }); // fsImpl
 
