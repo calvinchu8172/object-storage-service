@@ -15,11 +15,16 @@ const serverlessYamlObject = YAML.load('serverless.yml');
 
 
 // ================ ENVs ========================
-const SERVICE = process.env.SERVERLESS_PROJECT;
-const REGION = process.env.SERVERLESS_REGION;
-const STAGE = process.env.SERVERLESS_STAGE;
+const SERVICE              = process.env.SERVERLESS_PROJECT;
+const REGION               = process.env.SERVERLESS_REGION;
+const STAGE                = process.env.SERVERLESS_STAGE;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
-const X_API_KEY = process.env.X_API_KEY;
+const CONTENT_TYPE         = process.env.CONTENT_TYPE;
+const X_API_KEY            = process.env.X_API_KEY;
+const TEST_CLOUD_ID        = process.env.TEST_CLOUD_ID;
+const TEST_APP_ID          = process.env.TEST_APP_ID;
+const TEST_ACCESS_TOKEN    = process.env.TEST_ACCESS_TOKEN;
+const CERTIFICATE_SERIAL   = process.env.CERTIFICATE_SERIAL;
 const PRIVATE_KEY_NAME = "object";
 const PATH = serverlessYamlObject.functions.updateObject.events[0].http.path;
 const METHOD = serverlessYamlObject.functions.updateObject.events[0].http.method;
@@ -42,15 +47,15 @@ describe('OSS_011: Update Object API', () => {
 
   let options = {};
   let customs = {
-    cloud_id: "zLanZi_liQQ_N_xGLr5g8mw",
-    app_id: "886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d",
+    cloud_id: TEST_CLOUD_ID,
+    app_id: TEST_APP_ID,
     domain_name: "test_domain",
     key: "test_key",
     new_key: "test_new_key"
   };
 
   before('Create a csv file and write first row.', function (done) {
-    csvWriter.title_first_write('OSS_011: Update Object API');
+    csvWriter.title_write('OSS_011: Update Object API');
     done();
   }); // before
 
@@ -61,13 +66,13 @@ describe('OSS_011: Update Object API', () => {
       method: METHOD,
       url: REQUEST_URL,
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': CONTENT_TYPE,
         'X-API-Key': X_API_KEY,
         'X-Signature': ''
       },
       form: {
-        certificate_serial: '1002',
-        access_token: '7eda6dd4de708b1886ed34f6c0460ffef2d9094e5052fb706ad7635cadb8ea8b',
+        certificate_serial: CERTIFICATE_SERIAL,
+        access_token: TEST_ACCESS_TOKEN,
         content_type: "image/png"
       },
       setFormAndPath: function (json) {

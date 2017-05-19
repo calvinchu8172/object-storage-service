@@ -14,20 +14,12 @@ const expect               = mochaPlugin.chai.expect;
 
 
 // ================ ENVs ========================
-// const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const PROJECT_NAME           = process.env.SERVERLESS_PROJECT;
 const REGION                 = process.env.SERVERLESS_REGION;
 const STAGE                  = process.env.SERVERLESS_STAGE;
-const CSV_FILE               = process.env.CSV_FILE;
 const TEST_CLOUD_ID          = process.env.TEST_CLOUD_ID;
 const TEST_APP_ID            = process.env.TEST_APP_ID;
-// const serverlessYamlObject   = YAML.load('serverless.yml');
-// const PATH                   = serverlessYamlObject.functions.getObject.events[0].http.path;
-// const METHOD                 = serverlessYamlObject.functions.getObject.events[0].http.method;
 const LAMBDA_FUNCTION        = 'housekeeping'
-// const REQUEST_URL            = `${API_GATEWAY_INVOKE_URL}/${PATH}`;
-// const PRIVATE_KEY_NAME       = 'object';
-
 
 
 // ================ Lib/Modules =================
