@@ -4,7 +4,8 @@
 const SERVICE = process.env.SERVERLESS_PROJECT;
 const REGION = process.env.SERVERLESS_REGION;
 const STAGE = process.env.SERVERLESS_STAGE;
-const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME
+const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
+const SQS_URL = process.env.SQS_URL;
 
 // 載入 AWS 相關服務
 const AWS = require('aws-sdk');
@@ -112,6 +113,40 @@ var getObject = function (cloud_id, app_id, domain_id, key, callback) {
   });
 
 } // getObject
+
+/**
+* @function queryObject
+* @param  {type} cloud_id  {description}
+* @param  {type} app_id    {description}
+* @param  {type} domain_id {description}
+* @param  {type} callback  {description}
+* @return {type} {description}
+*/
+var queryObject = function (cloud_id, app_id, domain_id, callback) {
+  console.log('============== test_helper.getObject ==============');
+
+  var params = {
+    TableName: `${STAGE}-${SERVICE}-${app_id}`,
+    IndexName: 'domain_id-key-index',
+    KeyConditionExpression: '#hkey = :hkey',
+    ExpressionAttributeNames: {
+      "#hkey": "domain_id",
+    },
+    ExpressionAttributeValues: {
+      ':hkey': domain_id,
+    }
+  }; //params
+  console.log(`params: ${JSON.stringify(params, null, 2)}`);
+  docClient.query(params, function (err, data) {
+    if (err) {
+      callback(err);
+    }
+    else {
+      callback(null, data.Items);
+    }
+  });
+
+} // queryObject
 
 
 /**
@@ -589,11 +624,125 @@ var deleteAccessToken = function (expired_token_id, callback) {
   }); // lambda
 }
 
+var purgeSQS = function (callback) {
+  console.log('============== test_helper.purgeSQS ==============');
+  var params = {
+    QueueUrl: SQS_URL /* required */
+  };
+  SQS.purgeQueue(params, function(err, data) {
+    if (err) {
+      console.log(err, err.stack); // an error occurred
+      callback(err);
+    } else {
+      // console.log(data);           // successful response
+      callback(null, data);
+    }
+  });
 
+}
+
+var sendSQSMessage = function (cloud_id, app_id, domain_id, request_id, callback) {
+  console.log('============== test_helper.sendSQSMessage ==============');
+  var params = {
+   MessageAttributes: {
+    "cloud_id": {
+      DataType: "String",
+      StringValue: cloud_id
+     },
+    "app_id": {
+      DataType: "String",
+      StringValue: app_id
+     },
+    "domain_id": {
+      DataType: "String",
+      StringValue: domain_id
+     }
+   },
+   MessageBody: request_id,
+   QueueUrl: SQS_URL
+  };
+  SQS.sendMessage(params, function(err, data) {
+    if (err) {
+      console.log(err, err.stack); // an error occurred
+      callback(err);
+    } else {
+      console.log(data);           // successful response
+      callback(null, data);
+    }
+  }); //SQS.sendMessage
+
+}
+
+var receiveSQSMessage = function (callback) {
+  console.log('============== test_helper.receiveSQSMessage ==============');
+  var params = {
+    AttributeNames: [
+      "SentTimestamp"
+    ],
+    MaxNumberOfMessages: 1,
+    MessageAttributeNames: [
+      "All"
+    ],
+    QueueUrl: SQS_URL,
+    VisibilityTimeout: 0,
+    WaitTimeSeconds: 0
+  };
+  SQS.receiveMessage(params, function(err, data) {
+    if (err) {
+      console.log(err, err.stack); // an error occurred
+      callback(err);
+    } else {
+      // console.log(data);           // successful response
+      callback(null, data);
+    }
+  }); //SQS.receiveMessage
+
+}
+
+
+var invokeLambda = function (lambda_function, payload, callback) {
+  console.log('============== test_helper.invokeLambda ==============');
+  var params = {
+    FunctionName: `${SERVICE}-${STAGE}-${lambda_function}`, /* required */
+    InvocationType: "RequestResponse",
+    Payload: payload
+  };
+  lambda.invoke(params, function (err, data) {
+    if (err) {
+      console.error(err, err.stack); // an error occurred
+      callback(err);
+    }
+    else {
+      console.log(data);           // successful response
+      callback(null, data);
+    }
+  }); // lambda.invoke
+
+}
+
+var listS3Objects = function (cloud_id, app_id, domain_id, callback) {
+  console.log('============== test_helper.listS3Objects ==============');
+  var params = {
+    Bucket: S3_BUCKET_NAME,
+    Prefix: `${cloud_id}/${app_id}/${domain_id}`
+  };
+  S3.listObjectsV2(params, (err, data) => {
+    if (err) {
+      console.error(err);
+      callback(err);
+    } else {
+      console.log("Listed with success!");
+      console.log(data);
+      callback(null, data);
+    }
+  }); // listObjectsV2
+
+}
 
 module.exports = {
   getDomain,
   getObject,
+  queryObject,
   createDomainItem,
   createObjectItem1,
   updateDomainJsonUsage,
@@ -605,5 +754,10 @@ module.exports = {
   createAccessToken,
   deleteAccessToken,
   createObjectItem,
-  deleteObjectItem
+  deleteObjectItem,
+  purgeSQS,
+  sendSQSMessage,
+  receiveSQSMessage,
+  invokeLambda,
+  listS3Objects
 };

@@ -97,6 +97,15 @@ testDescription.delete.object.file = 'Successfully deleted file object item.';
 
 testDescription.s3Handler = 'Successfully updated domain file_usage and object usage.';
 
+testDescription.housekeeping = {};
+testDescription.housekeeping.emptySQS = 'No message in SQS.';
+testDescription.housekeeping.noObjectsAndS3Files = 'No Object and S3 files.';
+testDescription.housekeeping.successDeleteObjectsAndS3Files = 'Successfully deleted object items in DB and S3 object files under domain.';
+testDescription.housekeeping.return = {};
+testDescription.housekeeping.return.emptySQS = 'SQS is empty'
+testDescription.housekeeping.return.OKwithDeleteSQSMessage = 'Deleted SQS message.'
+testDescription.housekeeping.return.OKWithDelteObjectsAndS3Files = 'Successfully deleted Object items in DB and Object files in S3 and deleted SQS message.'
+
 testDescription.accessTokenValidator = {};
 testDescription.accessTokenValidator.invalidAccessToken = 'if client requests with invalid access token.';
 testDescription.accessTokenValidator.expiredAccessToken = 'if client requests with expired access token.';

@@ -61,7 +61,8 @@ module.exports.handler = ( event, context, callback ) => {
     })
     .catch((err) => {
       if (err == ApiErrors.notFound.sqs ) {
-        callback(null, JSON.stringify(ApiErrors.notFound.sqs));
+        // callback(null, JSON.stringify(ApiErrors.notFound.sqs));
+        callback(null, ApiErrors.notFound.sqs);
       } else {
         console.error(`final error: ${JSON.stringify(err)}`);
         callback(JSON.stringify(err));
