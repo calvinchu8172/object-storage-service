@@ -8,3 +8,5 @@ security_group_id: sg-21487e44
 subnet_id_1: subnet-29756b01
 subnet_id_2: subnet-7804da0f
 subnet_id_3: subnet-a9926af0
+sqs_url: https://sqs.us-east-1.amazonaws.com/909603057100/object-storage-service-prod-jobs
+sqs_visibility_timeout: 60
