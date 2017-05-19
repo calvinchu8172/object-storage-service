@@ -101,16 +101,16 @@ module.exports.handler = (event, context, callback) => {
       return updateObjectItem(oldItem, newItem, customs.app_id);
     })
     .then((diffItem) => {
-      console.log(`diffItem: ${JSON.stringify(diffItem, null, 2)}`);
-      if (receivedParams.new_key && diffItem.oldItem.content_type !== 'application/json' && !isJsonTypeObject) {
-        return renameObject(diffItem);
+      if (diffItem.oldItem.content_type !== 'application/json' && isJsonTypeObject) {
+        return deleteObjectFile(diffItem);
       } else {
         return Promise.resolve(diffItem);
       }
     })
     .then((diffItem) => {
-      if (diffItem.oldItem.content_type !== 'application/json' && isJsonTypeObject) {
-        return deleteObjectFile(diffItem);
+      console.log(`diffItem: ${JSON.stringify(diffItem, null, 2)}`);
+      if (receivedParams.new_key && diffItem.oldItem.content_type !== 'application/json' && !isJsonTypeObject) {
+        return renameObject(diffItem);
       } else {
         return Promise.resolve(diffItem);
       }
