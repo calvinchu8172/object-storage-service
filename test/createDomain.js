@@ -77,8 +77,6 @@ describe('OSS_003: Create Domain API', () => {
       }
     }; // options
 
-    // writer = yaCsv.createCsvStreamWriter(fs.createWriteStream('./mochawesome-reports/test-plan.csv'));
-    // writer.writeRecord(['OSS_003', 'Create Domain API']);
     done();
   }); // beforeEach
 

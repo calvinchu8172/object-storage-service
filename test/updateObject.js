@@ -625,7 +625,7 @@ describe('OSS_011: Update Object API', () => {
   describe(`OSS_011_16: ${testDescription.alreadyExists.key}`, function () {
 
     before('Write in csv', function (done) {
-      csvWriter.write(`OSS_011_16: ${testDescription.alreadyExists.key}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key_duplicated.message)}`);
+      csvWriter.write(`OSS_011_16: ${testDescription.alreadyExists.key}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key_duplicated)}`);
       done();
     }); // before
 
