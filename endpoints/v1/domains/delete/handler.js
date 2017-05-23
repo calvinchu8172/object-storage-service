@@ -80,7 +80,7 @@ module.exports.handler = (event, context, callback) => {
       return CommonSteps.deleteDomainItem(customs.cloud_id, customs.app_id, domain_id);
     })
     .then(() => {
-      return CommonSteps.sendSQSMessage(domain_id);
+      return CommonSteps.sendSQSMessage(customs.cloud_id, customs.app_id, domain_id, request_id);
     })
     .then(() => {
       return CommonSteps.writeAccessLog(event, receivedParams, domain_id, customs);

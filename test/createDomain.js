@@ -19,7 +19,6 @@ const STAGE                = process.env.SERVERLESS_STAGE;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const X_API_KEY            = process.env.X_API_KEY;
 const CONTENT_TYPE         = process.env.CONTENT_TYPE;
-const CSV_FILE             = process.env.CSV_FILE;
 const TEST_CLOUD_ID        = process.env.TEST_CLOUD_ID;
 const TEST_APP_ID          = process.env.TEST_APP_ID;
 const TEST_ACCESS_TOKEN    = process.env.TEST_ACCESS_TOKEN;
@@ -58,7 +57,7 @@ describe('OSS_003: Create Domain API', () => {
   let domain_id2 = 'test_domain_id2'
 
   before('Create a csv file and write first row.', function (done) {
-    csvWriter.title_first_write('OSS_003: Create Domain API');
+    csvWriter.all_first_write('OSS_003: Create Domain API');
     done();
   }); // before
 
@@ -78,8 +77,6 @@ describe('OSS_003: Create Domain API', () => {
       }
     }; // options
 
-    // writer = yaCsv.createCsvStreamWriter(fs.createWriteStream('./mochawesome-reports/test-plan.csv'));
-    // writer.writeRecord(['OSS_003', 'Create Domain API']);
     done();
   }); // beforeEach
 

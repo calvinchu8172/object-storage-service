@@ -19,7 +19,6 @@ const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const PROJECT_NAME         = process.env.SERVERLESS_PROJECT;
 const X_API_KEY            = process.env.X_API_KEY;
 const CONTENT_TYPE         = process.env.CONTENT_TYPE;
-const CSV_FILE             = process.env.CSV_FILE;
 const TEST_CLOUD_ID        = process.env.TEST_CLOUD_ID;
 const TEST_APP_ID          = process.env.TEST_APP_ID;
 const TEST_ACCESS_TOKEN    = process.env.TEST_ACCESS_TOKEN;

@@ -576,3 +576,12 @@ functions:
         - ${self:provider.environment.SUBNET_ID_1}
         - ${self:provider.environment.SUBNET_ID_2}
         - ${self:provider.environment.SUBNET_ID_3}
+
+  housekeeping:
+    handler: functions/housekeeping/handler.handler
+    timeout: 60
+    memorySize: 128
+    events:
+      - schedule:
+          rate: rate(1 minute)
+          enabled: true

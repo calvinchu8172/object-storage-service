@@ -16,7 +16,6 @@ const SERVICE              = process.env.SERVERLESS_PROJECT;
 const REGION               = process.env.SERVERLESS_REGION;
 const STAGE                = process.env.SERVERLESS_STAGE;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
-const CSV_FILE             = process.env.CSV_FILE;
 
 
 // ================ Lib/Modules =================

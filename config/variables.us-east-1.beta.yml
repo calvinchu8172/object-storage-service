@@ -8,3 +8,5 @@ security_group_id: sg-fb60569e
 subnet_id_1: subnet-a7756b8f
 subnet_id_2: subnet-0b4d957c
 subnet_id_3: subnet-49e21810
+sqs_url: https://sqs.us-east-1.amazonaws.com/909603057100/object-storage-service-beta-jobs
+sqs_visibility_timeout: 60

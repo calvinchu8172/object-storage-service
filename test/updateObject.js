@@ -16,9 +16,9 @@ const serverlessYamlObject = YAML.load('serverless.yml');
 
 
 // ================ ENVs ========================
-const SERVICE = process.env.SERVERLESS_PROJECT;
-const REGION = process.env.SERVERLESS_REGION;
-const STAGE = process.env.SERVERLESS_STAGE;
+const SERVICE              = process.env.SERVERLESS_PROJECT;
+const REGION               = process.env.SERVERLESS_REGION;
+const STAGE                = process.env.SERVERLESS_STAGE;
 const API_GATEWAY_INVOKE_URL = process.env.API_GATEWAY_INVOKE_URL;
 const X_API_KEY = process.env.X_API_KEY;
 const CONTENT_TYPE = process.env.CONTENT_TYPE;
@@ -56,7 +56,7 @@ describe('OSS_011: Update Object API', () => {
   };
 
   before('Create a csv file and write first row.', function (done) {
-    csvWriter.title_first_write('OSS_011: Update Object API');
+    csvWriter.title_write('OSS_011: Update Object API');
     done();
   }); // before
 
@@ -626,7 +626,7 @@ describe('OSS_011: Update Object API', () => {
   describe(`OSS_011_16: ${testDescription.alreadyExists.key}`, function () {
 
     before('Write in csv', function (done) {
-      csvWriter.write(`OSS_011_16: ${testDescription.alreadyExists.key}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key_duplicated.message)}`);
+      csvWriter.write(`OSS_011_16: ${testDescription.alreadyExists.key}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.validationFailed.key_duplicated)}`);
       done();
     }); // before
 

@@ -5,7 +5,7 @@ const yaCsv                = require('ya-csv');
 const fs                   = require('fs');
 let writer;
 
-var title_first_write = function (str) {
+var all_first_write = function (str) {
   try {
     var str1 = str.substr(0,str.indexOf(':'));
     var str2 = str.substr(str.indexOf(' ') + 1);
@@ -41,7 +41,7 @@ var write = function (str) {
 } // write
 
 module.exports = {
-  title_first_write,
+  all_first_write,
   title_write,
   write
 };
