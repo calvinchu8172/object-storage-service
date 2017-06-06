@@ -1049,7 +1049,7 @@ describe('OSS_011: Update Object API', () => {
       sleep.sleep(2);
       done();
     }); // before
-    
+
     // before('Update Domain Usage', function (done) {
     //   console.log(`customs.old_item_usage: ${customs.old_item_usage}`);
     //   testHelper.updateDomainFileUsage(customs.cloud_id, customs.app_id, customs.domain_id, customs.old_item_usage, (err, result) => {
@@ -1099,7 +1099,7 @@ describe('OSS_011: Update Object API', () => {
         })
         .then((objItem) => {
           console.log(`objItem: ${JSON.stringify(objItem, null, 2)}`);
-          let properties = ['usage', 'content', 'content_type', 'domain_path', 'path', 'created_at', 'updated_at'];
+          let properties = ['usage', 'content', 'content_type', 'domain_path', 'path', 'updated_at'];
           let expected_values = {
             usage: customs.new_item_usage,
             content: options.form['content'],

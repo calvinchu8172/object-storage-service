@@ -541,17 +541,17 @@ functions:
                     template:
                       application/json: ${self:custom.httpResponseTemplate}
 
-  validateAccessToken:
-    handler: functions/validators/access_token/handler.handler
-    timeout: 6
-    memorySize: 128
-    vpc:
-      securityGroupIds:
-        - ${self:provider.environment.SECURITY_GROUP_ID}
-      subnetIds:
-        - ${self:provider.environment.SUBNET_ID_1}
-        - ${self:provider.environment.SUBNET_ID_2}
-        - ${self:provider.environment.SUBNET_ID_3}
+  # validateAccessToken:
+  #   handler: functions/validators/access_token/handler.handler
+  #   timeout: 6
+  #   memorySize: 128
+  #   vpc:
+  #     securityGroupIds:
+  #       - ${self:provider.environment.SECURITY_GROUP_ID}
+  #     subnetIds:
+  #       - ${self:provider.environment.SUBNET_ID_1}
+  #       - ${self:provider.environment.SUBNET_ID_2}
+  #       - ${self:provider.environment.SUBNET_ID_3}
 
   s3Handler:
     handler: functions/s3_handler/handler.handler
