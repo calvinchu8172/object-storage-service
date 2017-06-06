@@ -2,7 +2,7 @@ account_id: 212868998188
 api_gateway_invoke_url: https://oss-alpha.zyxel.ecoworkinc.com
 app_id_1: 886386c171b7b53b5b9a8fed7f720daa96297225fdecd2e81b889a6be7abbf9d
 app_id_2: 5fcdbbc1840e14832a5158a7ffa292b5c0028e135df5a6d5955c13325e464148
-domains_limit: 500
+domains_limit: 10
 pcloud_sso_user_info_url: https://mycloud-sso-alpha.zyxel.ecoworkinc.com/api/v1/my/info
 security_group_id: sg-16cf5d72
 subnet_id_1: subnet-5bd47870

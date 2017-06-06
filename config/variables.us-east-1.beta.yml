@@ -2,7 +2,7 @@ account_id: 909603057100
 api_gateway_invoke_url: https://oss-beta.zyxel.ecoworkinc.com
 app_id_1: a04d8a971cf5e326030f03025479992ab83a3830520537536daa1b9c7111b459
 app_id_2: d0e58d22a5f505552f5aa305b63a47944500b2c78cdf06bbf3cc17effd90b329
-domains_limit: 500
+domains_limit: 10
 pcloud_sso_user_info_url: https://mycloud-sso-beta.zyxel.com/api/v1/my/info
 security_group_id: sg-fb60569e
 subnet_id_1: subnet-a7756b8f
