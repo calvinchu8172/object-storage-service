@@ -1021,7 +1021,8 @@ describe('OSS_011: Update Object API', () => {
         usage: customs.old_item_usage,
         domain_path: `${customs.cloud_id}/${customs.app_id}/${customs.domain_id}`,
         path: `${customs.cloud_id}/${customs.app_id}/${customs.domain_id}/${customs.file_key}`,
-        content_type: customs.content_type
+        content_type: customs.content_type,
+        created_at: 1496810509
       }
       testHelper.createObjectItem(object_item, customs.app_id, (err, data) => {
         if (err) return done(err);
