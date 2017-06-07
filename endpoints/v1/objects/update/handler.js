@@ -95,7 +95,7 @@ module.exports.handler = (event, context, callback) => {
         content: receivedParams.content,
         domain_path: oldItem.domain_path,
         path: `${oldItem.domain_path}/${key}`,
-        // created_at: timestamp,
+        created_at: oldItem.created_at,
         updated_at: timestamp
       };
       return updateObjectItem(oldItem, newItem, customs.app_id);
