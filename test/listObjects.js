@@ -512,12 +512,12 @@ describe('OSS_009: List Objects API', () => {
   }); // describe
 
   /*****************************************************************
-  * 11. 找不到 Object。
+  * 11. Object 資料為空。
   *****************************************************************/
-  describe(`OSS_009_11: ${testDescription.notFound.object}`, () => {
+  describe(`OSS_009_11: ${testDescription.list.empty_object}`, () => {
 
     before('Write in csv', function (done) {
-      csvWriter.write(`OSS_009_11: ${testDescription.notFound.object}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.object)}`);
+      csvWriter.write(`OSS_009_11: ${testDescription.list.empty_object}\n${testDescription.server_return} ${JSON.stringify(testDescription.list.empty_object_ok)}`);
       done();
     }); // before
 
@@ -539,7 +539,7 @@ describe('OSS_009: List Objects API', () => {
       }); // deleteDomain
     }); // after
 
-    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.object)}`, function(done) {
+    it(`${testDescription.server_return} ${JSON.stringify(testDescription.list.empty_object_ok)}`, function(done) {
       this.timeout(12000);
 
       const regexp = /{.*}/;
@@ -552,11 +552,17 @@ describe('OSS_009: List Objects API', () => {
           request(options, (err, response, body) => {
             if (err) reject(err); // an error occurred
             else {
-              expect(response.statusCode).to.equal(404);
+              // expect(response.statusCode).to.equal(404);
+              // let parsedBody = JSON.parse(body);
+              // expect(parsedBody).to.have.all.keys(['code', 'message']);
+              // expect(parsedBody.code).to.equal(ApiErrors.notFound.object.code);
+              // expect(parsedBody.message).to.equal(ApiErrors.notFound.object.message);
+              // resolve();
+              expect(response.statusCode).to.equal(200);
               let parsedBody = JSON.parse(body);
-              expect(parsedBody).to.have.all.keys(['code', 'message']);
-              expect(parsedBody.code).to.equal(ApiErrors.notFound.object.code);
-              expect(parsedBody.message).to.equal(ApiErrors.notFound.object.message);
+              console.log(parsedBody);
+              expect(parsedBody).to.have.all.keys(['data']);
+              expect(isEmpty(parsedBody.data)).to.equal(true);
               resolve();
             }
           }); // request

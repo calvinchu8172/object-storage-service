@@ -77,6 +77,10 @@ testDescription.got.object.file = 'Successfully got object file item.';
 
 testDescription.list = {};
 testDescription.list.domain = 'Successfully list domain item.';
+testDescription.list.empty_domain = 'Successfully list empty domain item.';
+testDescription.list.empty_object = 'Successfully list empty object item.';
+testDescription.list.empty_domain_ok = { httpStatus: 200, data: [] };
+testDescription.list.empty_object_ok = { httpStatus: 200, data: [] };
 
 testDescription.updated = {};
 testDescription.updated.domain = 'Successfully updated domain item.';
