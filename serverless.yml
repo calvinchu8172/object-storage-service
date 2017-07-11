@@ -1,6 +1,6 @@
 service: object-storage-service
 
-frameworkVersion: "=1.11.0"
+frameworkVersion: "=1.9.0"
 
 plugins:
   - serverless-offline
