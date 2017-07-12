@@ -68,6 +68,8 @@ testDescription.created.domain = 'Successfully created domain item.';
 testDescription.created.object = {};
 testDescription.created.object.json = 'Successfully created json object item.';
 testDescription.created.object.file = 'Successfully created file object item.';
+testDescription.created.object.jsonContainsChineseWords = 'Successfully created json object item with content contains chinese words.';
+
 
 testDescription.got = {};
 testDescription.got.domain = 'Successfully got domain item.';

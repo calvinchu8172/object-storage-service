@@ -733,4 +733,47 @@ describe('OSS_004: Create Object API', () => {
   }); // If client requests creating object successfully
 
 
+
+
+  // OSS_004_18
+  describe(`OSS_004_18: ${testDescription.created.object.jsonContainsChineseWords}`, function () {
+
+    before('Write in csv', function (done) {
+      csvWriter.write(`OSS_004_18: ${testDescription.created.object.jsonContainsChineseWords}\n${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`);
+      done();
+    }); // before
+
+    after('Delete Duplicated Object Item', function (done) {
+      console.log(`Delete Duplicated Object Item...`);
+      testHelper.deleteObjectItem(customs.domain_id, customs.object_id, customs.app_id, (err, data) => {
+        if (err) done(err);
+        else done();
+      }); // deleteObjectItem
+    }); // after
+
+    // describe('and the content_type of object is application/json', function () {
+      it(`${testDescription.server_return} ${JSON.stringify(testDescription.OK)}`, function (done) {
+        options.form['content_type'] = 'application/json';
+        options.form['content'] = '{"key":"一二三"}';
+        options.headers['X-Signature'] = signatureGenerator.generate(options.form, options.headers, PRIVATE_KEY_NAME);
+        request(options, (err, response, body) => {
+          if (err) done(err); // an error occurred
+          else {
+            console.log(response.body);
+            expect(response.statusCode).to.equal(200);
+            testHelper.getObject(customs.cloud_id, customs.app_id, customs.domain_id, options.form.key, (err, item) => {
+              if (err) return done(err);
+              console.log(`item: ${JSON.stringify(item, null, 2)}`);
+              customs.object_id = item.id;
+              done();
+            });
+          }
+        }); // request
+      }); // it
+    // }); // and the content_type of object is application/json
+  }); // If client requests creating object successfully
+
+
+
+
 });
