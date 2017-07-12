@@ -23,4 +23,3 @@ mocha:
       - mochawesome-reports/
   only:
     - develop
-    - feature/20170712-1-merge-ryan
