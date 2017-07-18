@@ -10,6 +10,7 @@ const mochaPlugin          = require('serverless-mocha-plugin');
 const moment               = require( 'moment' );
 const expect               = mochaPlugin.chai.expect;
 const uuidV4               = require('uuid/v4');
+const isEmpty              = require('is-empty');
 
 // ================ ENVs ========================
 const REGION               = process.env.SERVERLESS_REGION;
@@ -327,7 +328,7 @@ describe('OSS_008: List Domains API', () => {
         if (err) done(err);
         else done();
       }); // registerDevice
-    }); // before
+    }); // after
 
     it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.unauthorized.access_token_expired)}`, (done) => {
 
@@ -351,16 +352,16 @@ describe('OSS_008: List Domains API', () => {
   }); // describe
 
   /*****************************************************************
-  * 9. 找不到 Domain。
+  * 9. Domain 資料為空。
   *****************************************************************/
-  describe(`OSS_008_09: ${testDescription.notFound.domain}`, () => {
+  describe(`OSS_008_09: ${testDescription.list.empty_domain}`, () => {
 
     before('Write in csv', function (done) {
-      csvWriter.write(`OSS_008_09: ${testDescription.notFound.domain}\n${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.domain)}`);
+      csvWriter.write(`OSS_008_09: ${testDescription.list.empty_domain}\n${testDescription.server_return} ${JSON.stringify(testDescription.list.empty_domain_ok)}`);
       done();
     }); // before
 
-    it(`${testDescription.server_return} ${JSON.stringify(ApiErrors.notFound.domain)}`, function(done) {
+    it(`${testDescription.server_return} ${JSON.stringify(testDescription.list.empty_domain_ok)}`, function(done) {
       this.timeout(12000);
 
       options.headers['X-Signature'] = signatureGenerator.generate(options.qs, options.headers, PRIVATE_KEY_NAME);
@@ -370,11 +371,17 @@ describe('OSS_008: List Domains API', () => {
           request(options, (err, response, body) => {
             if (err) reject(err); // an error occurred
             else {
-              expect(response.statusCode).to.equal(404);
+              // expect(response.statusCode).to.equal(404);
+              // let parsedBody = JSON.parse(body);
+              // expect(parsedBody).to.have.all.keys(['code', 'message']);
+              // expect(parsedBody.code).to.equal(ApiErrors.notFound.domain.code);
+              // expect(parsedBody.message).to.equal(ApiErrors.notFound.domain.message);
+              // resolve();
+              expect(response.statusCode).to.equal(200);
               let parsedBody = JSON.parse(body);
-              expect(parsedBody).to.have.all.keys(['code', 'message']);
-              expect(parsedBody.code).to.equal(ApiErrors.notFound.domain.code);
-              expect(parsedBody.message).to.equal(ApiErrors.notFound.domain.message);
+              console.log(parsedBody);
+              expect(parsedBody).to.have.all.keys(['data']);
+              expect(isEmpty(parsedBody.data)).to.equal(true);
               resolve();
             }
           }); // request

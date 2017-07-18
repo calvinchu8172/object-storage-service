@@ -123,7 +123,8 @@ var queryDomainItem = function (event, user_info, domain_id, params) {
         reject(ApiErrors.unexceptedError);
       }
       else if (isEmpty(data.Items)) {
-        reject(ApiErrors.notFound.domain);
+        // reject(ApiErrors.notFound.domain);
+        resolve(data.Items);
       }
       else {
         data.Items.map(e => {

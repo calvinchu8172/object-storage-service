@@ -68,6 +68,8 @@ testDescription.created.domain = 'Successfully created domain item.';
 testDescription.created.object = {};
 testDescription.created.object.json = 'Successfully created json object item.';
 testDescription.created.object.file = 'Successfully created file object item.';
+testDescription.created.object.jsonContainsChineseWords = 'Successfully created json object item with content contains chinese words.';
+
 
 testDescription.got = {};
 testDescription.got.domain = 'Successfully got domain item.';
@@ -77,6 +79,10 @@ testDescription.got.object.file = 'Successfully got object file item.';
 
 testDescription.list = {};
 testDescription.list.domain = 'Successfully list domain item.';
+testDescription.list.empty_domain = 'Successfully list empty domain item.';
+testDescription.list.empty_object = 'Successfully list empty object item.';
+testDescription.list.empty_domain_ok = { httpStatus: 200, data: [] };
+testDescription.list.empty_object_ok = { httpStatus: 200, data: [] };
 
 testDescription.updated = {};
 testDescription.updated.domain = 'Successfully updated domain item.';
